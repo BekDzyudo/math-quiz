@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+
+
+/* rubik-300 - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Rubik";
+  font-style: normal;
+  font-weight: 300;
+  src: url("./fonts/rubik-v28-latin-300.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* rubik-regular - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Rubik";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/rubik-v28-latin-regular.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* rubik-italic - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Rubik";
+  font-style: italic;
+  font-weight: 400;
+  src: url("./fonts/rubik-v28-latin-italic.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* rubik-500 - latin */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: "Rubik";
+  font-style: normal;
+  font-weight: 500;
+  src: url("./fonts/rubik-v28-latin-500.woff2") format("woff2"); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+* {
+  user-select: none;
+}
+:root {
+  --purple-color: #a729f5;
+  --dark-navy-color: #313e51;
+  --navy-color: #3b4d66;
+  --gray-navy-color: #626c7f;
+  --light-bluish-color: #abc1e1;
+  --light-grey-color: #f4f6fa;
+  --prue-white-color: #ffffff;
+  --green-color: #26d782;
+  --red-color: #ee5454;
+  --main-font-family: "Rubik", Arial, Helvetica, sans-serif;
+
+  --body-bg-image: url("../assets/pattern-background-desktop-light.svg");
+  --body-bg-image-tablet: url("../assets/pattern-background-tablet-light.svg");
+  --body-bg-image-mobile: url("../assets/pattern-background-mobile-light.svg");
+
+  --sun-icon: url("../assets/icon-moon-dark.svg");
+  --moon-icon: url("../assets/icon-sun-dark.svg");
+}
+h1,h2,h3,h4,h5,h6{
+  margin: 0;
+  padding: 0;
+}
+body{
+  min-height: 100vh;
+  /* font-family: var(--main-font-family); */
+  font-weight: 500;
+  background-image: var(--body-bg-image);
+  background-color: var(--light-grey-color);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: var(--dark-navy-color);
+}
+.dracula {
+  --light-grey-color: #313e51;
+  --dark-naviy-color: #ffffff;
+  --gray-navy-color: #abc1e1;
+  --dark-navy-color: #ffffff;
+  --prue-white-color: #3b4d66;
+
+  --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
+  --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
+  --body-bg-image-tablet: url("../assets/pattern-background-tablet-dark.svg");
+  --body-bg-image-mobile: url("../assets/pattern-background-mobile-dark.svg");
+  background-attachment: fixed;
+  background-position: center;
+  --sun-icon: url("../assets/icon-moon-light.svg");
+  --moon-icon: url("../assets/icon-sun-light.svg");
+}
+.container {
+  width: 100%;
+  max-width: 1260px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+.navbar{
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+.btnCreate {
+  color: rgba(122, 21, 185, 0.5);
+  border: 2px solid rgba(148, 32, 219, 0.5);
+  height: 48px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnCreate:hover {
+  transition: all .5s;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  background-color: rgba(148, 32, 219, 0.5);
+  border: none;
+}
+
+/* quiz part */
+
+.test-proccess-container {
+  width: 100%;
+  padding: 3px 4px;
+  background-color: #3b4d66;
+  border-radius: 999px;
+}
+
+.test-proccess {
+  height: 8px;
+  background-color: #00A4F2;
+  border-radius: inherit;
+  width: 45%;
+}
+.test-label{
+  width: 100% !important;
+  border: 3px solid transparent;
+}
+.test-label input {
+  appearance: none;
+}
+
+.test-label input:focus {
+  outline: none;
+}
+.test-label:has(> input:checked) {
+  border: 3px solid #00A4F2
+}
+.test-label:has(> input:checked) .test-letter{
+  background: #00A4F2;
+  color: white;
+}
+
+@plugin "daisyui" {
+  themes: cupcake --default, dracula;
+}
