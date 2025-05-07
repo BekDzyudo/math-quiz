@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { GlobalContext } from "../context/GlobalContext";
@@ -7,18 +7,23 @@ import { useGetFetch } from "../hooks/useGetFetch";
 function Quiz() {
   const { isTheme } = useContext(GlobalContext);
   const [answers, setAnswers] = useState({});
+  const [selectOption, setSelectOption] = useState(
+    JSON.parse(localStorage.getItem("selectOption")) || []
+  );
 
-  const handleAnswerChange = (question, selectedOption) => {
+  const handleAnswerChange = (question_number, selectedOption) => {
     setAnswers((prev) => ({
       ...prev,
-      [question]: selectedOption,
+      [question_number]: selectedOption,
     }));
+    setSelectOption(Object.keys(answers));
+    localStorage.setItem("selectOption", JSON.stringify(Object.keys(answers)));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("User answers:", answers);
-    // bu yerda javoblarni serverga jo‘natsangiz ham bo‘ladi
+    localStorage.removeItem("selectOption");
   };
 
   const {
@@ -27,30 +32,40 @@ function Quiz() {
     error,
   } = useGetFetch("http://localhost:3000/quizzes");
 
-  // time
-  const [hours, setHours] = useState(2);
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
+  // time ==================================================================
+  const defaultTime = 2 * 60 * 60 * 1000; // 2 soat msda
+  const [remainingTime, setRemainingTime] = useState(() => {
+    const saved = localStorage.getItem("remainingTime");
+    return saved ? parseInt(saved) : defaultTime;
+  });
 
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setRemainingTime((prev) => {
+        const newTime = prev - 1000;
+        if (newTime <= 0) {
+          clearInterval(timerRef.current);
+          localStorage.removeItem("remainingTime");
+          return 0;
+        }
+        localStorage.setItem("remainingTime", newTime);
+        return newTime;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
   const counter = `${hours} hours ${minutes} minutes ${seconds} seconds`;
-
-  //   useEffect(() => {
-  //     const interval = setInterval(() => {
-  //       setSeconds((prev) => {
-  //         if (prev > 0) return prev - 1;
-  //         setMinutes((m) => {
-  //           if (m > 0) return m - 1;
-  //           setHours((h) => (h > 0 ? h - 1 : 0));
-  //           return 59;
-  //         });
-  //         return 59;
-  //       });
-  //     }, 1000);
-  //     return () => clearInterval(interval);
-  //   }, []);
+  // ===========================================================================
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-12">
       <Navbar />
       <div className="container flex gap-10 items-start justify-between">
         <form className="w-[70%]" onSubmit={handleSubmit}>
@@ -58,9 +73,9 @@ function Quiz() {
             {isPending && <p>loading...</p>}
             {error && <p>{error}</p>}
             {quizzes &&
-              quizzes[2]?.questions.map((item, index) => {
+              quizzes[2]?.questions.map((item, index1) => {
                 return (
-                  <div key={index} className="step step-info text-lg mb-10">
+                  <div key={index1} className="step step-info text-lg mb-10">
                     <div className="flex items-start gap-4 w-full">
                       {/* Step aylanasi */}
                       <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
@@ -87,7 +102,7 @@ function Quiz() {
                                   name={item.question}
                                   onChange={() =>
                                     handleAnswerChange(
-                                      item.question,
+                                      index1 + 1,
                                       String.fromCharCode(index + 65)
                                     )
                                   }
@@ -105,7 +120,14 @@ function Quiz() {
                 );
               })}
           </div>
-          <button type="submit" className="btn btn-info btn-xl">submit</button>
+          <div className="w-full flex flex-col items-center">
+            <button
+              type="submit"
+              className="w-1/2 btn btn-info btn-xl text-white"
+            >
+              Testni yakunlash
+            </button>
+          </div>
         </form>
         <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
           <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
@@ -114,7 +136,7 @@ function Quiz() {
               Alimardonov Valijon
             </h1>
           </div>
-          {/* For TSX uncomment the commented types below */}
+          {/* time */}
           <div className="flex justify-center m-5">
             <span className="countdown font-mono text-3xl">
               <span
@@ -142,22 +164,32 @@ function Quiz() {
               </span>
             </span>
           </div>
+          {/* process */}
           <div className="my-3 mb-10">
             <h1>Process</h1>
             <div className="test-proccess-container">
-              <div
-                className="test-proccess"
-                style={{
-                  width: 0.3 * 100 + "%",
-                }}
-              ></div>
+              {quizzes && (
+                <div
+                  className="test-proccess"
+                  style={{
+                    width:
+                      (selectOption.length / quizzes[2]?.questions?.length) *
+                        100 +
+                      "%",
+                  }}
+                ></div>
+              )}
             </div>
           </div>
+          {/* btns */}
           <div className="flex gap-[5px] flex-wrap">
             {quizzes &&
               quizzes[2]?.questions.map((item, index) => {
                 return (
-                  <button className="btn btn-outline text-[16px] mb-2">
+                  <button
+                    key={index}
+                    className="btn btn-outline text-[16px] mb-2"
+                  >
                     {index + 1}
                   </button>
                 );

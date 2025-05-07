@@ -45,7 +45,7 @@ function Navbar() {
           </svg>
           <input
             onClick={toggleTheme}
-            checked={theme == "cupcake" ? false : true}
+            defaultChecked={theme == "cupcake" ? false : true}
             type="checkbox"
             value="synthwave"
             className="toggle theme-controller"
