@@ -138,7 +138,7 @@ body{
 }
 .test-label{
   width: 100% !important;
-  border: 3px solid transparent;
+  /* border: 3px solid transparent; */
 }
 .test-label input {
   appearance: none;
@@ -147,9 +147,9 @@ body{
 .test-label input:focus {
   outline: none;
 }
-.test-label:has(> input:checked) {
+/* .test-label:has(> input:checked) {
   border: 3px solid #00A4F2
-}
+} */
 .test-label:has(> input:checked) .test-letter{
   background: #00A4F2;
   color: white;
