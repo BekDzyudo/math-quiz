@@ -102,24 +102,6 @@ body{
   top: 0;
   z-index: 999;
 }
-.btnCreate {
-  color: rgba(122, 21, 185, 0.5);
-  border: 2px solid rgba(148, 32, 219, 0.5);
-  height: 48px;
-  border-radius: 6px;
-  font-size: 18px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btnCreate:hover {
-  transition: all .5s;
-  color: white;
-  font-size: 18px;
-  font-weight: 500;
-  background-color: rgba(148, 32, 219, 0.5);
-  border: none;
-}
 
 /* quiz part */
 

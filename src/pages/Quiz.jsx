@@ -5,13 +5,12 @@ import { GlobalContext } from "../context/GlobalContext";
 import { useGetFetch } from "../hooks/useGetFetch";
 
 function Quiz() {
+  const userData = JSON.parse(localStorage.getItem("user-data"))  
   const { isTheme } = useContext(GlobalContext);
-  const [answers, setAnswers] = useState(JSON.parse(localStorage.getItem("answers")) || {});
-  const [selectOption, setSelectOption] = useState(
-    JSON.parse(localStorage.getItem("selectOption")) || []
-  );
+  const [answers, setAnswers] = useState(JSON.parse(localStorage.getItem("answers")) || []);
+  const [selectOption, setSelectOption] = useState(localStorage.getItem("selectOption") || []);
   const questionRefs = useRef([]);
-  
+
 // click and scroll
   const handleScrollToQuestion = (index) => {
     questionRefs.current[index]?.scrollIntoView({
@@ -21,7 +20,7 @@ function Quiz() {
   };
 
   // change input
-  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [selectedAnswers, setSelectedAnswers] = useState({});  
   useEffect(() => {
     const savedAnswers = localStorage.getItem("saved_answers");
     if (savedAnswers) {
@@ -29,26 +28,59 @@ function Quiz() {
     }
   }, []);
 
-  const handleAnswerChange = (question_number, selectedOption, index1, index) => {
+  const handleAnswerChange = (question_id, question_number, selectedOption, index1, index) => {
+    
     const update = {...selectedAnswers, [index1]: index}
     setSelectedAnswers(update)
     localStorage.setItem('saved_answers', JSON.stringify(update));
+    
 
     // =====
-    setAnswers((prev) => ({
+    setAnswers((prev) => ([
       ...prev,
-      [question_number]: selectedOption,
-    }));
+      {"savol_id": question_id, "tanlangan_javob" : selectedOption},
+    ]));
     
-    setSelectOption(Object.keys({...answers, [question_number]: selectedOption,}));
-    localStorage.setItem("selectOption", JSON.stringify(Object.keys({...answers, [question_number]: selectedOption,})));
-    localStorage.setItem("answers", JSON.stringify({...answers, [question_number]: selectedOption,}));
+    setSelectOption((prev)=>{
+      let updated;
+      if(!prev.includes(question_number)){
+        updated = [...prev, question_number]
+      }
+      else{
+        updated = prev;
+      }
+      localStorage.setItem("selectOption", JSON.stringify(updated));
+      return updated
+    })
+
+    localStorage.setItem("answers", JSON.stringify([...answers, {"savol_id": question_id, "tanlangan_javob" : selectedOption}]));
   };
 
 // submit
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("User answers:", answers);
+
+    fetch("http://95.130.227.200/api/check-answers/",{
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userData.id,
+        answers: answers,
+      }),
+    })
+    .then((res)=>{
+      // if(res.ok) throw new Error(res.statusText)
+        return res.json()
+    })
+    .then((data)=>{
+      console.log(data);
+    })
+    .catch((err)=>console.log(err)
+    )
+
+
+
     localStorage.removeItem("selectOption");
     localStorage.removeItem("answers");
     localStorage.removeItem("saved_answers");
@@ -59,7 +91,7 @@ function Quiz() {
     data: quizzes,
     isPending,
     error,
-  } = useGetFetch("http://localhost:3000/quizzes");
+  } = useGetFetch("http://95.130.227.200/api/intihon/");
 
   // time ==================================================================
   const defaultTime = 2 * 60 * 60 * 1000;
@@ -99,26 +131,26 @@ function Quiz() {
       <div className="container flex gap-10 items-start justify-between">
         {isPending && <p>loading...</p>}
         {error && <p>{error}</p>}
-        {quizzes && (
+        {Array.isArray(quizzes) && (
           <>
             <form className="w-[70%]" onSubmit={handleSubmit}>
               <div className="quiz steps steps-vertical">
                 {
-                  quizzes[2]?.questions.map((item, index1) => {
+                  quizzes?.map((item, index1) => {
                     return (
                       <div
                         ref={(el) => (questionRefs.current[index1] = el)}
-                        key={index1}
+                        key={item.id}
                         className="step step-info text-lg mb-10"
                       >
                         <div className="flex items-start gap-4 w-full">
                           <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
                           <div className="flex flex-col gap-4 w-full">
-                            <h1 className="text-2xl text-start font-semibold border-b border-gray-400">
-                              {item.question}
+                            <h1 className="text-2xl text-start font-semibold border-b border-gray-400" dangerouslySetInnerHTML={{ __html: item.savol }}>
+                              {/* {item.savol} */}
                             </h1>
                             <div className="space-y-3 ml-6">
-                              {item.options.map((variant, index) => {
+                              { Array.isArray(item?.javoblar) && item?.javoblar?.map((variant, index) => {
                                  const isSelected = selectedAnswers[index1] === index;
                                 return (
                                   <label
@@ -135,9 +167,10 @@ function Quiz() {
                                     </div>
                                     <input
                                       type="radio"
-                                      name={item.question}
+                                      name={item.id}
                                       onChange={() =>
                                         handleAnswerChange(
+                                          item.id,
                                           index1 + 1,
                                           String.fromCharCode(index + 65),
                                           index1,
@@ -145,8 +178,8 @@ function Quiz() {
                                         )
                                       }
                                     />
-                                    <div className="answerText text-xl text-start font-normal">
-                                      {variant}
+                                    <div className="answerText text-xl text-start font-normal" dangerouslySetInnerHTML={{ __html: variant.matn }}>
+                                      {/* {variant.matn} */}
                                     </div>
                                   </label>
                                 );
@@ -171,7 +204,7 @@ function Quiz() {
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
                 <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
                 <h1 className="text-center text-2xl font-semibold">
-                  Alimardonov Valijon
+                  {userData?.familya + " " + userData?.ism}
                 </h1>
               </div>
               {/* time */}
@@ -212,7 +245,7 @@ function Quiz() {
                       style={{
                         width:
                           (selectOption.length /
-                            quizzes[2]?.questions?.length) *
+                            quizzes?.length) *
                             100 +
                           "%",
                       }}
@@ -221,16 +254,15 @@ function Quiz() {
                 </div>
               </div>
               {/* btns */}
-              <div className="flex gap-[5px] flex-wrap">
+              <div className="flex gap-[6px] justify-between flex-wrap">
                 {quizzes &&
-                  quizzes[2]?.questions.map((item, index) => {  
-                    const isChanged = selectOption.includes(`${index + 1}`);   
-                          
+                  quizzes.map((item, index) => {  
+                    const isChanged = selectOption.includes(index + 1);   
                     return (
                       <button
                         onClick={() => handleScrollToQuestion(index)}
                         key={index}
-                        className={`btn ${isChanged ? "btn-info" : "btn-outline"} text-[16px] mb-2`}
+                        className={`btn ${isChanged ? "btn-info" : "btn-outline"} text-[16px] mb-2 ${index + 1 < 10 ? "px-[19px]" : "" }`}
                       >
                         {index + 1}
                       </button>
