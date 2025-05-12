@@ -3,12 +3,16 @@ import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { GlobalContext } from "../context/GlobalContext";
 import { useGetFetch } from "../hooks/useGetFetch";
+import { FaYoutube } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 function Quiz() {
   const userData = JSON.parse(localStorage.getItem("user-data"))  
   const { isTheme } = useContext(GlobalContext);
   const [answers, setAnswers] = useState(JSON.parse(localStorage.getItem("answers")) || []);
-  const [selectOption, setSelectOption] = useState(localStorage.getItem("selectOption") || []);
+  const [selectOption, setSelectOption] = useState(JSON.parse(localStorage.getItem("selectOption")) || []);
+  const [showResult, setShowResult] = useState(localStorage.getItem("showResult") === "true" || false)
+  const [result, setResult] = useState(localStorage.getItem("result") || null);
   const questionRefs = useRef([]);
 
 // click and scroll
@@ -59,7 +63,7 @@ function Quiz() {
 // submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("User answers:", answers);
+    // console.log("User answers:", answers);
 
     fetch("http://95.130.227.200/api/check-answers/",{
       method: 'POST',
@@ -74,16 +78,19 @@ function Quiz() {
         return res.json()
     })
     .then((data)=>{
-      console.log(data);
+      setResult(data.ball)
+      localStorage.setItem("result", data.ball)
+      setShowResult(true)
+      localStorage.setItem("showResult", true)
     })
     .catch((err)=>console.log(err)
     )
 
 
 
-    localStorage.removeItem("selectOption");
-    localStorage.removeItem("answers");
-    localStorage.removeItem("saved_answers");
+    // localStorage.removeItem("selectOption");
+    // localStorage.removeItem("answers");
+    // localStorage.removeItem("saved_answers");
   };
 
   // get data
@@ -91,7 +98,7 @@ function Quiz() {
     data: quizzes,
     isPending,
     error,
-  } = useGetFetch("http://95.130.227.200/api/intihon/");
+  } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
 
   // time ==================================================================
   const defaultTime = 2 * 60 * 60 * 1000;
@@ -149,12 +156,13 @@ function Quiz() {
                             <h1 className="text-2xl text-start font-semibold border-b border-gray-400" dangerouslySetInnerHTML={{ __html: item.savol }}>
                               {/* {item.savol} */}
                             </h1>
+                            {showResult && <Link className="flex items-center gap-3 link"> <FaYoutube className="text-3xl text-red-500"/> Yechimni ko'rish</Link>}
                             <div className="space-y-3 ml-6">
                               { Array.isArray(item?.javoblar) && item?.javoblar?.map((variant, index) => {
                                  const isSelected = selectedAnswers[index1] === index;
                                 return (
                                   <label
-                                  style={{border:"3px solid", borderColor: isSelected ? "#00A4F2" : "transparent"}}
+                                  style={{border:"3px solid", borderColor: showResult ? (variant.togri ? "green" : (isSelected ? "red" : "transparent")) : (isSelected ? "#00A4F2" : "transparent")}}
                                     key={index}
                                     className={`test-label group flex items-center gap-4 p-4 cursor-pointer ${
                                       isTheme == "dracula"
@@ -207,6 +215,10 @@ function Quiz() {
                   {userData?.familya + " " + userData?.ism}
                 </h1>
               </div>
+              {/* result */}
+              {showResult && <div className="my-5">
+                <h1 className="flex items-center gap-3 text-2xl font-bold text-info">Natija: <span className="text-3xl">{result}</span>ta</h1>
+              </div>}
               {/* time */}
               <div className="flex justify-center m-5">
                 <span className="countdown font-mono text-3xl">

@@ -20,7 +20,7 @@ function Register() {
       toifa: toifa.current.value,
     };
 
-    fetch("http://95.130.227.200/api/user-data/", {
+    fetch(`${import.meta.env.VITE_BASE_URL}/user-data/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newData),
@@ -32,7 +32,7 @@ function Register() {
       .then((data) => {
         localStorage.setItem("user-data", JSON.stringify(data));
         navigate("/quiz");
-        toast.success("Muvaffaqiyatli👍");
+        toast.success("Muvaffaqiyatli 👍");
       })
       .catch((err) => console.log(err));
   }

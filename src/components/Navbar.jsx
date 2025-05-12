@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 import { BsQuestionSquare } from "react-icons/bs";
+import { IoLogOutOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const themeFromLocalStorage = () => {
   return localStorage.getItem("theme") || "cupcake";
@@ -9,6 +11,13 @@ const themeFromLocalStorage = () => {
 function Navbar() {
   const { setIsTheme } = useContext(GlobalContext);
   const [theme, setTheme] = useState(themeFromLocalStorage());
+  const navigate = useNavigate()
+
+  function handleLogout(){
+    localStorage.clear();
+    setTheme("cupcake")
+    navigate("/register")
+  }
 
   const toggleTheme = () => {
     const newTheme = theme == "cupcake" ? "dracula" : "cupcake";
@@ -28,7 +37,8 @@ function Navbar() {
         <h1 className="font-bold text-4xl text-base-500 flex items-center gap-5">
           <BsQuestionSquare/> Toifa uchun testlar
         </h1>
-        <label className="flex cursor-pointer gap-2">
+        <div className="flex items-center gap-7">
+          <label className="flex cursor-pointer gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -64,6 +74,9 @@ function Navbar() {
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </label>
+        <button onClick={handleLogout} className="flex items-center gap-2 border-l pl-7">Chiqish <IoLogOutOutline className="text-3xl"/></button>
+        </div>
+
       </div>
     </div>
   );
