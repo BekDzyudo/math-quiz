@@ -58,7 +58,7 @@ function Navbar() {
             defaultChecked={theme == "cupcake" ? false : true}
             type="checkbox"
             value="synthwave"
-            className="toggle theme-controller"
+            className="toggle theme-controller border border-gray-500 hover:border-gray-600 toggle-info"
           />
           <svg
             xmlns="http://www.w3.org/2000/svg"

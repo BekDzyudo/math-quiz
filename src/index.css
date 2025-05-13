@@ -137,6 +137,12 @@ body{
   color: white;
 }
 
+@layer components {
+  input[type="checkbox"].toggle:not(:checked)::before {
+    background-color: #9ca3af !important;
+  }
+}
+
 @plugin "daisyui" {
   themes: cupcake --default, dracula;
 }
