@@ -142,7 +142,8 @@ function Quiz() {
   };
 
   // time ==================================================================
-  const defaultTime = 2 * 60 * 60 * 1000;
+  // const defaultTime = 2 * 60 * 60 * 1000;
+   const defaultTime = 1 * 60 * 1000;
   const [remainingTime, setRemainingTime] = useState(() => {
     const saved = localStorage.getItem("remainingTime");
     return saved ? parseInt(saved) : defaultTime;
@@ -150,22 +151,23 @@ function Quiz() {
 
   const timerRef = useRef(null);
 
-  // useEffect(() => {
-  //   timerRef.current = setInterval(() => {
-  //     setRemainingTime((prev) => {
-  //       const newTime = prev - 1000;
-  //       if (newTime <= 0) {
-  //         clearInterval(timerRef.current);
-  //         localStorage.removeItem("remainingTime");
-  //         return 0;
-  //       }
-  //       localStorage.setItem("remainingTime", newTime);
-  //       return newTime;
-  //     });
-  //   }, 1000);
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setRemainingTime((prev) => {
+        const newTime = prev - 1000;
+        if (newTime <= 0) {
+          handleSubmit(new Event("submit"))
+          clearInterval(timerRef.current);
+          localStorage.removeItem("remainingTime");
+          return 0;
+        }
+        localStorage.setItem("remainingTime", newTime);
+        return newTime;
+      });
+    }, 1000);
 
-  //   return () => clearInterval(timerRef.current);
-  // }, []);
+    return () => clearInterval(timerRef.current);
+  }, []);
 
   const hours = Math.floor(remainingTime / (1000 * 60 * 60));
   const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));

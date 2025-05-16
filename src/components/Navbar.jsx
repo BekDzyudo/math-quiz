@@ -9,13 +9,14 @@ const themeFromLocalStorage = () => {
 };
 
 function Navbar() {
-  const { setIsTheme } = useContext(GlobalContext);
+  const { setIsTheme, setUserData } = useContext(GlobalContext);
   const [theme, setTheme] = useState(themeFromLocalStorage());
   const navigate = useNavigate()
 
   function handleLogout(){
     localStorage.clear();
     setTheme("cupcake")
+    setUserData(null)
     navigate("/register")
   }
 

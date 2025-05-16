@@ -1,34 +1,35 @@
-import React from 'react'
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import MainLayout from './layouts/MainLayout'
-import Register from './pages/Register'
-import Quiz from './pages/Quiz'
-import Result from './pages/Result'
+import React, { useContext, useState } from "react";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+import MainLayout from "./layouts/MainLayout";
+import Register from "./pages/Register";
+import Quiz from "./pages/Quiz";
+import Result from "./pages/Result";
+import { GlobalContext } from "./context/GlobalContext";
 
 function App() {
+  const {userData} = useContext(GlobalContext)
+
   const routes = createBrowserRouter([
     {
-      path: "/",
-      element: <MainLayout/>,
+      path: "/quiz",
+      element: userData ? <MainLayout /> : <Navigate to="/register"/>,
       children: [
         {
-          path: "register",
-          element: <Register/>
+          index: true,
+          element: <Quiz />,
         },
-        {
-          path: "quiz",
-          element: <Quiz/>
-        },
-        {
-          path: "result",
-          element: <Result/>
-        }
-      ]
-    }
-  ])
-  return (
-    <RouterProvider router={routes}/>
-  )
+      ],
+    },
+    {
+      path: "/register",
+      element: userData ? <Navigate to="/quiz"/> : <Register />,
+    },
+  ]);
+  return <RouterProvider router={routes} />;
 }
 
-export default App
+export default App;

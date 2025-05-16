@@ -1,8 +1,10 @@
-import React, { useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { GlobalContext } from "../context/GlobalContext";
 
 function Register() {
+  const {setUserData} = useContext(GlobalContext)
   const navigate = useNavigate();
 
   const firstName = useRef();
@@ -31,6 +33,7 @@ function Register() {
       })
       .then((data) => {
         localStorage.setItem("user-data", JSON.stringify(data));
+        setUserData(data)
         navigate("/quiz");
         toast.success("Muvaffaqiyatli 👍");
       })
