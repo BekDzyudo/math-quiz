@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { GlobalContext } from "../context/GlobalContext";
@@ -6,6 +6,7 @@ import { useGetFetch } from "../hooks/useGetFetch";
 import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { MathJaxContext, MathJax } from "better-react-mathjax";
+import Time from "../components/Time";
 
 function Quiz() {
   const userData = JSON.parse(localStorage.getItem("user-data"));
@@ -39,22 +40,22 @@ function Quiz() {
   }, [quizzes]);
 
   // math funck
- function cleanMathFormula(str) {
-    if (!str) return '';
+  function cleanMathFormula(str) {
+    if (!str) return "";
     return str
-    .replace(/(?<!\\)sqrt(?=[[{])/g, '\\sqrt')
-    .replace(/(?<!\\)frac/g, '\\frac')
-    .replace(/(?<!\\)pi/g, '\\pi')
-    .replace(/(?<!\\)left/g, '\\left')
-    .replace(/(?<!\\)right/g, '\\right')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&');
+      .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
+      .replace(/(?<!\\)frac/g, "\\frac")
+      .replace(/(?<!\\)pi/g, "\\pi")
+      .replace(/(?<!\\)left/g, "\\left")
+      .replace(/(?<!\\)right/g, "\\right")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
   }
-function containsMath(str){
-  return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
-}
+  function containsMath(str) {
+    return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
+  }
 
   // click and scroll
   const handleScrollToQuestion = (index) => {
@@ -113,9 +114,9 @@ function containsMath(str){
   // submit
   const handleSubmit = (e) => {
     e.preventDefault();
-     isSubmittedRef.current = true;
-  clearInterval(timerRef.current);
-  // localStorage.removeItem("remainingTime");
+    isSubmittedRef.current = true;
+    clearInterval(timerRef.current);
+    // localStorage.removeItem("remainingTime");
 
     fetch("http://95.130.227.200/api/check-answers/", {
       method: "POST",
@@ -139,45 +140,44 @@ function containsMath(str){
   };
 
   // time ==================================================================
-  let updateTimeCount = useRef(0)
-  // const defaultTime = 1 * 60 * 1000;
-  const defaultTime = 2 * 60 * 60 * 1000;
-  const [remainingTime, setRemainingTime] = useState(() => {
-    const saved = localStorage.getItem("remainingTime");
-    return saved ? parseInt(saved) : defaultTime;
-  });
+  // let updateTimeCount = useRef(0)
+  // // const defaultTime = 1 * 60 * 1000;
+  // const defaultTime = 2 * 60 * 60 * 1000;
+  // const [remainingTime, setRemainingTime] = useState(() => {
+  //   const saved = localStorage.getItem("remainingTime");
+  //   return saved ? parseInt(saved) : defaultTime;
+  // });
 
+  // useEffect(() => {
+  //   timerRef.current = setInterval(() => {
+  //     setRemainingTime((prev) => {
+  //       const newTime = prev - 1000;
+  //       if (newTime <= 0) {
+  //         clearInterval(timerRef.current);
+  //         // localStorage.removeItem("remainingTime");
 
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setRemainingTime((prev) => {
-        const newTime = prev - 1000;
-        if (newTime <= 0) {
-          clearInterval(timerRef.current);
-          // localStorage.removeItem("remainingTime");
-          
-          if(!isSubmittedRef.current){
-            const fakeEvent = { preventDefault: () => {} }
-            handleSubmit(fakeEvent);
-          }
-          return 0;
-        }
+  //         if(!isSubmittedRef.current){
+  //           const fakeEvent = { preventDefault: () => {} }
+  //           handleSubmit(fakeEvent);
+  //         }
+  //         return 0;
+  //       }
 
-        updateTimeCount.current++
-        if(updateTimeCount.current%10 === 0){
-          localStorage.setItem("remainingTime", newTime);
-        }
-        return newTime;
-      });
-    }, 1000);
+  //       updateTimeCount.current++
+  //       if(updateTimeCount.current%10 === 0){
+  //         localStorage.setItem("remainingTime", newTime);
+  //       }
+  //       return newTime;
+  //     });
+  //   }, 1000);
 
-    return () => clearInterval(timerRef.current);
-  }, []);
+  //   return () => clearInterval(timerRef.current);
+  // }, []);
 
-  const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-  const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-  const counter = `${hours} hours ${minutes} minutes ${seconds} seconds`;
+  // const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+  // const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  // const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+  // const counter = `${hours} hours ${minutes} minutes ${seconds} seconds`;
   // ===========================================================================
 
   return (
@@ -187,7 +187,18 @@ function containsMath(str){
         {isPending && <p>loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
-          <MathJaxContext config={{ tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } }} version={3}>
+          <MathJaxContext
+            config={{
+              tex: {
+                inlineMath: [
+                  ["$", "$"],
+                  ["\\(", "\\)"],
+                ],
+              },
+              svg: { fontCache: "global" },
+            }}
+            version={3}
+          >
             <form
               className="max-w-[70%] overflow-visible"
               onSubmit={handleSubmit}
@@ -209,7 +220,13 @@ function containsMath(str){
                             //   __html: cleanMathFormula(item.savol),
                             // }}
                           >
-                            {containsMath(item.savol) ? (<MathJax dynamic>{cleanMathFormula(item.savol)}</MathJax>) : item.savol.replace(/<[^>]*>/g, '')}
+                            {containsMath(item.savol) ? (
+                              <MathJax dynamic>
+                                {cleanMathFormula(item.savol)}
+                              </MathJax>
+                            ) : (
+                              item.savol.replace(/<[^>]*>/g, "")
+                            )}
                           </h1>
                           {showResult && (
                             <Link className="flex items-center gap-3 link">
@@ -266,7 +283,9 @@ function containsMath(str){
                                       //   __html: cleanMathFormula(variant.matn),
                                       // }}
                                     >
-                                      {containsMath(variant.matn) ? (cleanMathFormula(variant.matn)) : variant.matn.replace(/<[^>]*>/g, '')}
+                                      {containsMath(variant.matn)
+                                        ? cleanMathFormula(variant.matn)
+                                        : variant.matn.replace(/<[^>]*>/g, "")}
                                     </div>
                                   </label>
                                 );
@@ -302,34 +321,15 @@ function containsMath(str){
                   </h1>
                 </div>
               )}
-              {/* time */}
-              <div className="flex justify-center m-5">
-                <span className="countdown font-mono text-3xl">
-                  <span
-                    style={{ "--value": hours }}
-                    aria-live="polite"
-                    aria-label={counter}
-                  >
-                    {hours}
-                  </span>
-                  :
-                  <span
-                    style={{ "--value": minutes }}
-                    aria-live="polite"
-                    aria-label={counter}
-                  >
-                    {minutes}
-                  </span>
-                  :
-                  <span
-                    style={{ "--value": seconds }}
-                    aria-live="polite"
-                    aria-label={counter}
-                  >
-                    {seconds}
-                  </span>
-                </span>
-              </div>
+              <Time
+                initialTime={2 * 60 * 60 * 1000}
+                onTimeUp={() => {
+                  if (!isSubmittedRef.current) {
+                    const fakeEvent = { preventDefault: () => {} };
+                    handleSubmit(fakeEvent);
+                  }
+                }}
+              />
               {/* process */}
               <div className="my-3 mb-10">
                 <h1>Process</h1>
