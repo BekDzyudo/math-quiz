@@ -7,19 +7,6 @@ import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { MathJaxContext, MathJax } from "better-react-mathjax";
 
-const config = {
-  tex: {
-    inlineMath: [
-      ["\\(", "\\)"],
-      ["$", "$"],
-    ],
-    displayMath: [["\\[", "\\]"]],
-  },
-  svg: {
-    fontCache: "global",
-  },
-};
-
 function Quiz() {
   const userData = JSON.parse(localStorage.getItem("user-data"));
   const { isTheme } = useContext(GlobalContext);
@@ -34,27 +21,39 @@ function Quiz() {
   );
   const [result, setResult] = useState(localStorage.getItem("result") || null);
   const questionRefs = useRef([]);
+  const timerRef = useRef(null);
+  const isSubmittedRef = useRef(false);
 
-
-    // get data
+  // get data
   const {
     data: quizzes,
     isPending,
     error,
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
-  
+
   // MathJax rendering
   useEffect(() => {
     if (window.MathJax && window.MathJax.typeset) {
       window.MathJax.typeset();
     }
   }, [quizzes]);
-  
+
   // math funck
-  function cleanMathFormula(str) {
-  if (!str) return '';
-  // "sqrt{" → "\sqrt{" ga almashtir
-  return str.replace(/(?<!\\)sqrt{/g, '\\sqrt{');
+ function cleanMathFormula(str) {
+    if (!str) return '';
+    return str
+    .replace(/(?<!\\)sqrt(?=[[{])/g, '\\sqrt')
+    .replace(/(?<!\\)frac/g, '\\frac')
+    .replace(/(?<!\\)pi/g, '\\pi')
+    .replace(/(?<!\\)left/g, '\\left')
+    .replace(/(?<!\\)right/g, '\\right')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+  }
+function containsMath(str){
+  return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
 }
 
   // click and scroll
@@ -114,7 +113,9 @@ function Quiz() {
   // submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    // console.log("User answers:", answers);
+     isSubmittedRef.current = true;
+  clearInterval(timerRef.current);
+  // localStorage.removeItem("remainingTime");
 
     fetch("http://95.130.227.200/api/check-answers/", {
       method: "POST",
@@ -135,33 +136,37 @@ function Quiz() {
         localStorage.setItem("showResult", true);
       })
       .catch((err) => console.log(err));
-
-    // localStorage.removeItem("selectOption");
-    // localStorage.removeItem("answers");
-    // localStorage.removeItem("saved_answers");
   };
 
   // time ==================================================================
-  // const defaultTime = 2 * 60 * 60 * 1000;
-   const defaultTime = 1 * 60 * 1000;
+  let updateTimeCount = useRef(0)
+  // const defaultTime = 1 * 60 * 1000;
+  const defaultTime = 2 * 60 * 60 * 1000;
   const [remainingTime, setRemainingTime] = useState(() => {
     const saved = localStorage.getItem("remainingTime");
     return saved ? parseInt(saved) : defaultTime;
   });
 
-  const timerRef = useRef(null);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
       setRemainingTime((prev) => {
         const newTime = prev - 1000;
         if (newTime <= 0) {
-          handleSubmit(new Event("submit"))
           clearInterval(timerRef.current);
-          localStorage.removeItem("remainingTime");
+          // localStorage.removeItem("remainingTime");
+          
+          if(!isSubmittedRef.current){
+            const fakeEvent = { preventDefault: () => {} }
+            handleSubmit(fakeEvent);
+          }
           return 0;
         }
-        localStorage.setItem("remainingTime", newTime);
+
+        updateTimeCount.current++
+        if(updateTimeCount.current%10 === 0){
+          localStorage.setItem("remainingTime", newTime);
+        }
         return newTime;
       });
     }, 1000);
@@ -176,196 +181,195 @@ function Quiz() {
   // ===========================================================================
 
   return (
-    <MathJaxContext config={config} version={3}>
-      <div className="min-h-screen pb-12">
-        <Navbar />
-        <div className="container flex gap-10 items-start justify-between">
-          {isPending && <p>loading...</p>}
-          {error && <p>{error}</p>}
-          {Array.isArray(quizzes) && (
-            <>
-              <form className="max-w-[70%] overflow-visible" onSubmit={handleSubmit}>
-                <div className="quiz steps steps-vertical">
-                  {quizzes?.map((item, index1) => {
-                    return (
-                      <div
-                        ref={(el) => (questionRefs.current[index1] = el)}
-                        key={item.id}
-                        className="step step-info text-lg mb-10"
-                      >
-                        <div className="flex items-start gap-4 w-full">
-                          <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
-                          <div className="flex flex-col gap-4 w-full">
-                            <h1
-                              className="text-2xl text-start font-semibold border-b border-gray-400"
-                              dangerouslySetInnerHTML={{ __html: cleanMathFormula(item.savol) }}
-                            >
-                              {/* <MathJax>
-                                {item.savol}
-                              </MathJax> */}
-                            </h1>
-                            {showResult && (
-                              <Link className="flex items-center gap-3 link">
-                                {" "}
-                                <FaYoutube className="text-3xl text-red-500" />{" "}
-                                Yechimni ko'rish
-                              </Link>
-                            )}
-                            <div className="space-y-3 ml-6">
-                              {Array.isArray(item?.javoblar) &&
-                                item?.javoblar?.map((variant, index) => {
-                                  const isSelected =
-                                    selectedAnswers[index1] === index;
-                                  return (
-                                    <label
-                                      style={{
-                                        border: "3px solid",
-                                        borderColor: showResult
-                                          ? variant.togri
-                                            ? "green"
-                                            : isSelected
-                                            ? "red"
-                                            : "transparent"
+    <div className="min-h-screen pb-12">
+      <Navbar />
+      <div className="container flex gap-10 items-start justify-between">
+        {isPending && <p>loading...</p>}
+        {error && <p>{error}</p>}
+        {Array.isArray(quizzes) && (
+          <MathJaxContext config={{ tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } }} version={3}>
+            <form
+              className="max-w-[70%] overflow-visible"
+              onSubmit={handleSubmit}
+            >
+              <div className="quiz steps steps-vertical">
+                {quizzes?.map((item, index1) => {
+                  return (
+                    <div
+                      ref={(el) => (questionRefs.current[index1] = el)}
+                      key={item.id}
+                      className="step step-info text-lg mb-10"
+                    >
+                      <div className="flex items-start gap-4 w-full">
+                        <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
+                        <div className="flex flex-col gap-4 w-full">
+                          <h1
+                            className="text-2xl text-start font-semibold border-b border-gray-400"
+                            // dangerouslySetInnerHTML={{
+                            //   __html: cleanMathFormula(item.savol),
+                            // }}
+                          >
+                            {containsMath(item.savol) ? (<MathJax dynamic>{cleanMathFormula(item.savol)}</MathJax>) : item.savol.replace(/<[^>]*>/g, '')}
+                          </h1>
+                          {showResult && (
+                            <Link className="flex items-center gap-3 link">
+                              {" "}
+                              <FaYoutube className="text-3xl text-red-500" />{" "}
+                              Yechimni ko'rish
+                            </Link>
+                          )}
+                          <div className="space-y-3 ml-6">
+                            {Array.isArray(item?.javoblar) &&
+                              item?.javoblar?.map((variant, index) => {
+                                const isSelected =
+                                  selectedAnswers[index1] === index;
+                                return (
+                                  <label
+                                    style={{
+                                      border: "3px solid",
+                                      borderColor: showResult
+                                        ? variant.togri
+                                          ? "green"
                                           : isSelected
-                                          ? "#00A4F2"
-                                          : "transparent",
-                                      }}
-                                      key={index}
-                                      className={`test-label group flex items-center gap-4 p-4 cursor-pointer ${
-                                        isTheme == "dracula"
-                                          ? "bg-[#3b4d66]"
-                                          : "bg-white"
-                                      } rounded-lg`}
+                                          ? "red"
+                                          : "transparent"
+                                        : isSelected
+                                        ? "#00A4F2"
+                                        : "transparent",
+                                    }}
+                                    key={index}
+                                    className={`test-label group flex items-center gap-4 p-4 cursor-pointer ${
+                                      isTheme == "dracula"
+                                        ? "bg-[#3b4d66]"
+                                        : "bg-white"
+                                    } rounded-lg`}
+                                  >
+                                    <div className="test-letter text-xl font-bold bg-gray-300 px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500">
+                                      {String.fromCharCode(index + 65)}
+                                    </div>
+                                    <input
+                                      type="radio"
+                                      name={item.id}
+                                      onChange={() =>
+                                        handleAnswerChange(
+                                          item.id,
+                                          index1 + 1,
+                                          String.fromCharCode(index + 65),
+                                          index1,
+                                          index
+                                        )
+                                      }
+                                    />
+                                    <div
+                                      className="answerText text-xl text-start font-normal"
+                                      // dangerouslySetInnerHTML={{
+                                      //   __html: cleanMathFormula(variant.matn),
+                                      // }}
                                     >
-                                      <div className="test-letter text-xl font-bold bg-gray-300 px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500">
-                                        {String.fromCharCode(index + 65)}
-                                      </div>
-                                      <input
-                                        type="radio"
-                                        name={item.id}
-                                        onChange={() =>
-                                          handleAnswerChange(
-                                            item.id,
-                                            index1 + 1,
-                                            String.fromCharCode(index + 65),
-                                            index1,
-                                            index
-                                          )
-                                        }
-                                      />
-                                      <div
-                                        className="answerText text-xl text-start font-normal"
-                                          dangerouslySetInnerHTML={{
-                                          __html: cleanMathFormula(variant.matn)
-                                        }}
-                                        >
-                                        {/* <MathJax>
-                                          {variant.matn}
-                                        </MathJax> */}
-                                      </div>
-                                    </label>
-                                  );
-                                })}
-                            </div>
+                                      {containsMath(variant.matn) ? (cleanMathFormula(variant.matn)) : variant.matn.replace(/<[^>]*>/g, '')}
+                                    </div>
+                                  </label>
+                                );
+                              })}
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-                <div className="w-full flex flex-col items-center">
-                  <button
-                    type="submit"
-                    className="w-1/2 btn btn-info btn-xl text-white"
-                  >
-                    Testni yakunlash
-                  </button>
-                </div>
-              </form>
-              <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
-                <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
-                  <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
-                  <h1 className="text-center text-2xl font-semibold">
-                    {userData?.familya + " " + userData?.ism}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="w-full flex flex-col items-center">
+                <button
+                  type="submit"
+                  className="w-1/2 btn btn-info btn-xl text-white"
+                >
+                  Testni yakunlash
+                </button>
+              </div>
+            </form>
+            <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
+              <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
+                <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
+                <h1 className="text-center text-2xl font-semibold">
+                  {userData?.familya + " " + userData?.ism}
+                </h1>
+              </div>
+              {/* result */}
+              {showResult && (
+                <div className="my-5">
+                  <h1 className="flex items-center gap-3 text-2xl font-bold text-info">
+                    Natija: <span className="text-3xl">{result}</span>ta
                   </h1>
                 </div>
-                {/* result */}
-                {showResult && (
-                  <div className="my-5">
-                    <h1 className="flex items-center gap-3 text-2xl font-bold text-info">
-                      Natija: <span className="text-3xl">{result}</span>ta
-                    </h1>
-                  </div>
-                )}
-                {/* time */}
-                <div className="flex justify-center m-5">
-                  <span className="countdown font-mono text-3xl">
-                    <span
-                      style={{ "--value": hours }}
-                      aria-live="polite"
-                      aria-label={counter}
-                    >
-                      {hours}
-                    </span>
-                    :
-                    <span
-                      style={{ "--value": minutes }}
-                      aria-live="polite"
-                      aria-label={counter}
-                    >
-                      {minutes}
-                    </span>
-                    :
-                    <span
-                      style={{ "--value": seconds }}
-                      aria-live="polite"
-                      aria-label={counter}
-                    >
-                      {seconds}
-                    </span>
+              )}
+              {/* time */}
+              <div className="flex justify-center m-5">
+                <span className="countdown font-mono text-3xl">
+                  <span
+                    style={{ "--value": hours }}
+                    aria-live="polite"
+                    aria-label={counter}
+                  >
+                    {hours}
                   </span>
-                </div>
-                {/* process */}
-                <div className="my-3 mb-10">
-                  <h1>Process</h1>
-                  <div className="test-proccess-container">
-                    {quizzes && (
-                      <div
-                        className="test-proccess"
-                        style={{
-                          width:
-                            (selectOption.length / quizzes?.length) * 100 + "%",
-                        }}
-                      ></div>
-                    )}
-                  </div>
-                </div>
-                {/* btns */}
-                <div className="grid grid-cols-5 gap-[5px]">
-                  {quizzes &&
-                    quizzes.map((item, index) => {
-                      const isChanged = selectOption.includes(index + 1);
-                      return (
-                        <button
-                          onClick={() => handleScrollToQuestion(index)}
-                          key={index}
-                          className={`btn ${
-                            isChanged ? "btn-info" : "btn-outline"
-                          } text-[16px] mb-2 ${
-                            index + 1 < 10 ? "px-[19px]" : ""
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      );
-                    })}
+                  :
+                  <span
+                    style={{ "--value": minutes }}
+                    aria-live="polite"
+                    aria-label={counter}
+                  >
+                    {minutes}
+                  </span>
+                  :
+                  <span
+                    style={{ "--value": seconds }}
+                    aria-live="polite"
+                    aria-label={counter}
+                  >
+                    {seconds}
+                  </span>
+                </span>
+              </div>
+              {/* process */}
+              <div className="my-3 mb-10">
+                <h1>Process</h1>
+                <div className="test-proccess-container">
+                  {quizzes && (
+                    <div
+                      className="test-proccess"
+                      style={{
+                        width:
+                          (selectOption.length / quizzes?.length) * 100 + "%",
+                      }}
+                    ></div>
+                  )}
                 </div>
               </div>
-            </>
-          )}
-        </div>
+              {/* btns */}
+              <div className="grid grid-cols-5 gap-[5px]">
+                {quizzes &&
+                  quizzes.map((item, index) => {
+                    const isChanged = selectOption.includes(index + 1);
+                    return (
+                      <button
+                        onClick={() => handleScrollToQuestion(index)}
+                        key={index}
+                        className={`btn ${
+                          isChanged ? "btn-info" : "btn-outline"
+                        } text-[16px] mb-2 ${
+                          index + 1 < 10 ? "px-[19px]" : ""
+                        }`}
+                      >
+                        {index + 1}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          </MathJaxContext>
+        )}
       </div>
-    </MathJaxContext>
+    </div>
   );
 }
 
