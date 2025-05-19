@@ -31,6 +31,7 @@ function Quiz() {
     isPending,
     error,
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
+console.log(quizzes);
 
   // MathJax rendering
   useEffect(() => {
@@ -118,7 +119,7 @@ function Quiz() {
     clearInterval(timerRef.current);
     // localStorage.removeItem("remainingTime");
 
-    fetch("http://95.130.227.200/api/check-answers/", {
+    fetch(`${import.meta.env.VITE_BASE_URL}/check-answers/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -127,7 +128,7 @@ function Quiz() {
       }),
     })
       .then((res) => {
-        // if(res.ok) throw new Error(res.statusText)
+        if(!res.ok) throw new Error(res.statusText)
         return res.json();
       })
       .then((data) => {
@@ -211,14 +212,11 @@ function Quiz() {
                       key={item.id}
                       className="step step-info text-lg mb-10"
                     >
-                      <div className="flex items-start gap-4 w-full">
+                      <div className="flex items-start w-full">
                         <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
                         <div className="flex flex-col gap-4 w-full">
                           <h1
-                            className="text-2xl text-start font-semibold border-b border-gray-400"
-                            // dangerouslySetInnerHTML={{
-                            //   __html: cleanMathFormula(item.savol),
-                            // }}
+                            className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-11"
                           >
                             {containsMath(item.savol) ? (
                               <MathJax dynamic>
@@ -229,7 +227,7 @@ function Quiz() {
                             )}
                           </h1>
                           {showResult && (
-                            <Link className="flex items-center gap-3 link">
+                            <Link to={item.answer_video_url} target="_blanck" className="flex items-center gap-3 link">
                               {" "}
                               <FaYoutube className="text-3xl text-red-500" />{" "}
                               Yechimni ko'rish
@@ -297,10 +295,11 @@ function Quiz() {
                   );
                 })}
               </div>
-              <div className="w-full flex flex-col items-center">
+              <div className="w-full flex flex-col items-center mt-5">
                 <button
+                disabled={result ? true : false}
                   type="submit"
-                  className="w-1/2 btn btn-info btn-xl text-white"
+                  className="w-1/2 btn btn-info btn-xl text-white rounded-2xl"
                 >
                   Testni yakunlash
                 </button>
@@ -322,7 +321,8 @@ function Quiz() {
                 </div>
               )}
               <Time
-                initialTime={2 * 60 * 60 * 1000}
+              // 2 * 60 * 60 * 1000
+                initialTime={2 * 60 * 1000}
                 onTimeUp={() => {
                   if (!isSubmittedRef.current) {
                     const fakeEvent = { preventDefault: () => {} };

@@ -63,7 +63,6 @@ h1,h2,h3,h4,h5,h6{
 }
 body{
   min-height: 100vh;
-  /* font-family: var(--main-font-family); */
   font-weight: 500;
   background-image: var(--body-bg-image);
   background-color: var(--light-grey-color);

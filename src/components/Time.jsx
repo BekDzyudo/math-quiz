@@ -16,6 +16,7 @@ const Time = React.memo(({ onTimeUp, initialTime }) => {
         if (newTime <= 0) {
           clearInterval(timerRef.current);
           onTimeUp();
+          localStorage.setItem("remainingTime", 0);
           return 0;
         }
 
