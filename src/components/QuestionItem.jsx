@@ -5,8 +5,8 @@ import React, { useRef } from "react";
 
 const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers}) => {
 
-    const questionRefs = useRef([]);
-
+     const questionRefs = useRef([]);
+     
     function cleanMathFormula(str) {
     if (!str) return "";
     return str

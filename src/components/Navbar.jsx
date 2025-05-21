@@ -48,42 +48,6 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
           <BsQuestionSquare /> Toifa uchun testlar
         </h1>
         <div className="flex items-center gap-7">
-          {/* <label className="flex cursor-pointer gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="5" />
-              <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
-            </svg>
-            <input
-              onClick={toggleTheme}
-              defaultChecked={theme == "cupcake" ? false : true}
-              type="checkbox"
-              value="synthwave"
-              className="toggle theme-controller border border-gray-500 hover:border-gray-600 toggle-info"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          </label> */}
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-[#abc1e1] cursor-pointer"
@@ -93,11 +57,11 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
         </div>
 
 {/* avatar */}
-        <div class="dropdown dropdown-end md:hidden">
+        <div className="dropdown dropdown-end md:hidden">
           <div
-            tabindex="0"
+            tabIndex="0"
             role="button"
-            class="btn btn-ghost btn-circle avatar hover:border-none focus:border-none"
+            className="btn btn-ghost btn-circle avatar hover:border-none focus:border-none"
           >
             <div className="w-10 rounded-full">
               <img
@@ -108,7 +72,7 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
             </div>
           </div>
           <ul
-            tabindex="0"
+            tabIndex="0"
             className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-[#3B4D66] shadow-2xl rounded-box w-32`}
           >
             <li>

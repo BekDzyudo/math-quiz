@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { FixedSizeList as List } from "react-window";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { useGetFetch } from "../hooks/useGetFetch";
@@ -117,15 +118,15 @@ function Quiz() {
       return updated;
     });
   };
-// ==========================================================================================================================================================
+  // ==========================================================================================================================================================
   useEffect(() => {
     localStorage.setItem("answers", JSON.stringify(answers));
   }, [answers]);
 
-   useEffect(() => {
-        localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
+  useEffect(() => {
+    localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
   }, [selectedAnswers]);
-// ==========================================================================================================================================================
+  // ==========================================================================================================================================================
 
   // submit
   const handleSubmit = (e) => {
@@ -143,7 +144,7 @@ function Quiz() {
       }),
     })
       .then((res) => {
-        if(!res.ok) throw new Error(res.statusText)
+        if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
       .then((data) => {
@@ -193,95 +194,6 @@ function Quiz() {
                 {quizzes?.map((item, index1) => {
                   return (
                     <QuestionItem key={item.id} item={item} index1={index1} handleAnswerChange={handleAnswerChange} showResult={showResult} selectedAnswers={selectedAnswers}/>
-                    // <div
-                    //   ref={(el) => (questionRefs.current[index1] = el)}
-                    //   key={item.id}
-                    //   className="step step-info text-lg mb-10"
-                    // >
-                    //   <div className="flex items-start w-full">
-                    //     <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
-                    //     <div className="flex flex-col gap-4 w-full">
-                    //       <h1 className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-10 text-white">
-                    //         {containsMath(item.savol) ? (
-                    //           <MathJax dynamic>
-                    //             {cleanMathFormula(item.savol)}
-                    //           </MathJax>
-                    //         ) : (
-                    //           item.savol.replace(/<[^>]*>/g, "")
-                    //         )}
-                    //       </h1>
-                    //       {showResult && (
-                    //         <Link
-                    //           to={item.answer_video_url}
-                    //           target="_blanck"
-                    //           className="flex items-center gap-3 link text-white"
-                    //         >
-                    //           {" "}
-                    //           <FaYoutube className="text-3xl text-red-500" />{" "}
-                    //           Yechimni ko'rish
-                    //         </Link>
-                    //       )}
-                    //       <div className="space-y-3 ml-6">
-                    //         {Array.isArray(item?.javoblar) &&
-                    //           item?.javoblar?.map((variant, index) => {
-                    //             const isSelected =
-                    //               selectedAnswers[item.id] === index;
-                    //             return (
-                    //               <label
-                    //                 style={{
-                    //                   border: "3px solid",
-                    //                   borderColor: showResult
-                    //                     ? variant.togri
-                    //                       ? "green"
-                    //                       : isSelected
-                    //                       ? "red"
-                    //                       : "transparent"
-                    //                     : isSelected
-                    //                     ? "#00A4F2"
-                    //                     : "transparent",
-                    //                 }}
-                    //                 key={index}
-                    //                 className={`test-label group flex items-center gap-4 p-4 cursor-pointer bg-[#3b4d66] rounded-lg`}
-                    //               >
-                    //                 <div
-                    //                   className={`test-letter text-xl font-bold ${
-                    //                     isSelected
-                    //                       ? "bg-info text-white"
-                    //                       : "bg-gray-300"
-                    //                   } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500`}
-                    //                 >
-                    //                   {String.fromCharCode(index + 65)}
-                    //                 </div>
-                    //                 <input
-                    //                   type="radio"
-                    //                   name={item.id}
-                    //                   onChange={() =>
-                    //                     handleAnswerChange(
-                    //                       item.id,
-                    //                       index1 + 1,
-                    //                       String.fromCharCode(index + 65),
-                    //                       index1,
-                    //                       index
-                    //                     )
-                    //                   }
-                    //                 />
-                    //                 <div
-                    //                   className="answerText text-xl text-start font-normal text-white"
-                    //                   // dangerouslySetInnerHTML={{
-                    //                   //   __html: cleanMathFormula(variant.matn),
-                    //                   // }}
-                    //                 >
-                    //                   {containsMath(variant.matn)
-                    //                     ? cleanMathFormula(variant.matn)
-                    //                     : variant.matn.replace(/<[^>]*>/g, "")}
-                    //                 </div>
-                    //               </label>
-                    //             );
-                    //           })}
-                    //       </div>
-                    //     </div>
-                    //   </div>
-                    // </div>
                   );
                 })}
               </div>
@@ -313,7 +225,7 @@ function Quiz() {
               <Time
                 // 2 * 60 * 60 * 1000
                 showResult={showResult}
-                initialTime={2 * 60 * 1000}
+                initialTime={2 * 60 * 60 * 1000}
                 onTimeUp={() => {
                   if (!isSubmittedRef.current) {
                     const fakeEvent = { preventDefault: () => {} };
