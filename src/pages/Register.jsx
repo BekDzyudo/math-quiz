@@ -46,42 +46,42 @@ function Register() {
         className="shadow-2xl h-min rounded-2xl flex flex-col gap-4 p-5"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-5xl font-semibold text-center mb-4">Register</h1>
+        <h1 className="text-5xl font-semibold text-center mb-4 text-[#abc1e1]">Register</h1>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor="firstname">Ism:</label>
+          <label htmlFor="firstname" className="text-[#abc1e1]">Ism:</label>
           <input
             ref={firstName}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2"
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
             type="text"
             id="firstname"
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor="lastname">Familya:</label>
+          <label htmlFor="lastname" className="text-[#abc1e1]">Familya:</label>
           <input
             ref={lastname}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2"
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
             type="text"
             id="lastname"
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor="phonenumber">Telefon nomer:</label>
+          <label htmlFor="phonenumber" className="text-[#abc1e1]">Telefon nomer:</label>
           <input
             ref={phoneNumber}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2"
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
             type="text"
             id="phonenumber"
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor="toifaselect">Toifani tanlang:</label>
+          <label htmlFor="toifaselect" className="text-[#abc1e1]">Toifani tanlang:</label>
           <select
             ref={toifa}
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2"
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 cursor-pointer bg-[#3B4D66] text-white"
             id="toifaselect"
           >
             <option defaultValue="1-toifa">1-Toifa</option>

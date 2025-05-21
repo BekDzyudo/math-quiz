@@ -1,19 +1,16 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
-import { GlobalContext } from "../context/GlobalContext";
 import { useGetFetch } from "../hooks/useGetFetch";
 import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { MathJaxContext, MathJax } from "better-react-mathjax";
 import Time from "../components/Time";
+import QuestionItem from "../components/QuestionItem";
 
 function Quiz() {
   const userData = JSON.parse(localStorage.getItem("user-data"));
-  const { isTheme } = useContext(GlobalContext);
-  const [answers, setAnswers] = useState(
-    JSON.parse(localStorage.getItem("answers")) || []
-  );
+  const [answers, setAnswers] = useState([]);
   const [selectOption, setSelectOption] = useState(
     JSON.parse(localStorage.getItem("selectOption")) || []
   );
@@ -31,32 +28,24 @@ function Quiz() {
     isPending,
     error,
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
-console.log(quizzes);
-
-  // MathJax rendering
-  useEffect(() => {
-    if (window.MathJax && window.MathJax.typeset) {
-      window.MathJax.typeset();
-    }
-  }, [quizzes]);
 
   // math funck
-  function cleanMathFormula(str) {
-    if (!str) return "";
-    return str
-      .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
-      .replace(/(?<!\\)frac/g, "\\frac")
-      .replace(/(?<!\\)pi/g, "\\pi")
-      .replace(/(?<!\\)left/g, "\\left")
-      .replace(/(?<!\\)right/g, "\\right")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&");
-  }
-  function containsMath(str) {
-    return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
-  }
+  // function cleanMathFormula(str) {
+  //   if (!str) return "";
+  //   return str
+  //     .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
+  //     .replace(/(?<!\\)frac/g, "\\frac")
+  //     .replace(/(?<!\\)pi/g, "\\pi")
+  //     .replace(/(?<!\\)left/g, "\\left")
+  //     .replace(/(?<!\\)right/g, "\\right")
+  //     .replace(/&nbsp;/g, " ")
+  //     .replace(/&lt;/g, "<")
+  //     .replace(/&gt;/g, ">")
+  //     .replace(/&amp;/g, "&");
+  // }
+  // function containsMath(str) {
+  //   return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
+  // }
 
   // click and scroll
   const handleScrollToQuestion = (index) => {
@@ -70,6 +59,10 @@ console.log(quizzes);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   useEffect(() => {
     const savedAnswers = localStorage.getItem("saved_answers");
+    const answers = JSON.parse(localStorage.getItem("answers"));
+    if (answers) {
+      setAnswers(answers);
+    }
     if (savedAnswers) {
       setSelectedAnswers(JSON.parse(savedAnswers));
     }
@@ -82,42 +75,64 @@ console.log(quizzes);
     index1,
     index
   ) => {
-    const update = { ...selectedAnswers, [index1]: index };
+    const update = { ...selectedAnswers, [question_id]: index };
     setSelectedAnswers(update);
-    localStorage.setItem("saved_answers", JSON.stringify(update));
+    // localStorage.setItem("saved_answers", JSON.stringify(update));
 
     // =====
-    setAnswers((prev) => [
-      ...prev,
-      { savol_id: question_id, tanlangan_javob: selectedOption },
-    ]);
+    setAnswers((prevAnswers) => {
+      const existingIndex = prevAnswers.findIndex(
+        (item) => item.savol_id === question_id
+      );
+      if (existingIndex !== -1) {
+        const updatedAnswers = [...prevAnswers];
+        updatedAnswers[existingIndex] = {
+          ...updatedAnswers[existingIndex],
+          tanlangan_javob: selectedOption,
+        };
+        return updatedAnswers;
+      } else {
+        return [
+          ...prevAnswers,
+          { savol_id: question_id, tanlangan_javob: selectedOption },
+        ];
+      }
+    });
 
+    //  localStorage.setItem(
+    //   "answers",
+    //   JSON.stringify([
+    //     ...answers,
+    //     { savol_id: question_id, tanlangan_javob: selectedOption },
+    //   ])
+    // );
     setSelectOption((prev) => {
       let updated;
-      if (!prev.includes(question_number)) {
-        updated = [...prev, question_number];
+      if (!prev.includes(question_id)) {
+        updated = [...prev, question_id];
       } else {
         updated = prev;
       }
       localStorage.setItem("selectOption", JSON.stringify(updated));
       return updated;
     });
-
-    localStorage.setItem(
-      "answers",
-      JSON.stringify([
-        ...answers,
-        { savol_id: question_id, tanlangan_javob: selectedOption },
-      ])
-    );
   };
+// ==========================================================================================================================================================
+  useEffect(() => {
+    localStorage.setItem("answers", JSON.stringify(answers));
+  }, [answers]);
+
+   useEffect(() => {
+        localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
+  }, [selectedAnswers]);
+// ==========================================================================================================================================================
 
   // submit
   const handleSubmit = (e) => {
     e.preventDefault();
     isSubmittedRef.current = true;
     clearInterval(timerRef.current);
-    // localStorage.removeItem("remainingTime");
+    localStorage.removeItem("remainingTime");
 
     fetch(`${import.meta.env.VITE_BASE_URL}/check-answers/`, {
       method: "POST",
@@ -140,52 +155,22 @@ console.log(quizzes);
       .catch((err) => console.log(err));
   };
 
-  // time ==================================================================
-  // let updateTimeCount = useRef(0)
-  // // const defaultTime = 1 * 60 * 1000;
-  // const defaultTime = 2 * 60 * 60 * 1000;
-  // const [remainingTime, setRemainingTime] = useState(() => {
-  //   const saved = localStorage.getItem("remainingTime");
-  //   return saved ? parseInt(saved) : defaultTime;
-  // });
-
-  // useEffect(() => {
-  //   timerRef.current = setInterval(() => {
-  //     setRemainingTime((prev) => {
-  //       const newTime = prev - 1000;
-  //       if (newTime <= 0) {
-  //         clearInterval(timerRef.current);
-  //         // localStorage.removeItem("remainingTime");
-
-  //         if(!isSubmittedRef.current){
-  //           const fakeEvent = { preventDefault: () => {} }
-  //           handleSubmit(fakeEvent);
-  //         }
-  //         return 0;
-  //       }
-
-  //       updateTimeCount.current++
-  //       if(updateTimeCount.current%10 === 0){
-  //         localStorage.setItem("remainingTime", newTime);
-  //       }
-  //       return newTime;
-  //     });
-  //   }, 1000);
-
-  //   return () => clearInterval(timerRef.current);
-  // }, []);
-
-  // const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-  // const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-  // const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-  // const counter = `${hours} hours ${minutes} minutes ${seconds} seconds`;
-  // ===========================================================================
+  const handleSubmitPermition = (e) => {
+    if (answers?.length == quizzes?.length) {
+      handleSubmit(e);
+    } else {
+      if (confirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?")) {
+        handleSubmit(e);
+      } else {
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
       <div className="container flex gap-10 items-start justify-between">
-        {isPending && <p>loading...</p>}
+        {isPending && <p className="text-white">loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
           <MathJaxContext
@@ -202,104 +187,109 @@ console.log(quizzes);
           >
             <form
               className="max-w-[70%] overflow-visible"
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmitPermition}
             >
               <div className="quiz steps steps-vertical">
                 {quizzes?.map((item, index1) => {
                   return (
-                    <div
-                      ref={(el) => (questionRefs.current[index1] = el)}
-                      key={item.id}
-                      className="step step-info text-lg mb-10"
-                    >
-                      <div className="flex items-start w-full">
-                        <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
-                        <div className="flex flex-col gap-4 w-full">
-                          <h1
-                            className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-11"
-                          >
-                            {containsMath(item.savol) ? (
-                              <MathJax dynamic>
-                                {cleanMathFormula(item.savol)}
-                              </MathJax>
-                            ) : (
-                              item.savol.replace(/<[^>]*>/g, "")
-                            )}
-                          </h1>
-                          {showResult && (
-                            <Link to={item.answer_video_url} target="_blanck" className="flex items-center gap-3 link">
-                              {" "}
-                              <FaYoutube className="text-3xl text-red-500" />{" "}
-                              Yechimni ko'rish
-                            </Link>
-                          )}
-                          <div className="space-y-3 ml-6">
-                            {Array.isArray(item?.javoblar) &&
-                              item?.javoblar?.map((variant, index) => {
-                                const isSelected =
-                                  selectedAnswers[index1] === index;
-                                return (
-                                  <label
-                                    style={{
-                                      border: "3px solid",
-                                      borderColor: showResult
-                                        ? variant.togri
-                                          ? "green"
-                                          : isSelected
-                                          ? "red"
-                                          : "transparent"
-                                        : isSelected
-                                        ? "#00A4F2"
-                                        : "transparent",
-                                    }}
-                                    key={index}
-                                    className={`test-label group flex items-center gap-4 p-4 cursor-pointer ${
-                                      isTheme == "dracula"
-                                        ? "bg-[#3b4d66]"
-                                        : "bg-white"
-                                    } rounded-lg`}
-                                  >
-                                    <div className="test-letter text-xl font-bold bg-gray-300 px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500">
-                                      {String.fromCharCode(index + 65)}
-                                    </div>
-                                    <input
-                                      type="radio"
-                                      name={item.id}
-                                      onChange={() =>
-                                        handleAnswerChange(
-                                          item.id,
-                                          index1 + 1,
-                                          String.fromCharCode(index + 65),
-                                          index1,
-                                          index
-                                        )
-                                      }
-                                    />
-                                    <div
-                                      className="answerText text-xl text-start font-normal"
-                                      // dangerouslySetInnerHTML={{
-                                      //   __html: cleanMathFormula(variant.matn),
-                                      // }}
-                                    >
-                                      {containsMath(variant.matn)
-                                        ? cleanMathFormula(variant.matn)
-                                        : variant.matn.replace(/<[^>]*>/g, "")}
-                                    </div>
-                                  </label>
-                                );
-                              })}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <QuestionItem key={item.id} item={item} index1={index1} handleAnswerChange={handleAnswerChange} showResult={showResult} selectedAnswers={selectedAnswers}/>
+                    // <div
+                    //   ref={(el) => (questionRefs.current[index1] = el)}
+                    //   key={item.id}
+                    //   className="step step-info text-lg mb-10"
+                    // >
+                    //   <div className="flex items-start w-full">
+                    //     <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
+                    //     <div className="flex flex-col gap-4 w-full">
+                    //       <h1 className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-10 text-white">
+                    //         {containsMath(item.savol) ? (
+                    //           <MathJax dynamic>
+                    //             {cleanMathFormula(item.savol)}
+                    //           </MathJax>
+                    //         ) : (
+                    //           item.savol.replace(/<[^>]*>/g, "")
+                    //         )}
+                    //       </h1>
+                    //       {showResult && (
+                    //         <Link
+                    //           to={item.answer_video_url}
+                    //           target="_blanck"
+                    //           className="flex items-center gap-3 link text-white"
+                    //         >
+                    //           {" "}
+                    //           <FaYoutube className="text-3xl text-red-500" />{" "}
+                    //           Yechimni ko'rish
+                    //         </Link>
+                    //       )}
+                    //       <div className="space-y-3 ml-6">
+                    //         {Array.isArray(item?.javoblar) &&
+                    //           item?.javoblar?.map((variant, index) => {
+                    //             const isSelected =
+                    //               selectedAnswers[item.id] === index;
+                    //             return (
+                    //               <label
+                    //                 style={{
+                    //                   border: "3px solid",
+                    //                   borderColor: showResult
+                    //                     ? variant.togri
+                    //                       ? "green"
+                    //                       : isSelected
+                    //                       ? "red"
+                    //                       : "transparent"
+                    //                     : isSelected
+                    //                     ? "#00A4F2"
+                    //                     : "transparent",
+                    //                 }}
+                    //                 key={index}
+                    //                 className={`test-label group flex items-center gap-4 p-4 cursor-pointer bg-[#3b4d66] rounded-lg`}
+                    //               >
+                    //                 <div
+                    //                   className={`test-letter text-xl font-bold ${
+                    //                     isSelected
+                    //                       ? "bg-info text-white"
+                    //                       : "bg-gray-300"
+                    //                   } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500`}
+                    //                 >
+                    //                   {String.fromCharCode(index + 65)}
+                    //                 </div>
+                    //                 <input
+                    //                   type="radio"
+                    //                   name={item.id}
+                    //                   onChange={() =>
+                    //                     handleAnswerChange(
+                    //                       item.id,
+                    //                       index1 + 1,
+                    //                       String.fromCharCode(index + 65),
+                    //                       index1,
+                    //                       index
+                    //                     )
+                    //                   }
+                    //                 />
+                    //                 <div
+                    //                   className="answerText text-xl text-start font-normal text-white"
+                    //                   // dangerouslySetInnerHTML={{
+                    //                   //   __html: cleanMathFormula(variant.matn),
+                    //                   // }}
+                    //                 >
+                    //                   {containsMath(variant.matn)
+                    //                     ? cleanMathFormula(variant.matn)
+                    //                     : variant.matn.replace(/<[^>]*>/g, "")}
+                    //                 </div>
+                    //               </label>
+                    //             );
+                    //           })}
+                    //       </div>
+                    //     </div>
+                    //   </div>
+                    // </div>
                   );
                 })}
               </div>
               <div className="w-full flex flex-col items-center mt-5">
                 <button
-                disabled={result ? true : false}
+                  disabled={result ? true : false}
                   type="submit"
-                  className="w-1/2 btn btn-info btn-xl text-white rounded-2xl"
+                  className={`w-1/2 btn btn-info btn-xl text-white rounded-2xl`}
                 >
                   Testni yakunlash
                 </button>
@@ -308,7 +298,7 @@ console.log(quizzes);
             <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
                 <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
-                <h1 className="text-center text-2xl font-semibold">
+                <h1 className="text-center text-2xl font-semibold text-white">
                   {userData?.familya + " " + userData?.ism}
                 </h1>
               </div>
@@ -321,7 +311,8 @@ console.log(quizzes);
                 </div>
               )}
               <Time
-              // 2 * 60 * 60 * 1000
+                // 2 * 60 * 60 * 1000
+                showResult={showResult}
                 initialTime={2 * 60 * 1000}
                 onTimeUp={() => {
                   if (!isSubmittedRef.current) {
@@ -332,7 +323,7 @@ console.log(quizzes);
               />
               {/* process */}
               <div className="my-3 mb-10">
-                <h1>Process</h1>
+                <h1 className="text-white">Process</h1>
                 <div className="test-proccess-container">
                   {quizzes && (
                     <div
@@ -349,13 +340,13 @@ console.log(quizzes);
               <div className="grid grid-cols-5 gap-[5px]">
                 {quizzes &&
                   quizzes.map((item, index) => {
-                    const isChanged = selectOption.includes(index + 1);
+                    const isChanged = selectOption.includes(item.id);
                     return (
                       <button
                         onClick={() => handleScrollToQuestion(index)}
                         key={index}
-                        className={`btn ${
-                          isChanged ? "btn-info" : "btn-outline"
+                        className={`btn text-[#abc1e1] ${
+                          isChanged ? "btn-info text-white" : "btn-outline"
                         } text-[16px] mb-2 ${
                           index + 1 < 10 ? "px-[19px]" : ""
                         }`}

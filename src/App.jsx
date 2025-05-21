@@ -16,7 +16,7 @@ function App() {
   const routes = createBrowserRouter([
     {
       path: "/quiz",
-      element: userData ? <MainLayout /> : <Navigate to="/register"/>,
+      element: userData ? <MainLayout /> : <Navigate to="/"/>,
       children: [
         {
           index: true,
@@ -25,7 +25,7 @@ function App() {
       ],
     },
     {
-      path: "/register",
+      path: "/",
       element: userData ? <Navigate to="/quiz"/> : <Register />,
     },
   ]);

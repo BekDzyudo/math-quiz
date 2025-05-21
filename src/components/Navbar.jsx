@@ -5,48 +5,50 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import userImage from "../../public/assets/user.jfif";
 
-const themeFromLocalStorage = () => {
-  return localStorage.getItem("theme") || "dracula";
-};
+// const themeFromLocalStorage = () => {
+//   return localStorage.getItem("theme") || "dracula";
+// };
 
 function Navbar() {
-  const { setIsTheme, setUserData } = useContext(GlobalContext);
-  const [theme, setTheme] = useState(themeFromLocalStorage());
+  const { userData, setUserData } = useContext(GlobalContext);
+  // const [theme, setTheme] = useState(themeFromLocalStorage());
   const navigate = useNavigate();
 
 const userName = JSON.parse(localStorage.getItem("user-data"))
 
   function handleLogout() {
     localStorage.clear();
-    setTheme("dracula");
-    setUserData(null);
-    navigate("/register");
+    setUserData(null)
+    // setTheme("dracula");
   }
-
-  const toggleTheme = () => {
-    const newTheme = theme == "cupcake" ? "dracula" : "cupcake";
-    setTheme(newTheme);
-  };
-
   useEffect(() => {
-    setIsTheme(theme);
-    document.body.classList = "";
-    document.body.classList.add(theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+  if (userData === null) {
+    navigate("/");
+  }
+}, [userData]);
+
+  // const toggleTheme = () => {
+  //   const newTheme = theme == "cupcake" ? "dracula" : "cupcake";
+  //   setTheme(newTheme);
+  // };
+
+  // useEffect(() => {
+  //   setIsTheme(theme);
+  //   document.body.classList = "";
+  //   document.body.classList.add(theme);
+  //   localStorage.setItem("theme", theme);
+  // }, [theme]);
 
   return (
     <div
-      className={`navbar ${
-        theme == "cupcake" ? "bg-[#F4F6FA] shadow" : "bg-[#3B4D66] shadow-2xl"
-      } mb-8 `}
+      className={`navbar bg-[#3B4D66] shadow-2xl mb-8 `}
     >
       <div className="container h-20 flex justify-between items-center">
-        <h1 className="font-bold text-4xl text-base-500 flex items-center gap-5">
+        <h1 className="font-bold text-4xl text-base-500 flex items-center gap-5 text-[#abc1e1]">
           <BsQuestionSquare /> Toifa uchun testlar
         </h1>
         <div className="flex items-center gap-7">
-          <label className="flex cursor-pointer gap-2">
+          {/* <label className="flex cursor-pointer gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -81,22 +83,23 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
             >
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
-          </label>
+          </label> */}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 border-l pl-7"
+            className="flex items-center gap-2 text-[#abc1e1] cursor-pointer"
           >
             Chiqish <IoLogOutOutline className="text-3xl" />
           </button>
         </div>
 
+{/* avatar */}
         <div class="dropdown dropdown-end md:hidden">
           <div
             tabindex="0"
             role="button"
             class="btn btn-ghost btn-circle avatar hover:border-none focus:border-none"
           >
-            <div class="w-10 rounded-full">
+            <div className="w-10 rounded-full">
               <img
                 className="object-cover"
                 src={userImage}
@@ -106,14 +109,10 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
           </div>
           <ul
             tabindex="0"
-            class={`mt-3 z-[1] p-2 shadow menu menu-sm border border-gray-300 dropdown-content ${
-              theme == "cupcake"
-                ? "bg-[#F4F6FA] shadow"
-                : "bg-[#3B4D66] shadow-2xl"
-            } rounded-box w-32`}
+            className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-[#3B4D66] shadow-2xl rounded-box w-32`}
           >
             <li>
-              <a class="justify-between">
+              <a className="justify-between">
                 {userName?.ism + " " + userName?.familya}
               </a>
             </li>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 
-const Time = React.memo(({ onTimeUp, initialTime }) => {
+const Time = React.memo(({showResult, onTimeUp, initialTime }) => {
   const timerRef = useRef(null);
   const updateTimeCountRef = useRef(0);
 
@@ -19,13 +19,19 @@ const Time = React.memo(({ onTimeUp, initialTime }) => {
           localStorage.setItem("remainingTime", 0);
           return 0;
         }
-
-        updateTimeCountRef.current++;
-        if (updateTimeCountRef.current % 10 === 0) {
-          localStorage.setItem("remainingTime", newTime);
+        if(showResult){
+          clearInterval(timerRef.current);
+          localStorage.setItem("remainingTime", 0);
+          return newTime;
         }
+        else{
+          updateTimeCountRef.current++;
+          if (updateTimeCountRef.current % 10 === 0) {
+            localStorage.setItem("remainingTime", newTime);
+          }
 
-        return newTime;
+          return newTime;
+        }
       });
     }, 1000);
 
@@ -49,7 +55,7 @@ const Time = React.memo(({ onTimeUp, initialTime }) => {
 
   return (
     <div className="flex justify-center m-5">
-      <span className="countdown font-mono text-3xl">
+      <span className="countdown font-mono text-3xl text-white">
         <span
           style={{ "--value": hours }}
           aria-live="polite"

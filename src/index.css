@@ -44,15 +44,16 @@
   --navy-color: #3b4d66;
   --gray-navy-color: #626c7f;
   --light-bluish-color: #abc1e1;
-  --light-grey-color: #f4f6fa;
+  /* --light-grey-color: #f4f6fa; */
+  --light-grey-color: #313e51;
   --prue-white-color: #ffffff;
   --green-color: #26d782;
   --red-color: #ee5454;
   --main-font-family: "Rubik", Arial, Helvetica, sans-serif;
 
-  --body-bg-image: url("../assets/pattern-background-desktop-light.svg");
-  --body-bg-image-tablet: url("../assets/pattern-background-tablet-light.svg");
-  --body-bg-image-mobile: url("../assets/pattern-background-mobile-light.svg");
+ --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
+  --body-bg-image-tablet: url("../assets/pattern-background-tablet-dark.svg");
+  --body-bg-image-mobile: url("../assets/pattern-background-mobile-dark.svg");
 
   --sun-icon: url("../assets/icon-moon-dark.svg");
   --moon-icon: url("../assets/icon-sun-dark.svg");
