@@ -170,7 +170,7 @@ function Quiz() {
   return (
     <div className="min-h-screen pb-12">
       <Navbar />
-      <div className="container flex gap-10 items-start justify-between">
+      <div className="container flex gap-10 items-start justify-between border border-green-600">
         {isPending && <p className="text-white">loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
@@ -187,16 +187,37 @@ function Quiz() {
             version={3}
           >
             <form
-              className="max-w-[70%] overflow-visible"
+              className="w-[70%] overflow-visible border border-red-500"
               onSubmit={handleSubmitPermition}
             >
-              <div className="quiz steps steps-vertical">
-                {quizzes?.map((item, index1) => {
+              {/* <div className="quiz steps steps-vertical h-auto overflow-visible"> */}
+                <List
+                  height={window.innerHeight}
+                  itemCount={quizzes.length}
+                  itemSize={600}
+                  width={"100%"}
+                >
+                  {({ index, style }) => {
+                    const item = quizzes[index]; // <-- bu muhim
+                    return (
+                      <div style={style} key={item.id}>
+                        <QuestionItem
+                          item={item}
+                          index1={index}
+                          handleAnswerChange={handleAnswerChange}
+                          showResult={showResult}
+                          selectedAnswers={selectedAnswers}
+                        />
+                      </div>
+                    );
+                  }}
+                </List>
+                {/* {quizzes?.map((item, index1) => {
                   return (
                     <QuestionItem key={item.id} item={item} index1={index1} handleAnswerChange={handleAnswerChange} showResult={showResult} selectedAnswers={selectedAnswers}/>
                   );
-                })}
-              </div>
+                })} */}
+              {/* </div> */}
               <div className="w-full flex flex-col items-center mt-5">
                 <button
                   disabled={result ? true : false}

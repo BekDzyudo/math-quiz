@@ -2,6 +2,7 @@ import { MathJax } from "better-react-mathjax";
 import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import React, { useRef } from "react";
+import { FixedSizeList as List } from "react-window";
 
 const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers}) => {
 
@@ -25,11 +26,11 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
   }
 
   return (
-    <div
-      ref={(el) => (questionRefs.current[index1] = el)}
-      className="step step-info text-lg mb-10"
-    >
-      <div className="flex items-start w-full">
+    // <div
+    //   ref={(el) => (questionRefs.current[index1] = el)}
+    //   className="step step-info text-lg mb-10"
+    // >
+      <div className="flex items-start w-full border border-yellow-500" ref={(el) => (questionRefs.current[index1] = el)}>
         <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
         <div className="flex flex-col gap-4 w-full">
           <h1 className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-10 text-white">
@@ -106,7 +107,7 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
           </div>
         </div>
       </div>
-    </div>
+    // </div>
   );
 });
 
