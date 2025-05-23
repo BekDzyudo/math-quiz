@@ -41,7 +41,7 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
 
   return (
     <div
-      className={`navbar bg-[#3B4D66] shadow-2xl mb-8 `}
+      className={`navbar bg-[#3B4D66] shadow-2xl`}
     >
       <div className="container h-20 flex justify-between items-center">
         <h1 className="font-bold text-4xl text-base-500 flex items-center gap-5 text-[#abc1e1]">

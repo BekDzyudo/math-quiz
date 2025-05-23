@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 import React, { useRef } from "react";
 import { FixedSizeList as List } from "react-window";
 
-const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers}) => {
+const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers, questionRefs}) => {
 
-     const questionRefs = useRef([]);
+    //  const questionRefs = useRef([]);
      
     function cleanMathFormula(str) {
     if (!str) return "";
@@ -25,21 +25,33 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
     return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
   }
 
+  function stripHtmlTagsPreserveMath(html) {
+  if (!html) return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+
+  // p, strong, em va boshqa formatting teglarni olib tashlaydi, lekin ichidagi textni saqlaydi
+  return div.textContent || div.innerText || "";
+}
+
   return (
     // <div
     //   ref={(el) => (questionRefs.current[index1] = el)}
     //   className="step step-info text-lg mb-10"
     // >
-      <div className="flex items-start w-full border border-yellow-500" ref={(el) => (questionRefs.current[index1] = el)}>
+      <div className="flex items-start w-full" ref={(el) => (questionRefs.current[index1] = el)}>
         <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
         <div className="flex flex-col gap-4 w-full">
-          <h1 className="text-2xl text-start font-semibold border-b border-gray-400 m-0 p-0 leading-10 text-white">
+          <div className="flex items-center gap-3 w-full">
+            <button className="btn btn-active btn-info btn- text-2xl text-white">{index1+1}</button>
+            <h1 className="w-full text-2xl text-start font-semibold border-b  border-gray-400 m-0 leading-10 text-white">
             {containsMath(item.savol) ? (
-              <MathJax dynamic><span>{cleanMathFormula(item.savol)}</span></MathJax>
+              <MathJax dynamic key={item.id}><span>{cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}</span></MathJax>
             ) : (
-              item.savol.replace(/<[^>]*>/g, "")
+              stripHtmlTagsPreserveMath(item.savol).replace(/<[^>]*>/g, "")
             )}
           </h1>
+          </div>
           {showResult && (
             <Link
               to={item.answer_video_url}
@@ -98,8 +110,8 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
                       // }}
                     >
                       {containsMath(variant.matn)
-                        ? cleanMathFormula(variant.matn)
-                        : variant.matn.replace(/<[^>]*>/g, "")}
+                        ? <MathJax dynamic key={item.id}><span>{cleanMathFormula(stripHtmlTagsPreserveMath(variant.matn))}</span></MathJax>
+                        : stripHtmlTagsPreserveMath(variant.matn).replace(/<[^>]*>/g, "")}
                     </div>
                   </label>
                 );

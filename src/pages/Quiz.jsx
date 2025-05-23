@@ -168,9 +168,9 @@ function Quiz() {
   };
 
   return (
-    <div className="min-h-screen pb-12">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="container flex gap-10 items-start justify-between border border-green-600">
+      <div className="container flex gap-10 items-start justify-between h-full pt-5">
         {isPending && <p className="text-white">loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
@@ -186,47 +186,45 @@ function Quiz() {
             }}
             version={3}
           >
-            <form
-              className="w-[70%] overflow-visible border border-red-500"
-              onSubmit={handleSubmitPermition}
-            >
+            <form className="w-[70%] h-full">
               {/* <div className="quiz steps steps-vertical h-auto overflow-visible"> */}
-                <List
-                  height={window.innerHeight}
-                  itemCount={quizzes.length}
-                  itemSize={600}
-                  width={"100%"}
-                >
-                  {({ index, style }) => {
-                    const item = quizzes[index]; // <-- bu muhim
-                    return (
-                      <div style={style} key={item.id}>
-                        <QuestionItem
-                          item={item}
-                          index1={index}
-                          handleAnswerChange={handleAnswerChange}
-                          showResult={showResult}
-                          selectedAnswers={selectedAnswers}
-                        />
-                      </div>
-                    );
-                  }}
-                </List>
-                {/* {quizzes?.map((item, index1) => {
+              <List
+                height={window.innerHeight - 142}
+                itemCount={quizzes.length}
+                itemSize={550}
+                width={"100%"}
+                className="overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 hover:scrollbar-thumb-gray-700"
+              >
+                {({ index, style }) => {
+                  // if (index === quizzes.length) {
+                  //   return (
+                  //     <div style={style} className="w-full flex flex-col items-center mt-5 border border-red-500">
+                  //       <button
+                  //         disabled={result ? true : false}
+                  //         type="submit"
+                  //         className={`w-1/2 btn btn-info btn-xl text-white rounded-2xl`}
+                  //       >
+                  //         Testni yakunlash
+                  //       </button>
+                  //     </div>
+                  //   );
+                  // }
+                  const item = quizzes[index];
                   return (
-                    <QuestionItem key={item.id} item={item} index1={index1} handleAnswerChange={handleAnswerChange} showResult={showResult} selectedAnswers={selectedAnswers}/>
+                    <div style={style} key={item.id}>
+                      <QuestionItem
+                        item={item}
+                        index1={index}
+                        handleAnswerChange={handleAnswerChange}
+                        showResult={showResult}
+                        selectedAnswers={selectedAnswers}
+                        questionRefs={questionRefs}
+                      />
+                    </div>
                   );
-                })} */}
+                }}
+              </List>
               {/* </div> */}
-              <div className="w-full flex flex-col items-center mt-5">
-                <button
-                  disabled={result ? true : false}
-                  type="submit"
-                  className={`w-1/2 btn btn-info btn-xl text-white rounded-2xl`}
-                >
-                  Testni yakunlash
-                </button>
-              </div>
             </form>
             <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
@@ -288,6 +286,16 @@ function Quiz() {
                       </button>
                     );
                   })}
+              </div>
+              <div className="w-full flex flex-col items-center mt-5">
+                <button
+                onClick={handleSubmitPermition}
+                  disabled={result ? true : false}
+                  type="submit"
+                  className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
+                >
+                  Testni yakunlash
+                </button>
               </div>
             </div>
           </MathJaxContext>
