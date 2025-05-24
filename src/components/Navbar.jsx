@@ -26,7 +26,7 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
     <div
       className={`navbar bg-[#3B4D66] shadow-2xl flex flex-col md:flex-row`}
     >
-      <div className="px-5 w-full pb-2 md:pb-0 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] md:h-20 flex justify-between items-center md:border-none border-b border-gray-400">
+      <div className="px-2 w-full pb-2 md:pb-0 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] md:h-20 flex justify-between items-center md:border-none border-b border-gray-400">
         <h1 className="font-bold text-2xl gap-2 md:text-4xl text-base-500 flex items-center md:gap-5 text-[#abc1e1]">
           <BsQuestionSquare /> Toifa uchun testlar
         </h1>
@@ -69,7 +69,7 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
           </ul>
         </div>
       </div>
-      <div className="md:hidden mt-2 w-full flex justify-between items-center px-5 ">
+      <div className="md:hidden mt-2 w-full flex justify-between items-center px-2">
         <h1 className="text-white text-md">Testlar soni: <span>{testLength}</span></h1>
         <Time showResult={showResult}
                 initialTime={2 * 60 * 60 * 1000}
