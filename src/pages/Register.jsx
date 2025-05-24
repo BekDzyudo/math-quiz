@@ -43,10 +43,10 @@ function Register() {
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <form
-        className="shadow-2xl h-min rounded-2xl flex flex-col gap-4 p-5"
+        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-5xl font-semibold text-center mb-4 text-[#abc1e1]">Register</h1>
+        <h1 className="md:text-5xl text-3xl font-semibold text-center mb-4 text-[#abc1e1]">Register</h1>
         <div className="flex flex-col gap-0.5">
           <label htmlFor="firstname" className="text-[#abc1e1]">Ism:</label>
           <input

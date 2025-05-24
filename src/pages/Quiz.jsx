@@ -195,7 +195,8 @@ function Quiz() {
                 itemCount={quizzes.length}
                 itemSize={itemSize}
                 width={"100%"}
-                className="overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 hover:scrollbar-thumb-gray-700"
+                className="overflow-y-scroll scrollbar-thin custom-scrollbar"
+                // overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 hover:scrollbar-thumb-gray-700
               >
                 {({ index, style }) => {
                   const item = quizzes[index];
