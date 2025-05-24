@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { useGetFetch } from "../hooks/useGetFetch";
-import { FaYoutube } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import { MathJaxContext, MathJax } from "better-react-mathjax";
+import { MathJaxContext } from "better-react-mathjax";
 import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
 
@@ -22,6 +20,7 @@ function Quiz() {
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
+  const [itemSize, setItemSize] = useState(550);
 
   // get data
   const {
@@ -29,24 +28,6 @@ function Quiz() {
     isPending,
     error,
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
-
-  // math funck
-  // function cleanMathFormula(str) {
-  //   if (!str) return "";
-  //   return str
-  //     .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
-  //     .replace(/(?<!\\)frac/g, "\\frac")
-  //     .replace(/(?<!\\)pi/g, "\\pi")
-  //     .replace(/(?<!\\)left/g, "\\left")
-  //     .replace(/(?<!\\)right/g, "\\right")
-  //     .replace(/&nbsp;/g, " ")
-  //     .replace(/&lt;/g, "<")
-  //     .replace(/&gt;/g, ">")
-  //     .replace(/&amp;/g, "&");
-  // }
-  // function containsMath(str) {
-  //   return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
-  // }
 
   // click and scroll
   const handleScrollToQuestion = (index) => {
@@ -118,7 +99,7 @@ function Quiz() {
       return updated;
     });
   };
-  // ==========================================================================================================================================================
+  // ============================
   useEffect(() => {
     localStorage.setItem("answers", JSON.stringify(answers));
   }, [answers]);
@@ -126,7 +107,22 @@ function Quiz() {
   useEffect(() => {
     localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
   }, [selectedAnswers]);
-  // ==========================================================================================================================================================
+
+   useEffect(() => {
+    const updateItemSize = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        setItemSize(400); // sm
+      } else {
+        setItemSize(550); // md va yuqori
+      }
+    };
+
+    updateItemSize(); // birinchi renderda
+    window.addEventListener("resize", updateItemSize); // resize bo‘lsa
+    return () => window.removeEventListener("resize", updateItemSize); // cleanup
+  }, []);
+  // ============================
 
   // submit
   const handleSubmit = (e) => {
@@ -169,8 +165,15 @@ function Quiz() {
 
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <div className="container flex gap-10 items-start justify-between h-full pt-5">
+      <Navbar
+        testLength={quizzes?.length}
+        handleSubmitPermition={handleSubmitPermition}
+        handleSubmit={handleSubmit}
+        result={result}
+        showResult={showResult}
+        isSubmittedRef={isSubmittedRef}
+      />
+      <div className="px-5 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5">
         {isPending && <p className="text-white">loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
@@ -186,29 +189,15 @@ function Quiz() {
             }}
             version={3}
           >
-            <form className="w-[70%] h-full">
-              {/* <div className="quiz steps steps-vertical h-auto overflow-visible"> */}
+            <form className="w-full md:w-[70%] h-full">
               <List
                 height={window.innerHeight - 142}
                 itemCount={quizzes.length}
-                itemSize={550}
+                itemSize={itemSize}
                 width={"100%"}
                 className="overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 hover:scrollbar-thumb-gray-700"
               >
                 {({ index, style }) => {
-                  // if (index === quizzes.length) {
-                  //   return (
-                  //     <div style={style} className="w-full flex flex-col items-center mt-5 border border-red-500">
-                  //       <button
-                  //         disabled={result ? true : false}
-                  //         type="submit"
-                  //         className={`w-1/2 btn btn-info btn-xl text-white rounded-2xl`}
-                  //       >
-                  //         Testni yakunlash
-                  //       </button>
-                  //     </div>
-                  //   );
-                  // }
                   const item = quizzes[index];
                   return (
                     <div style={style} key={item.id}>
@@ -226,7 +215,7 @@ function Quiz() {
               </List>
               {/* </div> */}
             </form>
-            <div className="sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
+            <div className="hidden md:block sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
                 <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
                 <h1 className="text-center text-2xl font-semibold text-white">
@@ -289,9 +278,9 @@ function Quiz() {
               </div>
               <div className="w-full flex flex-col items-center mt-5">
                 <button
-                onClick={handleSubmitPermition}
+                  onClick={handleSubmitPermition}
                   disabled={result ? true : false}
-                  type="submit"
+                  type="button"
                   className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
                 >
                   Testni yakunlash

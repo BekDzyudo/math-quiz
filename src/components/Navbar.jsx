@@ -1,17 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 import { BsQuestionSquare } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import userImage from "../../public/assets/user.jfif";
+import { FaUser } from "react-icons/fa";
+import Time from "./Time";
 
-// const themeFromLocalStorage = () => {
-//   return localStorage.getItem("theme") || "dracula";
-// };
-
-function Navbar() {
+function Navbar({testLength, handleSubmitPermition, result, showResult, isSubmittedRef, handleSubmit}) {
   const { userData, setUserData } = useContext(GlobalContext);
-  // const [theme, setTheme] = useState(themeFromLocalStorage());
   const navigate = useNavigate();
 
 const userName = JSON.parse(localStorage.getItem("user-data"))
@@ -19,35 +16,21 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
   function handleLogout() {
     localStorage.clear();
     setUserData(null)
-    // setTheme("dracula");
   }
   useEffect(() => {
   if (userData === null) {
     navigate("/");
   }
 }, [userData]);
-
-  // const toggleTheme = () => {
-  //   const newTheme = theme == "cupcake" ? "dracula" : "cupcake";
-  //   setTheme(newTheme);
-  // };
-
-  // useEffect(() => {
-  //   setIsTheme(theme);
-  //   document.body.classList = "";
-  //   document.body.classList.add(theme);
-  //   localStorage.setItem("theme", theme);
-  // }, [theme]);
-
   return (
     <div
-      className={`navbar bg-[#3B4D66] shadow-2xl`}
+      className={`navbar bg-[#3B4D66] shadow-2xl flex flex-col md:flex-row`}
     >
-      <div className="container h-20 flex justify-between items-center">
-        <h1 className="font-bold text-4xl text-base-500 flex items-center gap-5 text-[#abc1e1]">
+      <div className="px-5 w-full pb-2 md:pb-0 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] md:h-20 flex justify-between items-center md:border-none border-b border-gray-400">
+        <h1 className="font-bold text-2xl gap-2 md:text-4xl text-base-500 flex items-center md:gap-5 text-[#abc1e1]">
           <BsQuestionSquare /> Toifa uchun testlar
         </h1>
-        <div className="flex items-center gap-7">
+        <div className="items-center gap-7 hidden md:flex">
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 text-[#abc1e1] cursor-pointer"
@@ -73,21 +56,30 @@ const userName = JSON.parse(localStorage.getItem("user-data"))
           </div>
           <ul
             tabIndex="0"
-            className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-[#3B4D66] shadow-2xl rounded-box w-32`}
+            className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-[#3B4D66] shadow-2xl rounded-box w-40`}
           >
             <li>
-              <a className="justify-between">
-                {userName?.ism + " " + userName?.familya}
+              <a className="flex items-center gap-2 text-white">
+                <FaUser style={{ color: "white", fontSize: "15px" }}/> {userName?.ism + " " + userName?.familya}
               </a>
             </li>
             <li>
-              <a>Sozlamalar</a>
-            </li>
-            <li>
-              <a>Chiqish</a>
+              <a onClick={handleLogout} className="text-white flex gap-2 items-center"><IoLogOutOutline className="text-xl" /> Chiqish </a>
             </li>
           </ul>
         </div>
+      </div>
+      <div className="md:hidden mt-2 w-full flex justify-between items-center px-5 ">
+        <h1 className="text-white text-md">Testlar soni: <span>{testLength}</span></h1>
+        <Time showResult={showResult}
+                initialTime={2 * 60 * 60 * 1000}
+                onTimeUp={() => {
+                  if (!isSubmittedRef.current) {
+                    const fakeEvent = { preventDefault: () => {} };
+                    handleSubmit(fakeEvent);
+                  }
+                }}/>
+        <button onClick={handleSubmitPermition}  disabled={result ? true : false} className="btn btn-outline btn-info btn-sm text-white rounded-[8px]">Testni yakunlash</button>
       </div>
     </div>
   );

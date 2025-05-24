@@ -1,12 +1,9 @@
 import { MathJax } from "better-react-mathjax";
 import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import React, { useRef } from "react";
-import { FixedSizeList as List } from "react-window";
+import React from "react";
 
 const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers, questionRefs}) => {
-
-    //  const questionRefs = useRef([]);
      
     function cleanMathFormula(str) {
     if (!str) return "";
@@ -29,22 +26,15 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
   if (!html) return "";
   const div = document.createElement("div");
   div.innerHTML = html;
-
-  // p, strong, em va boshqa formatting teglarni olib tashlaydi, lekin ichidagi textni saqlaydi
   return div.textContent || div.innerText || "";
 }
 
   return (
-    // <div
-    //   ref={(el) => (questionRefs.current[index1] = el)}
-    //   className="step step-info text-lg mb-10"
-    // >
-      <div className="flex items-start w-full" ref={(el) => (questionRefs.current[index1] = el)}>
-        <div className="mt-2 w-6 flex-shrink-0 text-2xl"></div>
+      <div className="w-full" ref={(el) => (questionRefs.current[index1] = el)}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex items-center gap-3 w-full">
-            <button className="btn btn-active btn-info btn- text-2xl text-white">{index1+1}</button>
-            <h1 className="w-full text-2xl text-start font-semibold border-b  border-gray-400 m-0 leading-10 text-white">
+            <button className="btn btn-active btn-info text-[18px] md:text-2xl text-white">{index1+1}</button>
+            <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold border-b border-gray-400 m-0 leading-6 md:leading-10 text-white">
             {containsMath(item.savol) ? (
               <MathJax dynamic key={item.id}><span>{cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}</span></MathJax>
             ) : (
@@ -56,13 +46,13 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
             <Link
               to={item.answer_video_url}
               target="_blank"
-              className="flex items-center gap-3 link text-white"
+              className="flex items-center justify-center md:justify-start gap-3 link text-white"
             >
               {" "}
               <FaYoutube className="text-3xl text-red-500" /> Yechimni ko'rish
             </Link>
           )}
-          <div className="space-y-3 ml-6">
+          <div className="space-y-3 md:ml-6">
             {Array.isArray(item?.javoblar) &&
               item?.javoblar?.map((variant, index) => {
                 const isSelected = selectedAnswers[item.id] === index;
@@ -81,10 +71,10 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
                         : "transparent",
                     }}
                     key={index}
-                    className={`test-label group flex items-center gap-4 p-4 cursor-pointer bg-[#3b4d66] rounded-lg`}
+                    className={`test-label group flex items-center gap-2 md:gap-4 p-2 md:p-4 cursor-pointer bg-[#3b4d66] rounded-lg`}
                   >
                     <div
-                      className={`test-letter text-xl font-bold ${
+                      className={`test-letter text-[18px] md:text-xl font-bold ${
                         isSelected ? "bg-info text-white" : "bg-gray-300"
                       } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500`}
                     >
@@ -104,7 +94,7 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
                       }
                     />
                     <div
-                      className="answerText text-xl text-start font-normal text-white"
+                      className="answerText text-[18px] md:text-xl text-start font-normal text-white"
                       // dangerouslySetInnerHTML={{
                       //   __html: cleanMathFormula(variant.matn),
                       // }}
@@ -119,7 +109,6 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
           </div>
         </div>
       </div>
-    // </div>
   );
 });
 
