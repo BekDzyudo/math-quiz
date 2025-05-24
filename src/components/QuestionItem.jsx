@@ -3,40 +3,78 @@ import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import React from "react";
 
-const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, selectedAnswers, questionRefs}) => {
-     
+const QuestionItem = React.memo(
+  ({
+    item,
+    index1,
+    handleAnswerChange,
+    showResult,
+    selectedAnswers,
+    questionRefs,
+  }) => {
     function cleanMathFormula(str) {
-    if (!str) return "";
-    return str
-      .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
-      .replace(/(?<!\\)frac/g, "\\frac")
-      .replace(/(?<!\\)pi/g, "\\pi")
-      .replace(/(?<!\\)left/g, "\\left")
-      .replace(/(?<!\\)right/g, "\\right")
-      .replace(/&nbsp;/g, " ")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&amp;/g, "&");
-  }
-  function containsMath(str) {
-    return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
-  }
+      if (!str) return "";
+      return str
+        .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
+        .replace(/(?<!\\)frac/g, "\\frac")
+        .replace(/(?<!\\)pi/g, "\\pi")
+        .replace(/(?<!\\)left/g, "\\left")
+        .replace(/(?<!\\)right/g, "\\right")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&");
+    }
 
-  function stripHtmlTagsPreserveMath(html) {
-  if (!html) return "";
-  const div = document.createElement("div");
-  div.innerHTML = html;
-  return div.textContent || div.innerText || "";
-}
+    //     function cleanMathFormula(str) {
+    //   if (!str) return "";
+    //   return str
+    //     .replace(/&nbsp;/g, " ")
+    //     .replace(/&lt;/g, "<")
+    //     .replace(/&gt;/g, ">")
+    //     .replace(/&amp;/g, "&");
+    // }  bu funksiya latex format to'g'ri kelganda ishlaydi
 
-  return (
+    function containsMath(str) {
+      return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
+    }
+
+    function stripHtmlTagsPreserveMath(html) {
+      if (!html) return "";
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      return div.textContent || div.innerText || "";
+    }
+
+    return (
       <div className="w-full" ref={(el) => (questionRefs.current[index1] = el)}>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex items-center gap-3 w-full">
-            <button className="btn btn-active btn-info text-[18px] md:text-2xl text-white">{index1+1}</button>
-            <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold border-b border-gray-400 m-0 leading-6 md:leading-10 text-white">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
+            <button type="button" className="btn md:rounded-sm rounded-t-2xl btn-active btn-info text-[18px] md:text-2xl text-white">
+              {index1 + 1}
+            </button>
+            {/* <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
+              {containsMath(item.savol)
+                ? cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))
+                    .split(/\$(.*?)\$/)
+                    .map((part, idx) =>
+                      idx % 2 === 0 ? (
+                        <span key={idx}>{part}</span>
+                      ) : (
+                        <div key={idx} className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
+                          <MathJax dynamic inline={false}>
+                            {`\\(${part}\\)`}
+                          </MathJax>
+                        </div>
+                      )
+                    )
+                : stripHtmlTagsPreserveMath(item.savol)}
+            </h1> */}
+            <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
             {containsMath(item.savol) ? (
-              <MathJax dynamic key={item.id}><span>{cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}</span></MathJax>
+              <div className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
+              <MathJax dynamic inline={false} key={item.id}>{cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}</MathJax>
+              </div>
             ) : (
               stripHtmlTagsPreserveMath(item.savol).replace(/<[^>]*>/g, "")
             )}
@@ -99,9 +137,20 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
                       //   __html: cleanMathFormula(variant.matn),
                       // }}
                     >
-                      {containsMath(variant.matn)
-                        ? <MathJax dynamic key={item.id}><span>{cleanMathFormula(stripHtmlTagsPreserveMath(variant.matn))}</span></MathJax>
-                        : stripHtmlTagsPreserveMath(variant.matn).replace(/<[^>]*>/g, "")}
+                      {containsMath(variant.matn) ? (
+                        <MathJax dynamic key={item.id}>
+                          <span>
+                            {cleanMathFormula(
+                              stripHtmlTagsPreserveMath(variant.matn)
+                            )}
+                          </span>
+                        </MathJax>
+                      ) : (
+                        stripHtmlTagsPreserveMath(variant.matn).replace(
+                          /<[^>]*>/g,
+                          ""
+                        )
+                      )}
                     </div>
                   </label>
                 );
@@ -109,7 +158,8 @@ const QuestionItem = React.memo(({item, index1, handleAnswerChange, showResult, 
           </div>
         </div>
       </div>
-  );
-});
+    );
+  }
+);
 
 export default QuestionItem;

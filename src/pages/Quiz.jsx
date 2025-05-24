@@ -108,11 +108,11 @@ function Quiz() {
     localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
   }, [selectedAnswers]);
 
-   useEffect(() => {
+  useEffect(() => {
     const updateItemSize = () => {
       const width = window.innerWidth;
       if (width < 768) {
-        setItemSize(400); // sm
+        setItemSize(500); // sm
       } else {
         setItemSize(550); // md va yuqori
       }
@@ -162,6 +162,27 @@ function Quiz() {
       }
     }
   };
+  // mathcontext
+  const mathJaxConfig = {
+    tex: {
+      inlineMath: [
+        ["$", "$"],
+        ["\\(", "\\)"],
+      ],
+    },
+    svg: { fontCache: "global" },
+    chtml: {
+      scale: 1, // default: 1
+      // linebreaks: {
+      //   automatic: true, // ✨ asosiy yechim shu yerda
+      // },
+    },
+    options: {
+      renderActions: {
+        addMenu: [], // foydalanuvchi uchun MathJax menyusini yo‘q qiladi
+      },
+    },
+  };
 
   return (
     <div className="min-h-screen">
@@ -178,15 +199,7 @@ function Quiz() {
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
           <MathJaxContext
-            config={{
-              tex: {
-                inlineMath: [
-                  ["$", "$"],
-                  ["\\(", "\\)"],
-                ],
-              },
-              svg: { fontCache: "global" },
-            }}
+          config={mathJaxConfig}
             version={3}
           >
             <form className="w-full md:w-[70%] h-full">
@@ -195,8 +208,6 @@ function Quiz() {
                 itemCount={quizzes.length}
                 itemSize={itemSize}
                 width={"100%"}
-                className="overflow-y-scroll scrollbar-thin custom-scrollbar"
-                // overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-500 hover:scrollbar-thumb-gray-700
               >
                 {({ index, style }) => {
                   const item = quizzes[index];

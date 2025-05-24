@@ -72,6 +72,10 @@ body{
   background-attachment: fixed;
   background-position: center;
   color: var(--dark-navy-color);
+  /* ==== */
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .dracula {
   --light-grey-color: #313e51;
@@ -135,6 +139,29 @@ body{
 .test-label:has(> input:checked) .test-letter{
   background: #00A4F2;
   color: white;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px; /* horizontal scroll uchun balandlik */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* or lightgray */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5); /* oqsoy rang */
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Firefox qo‘llab-quvvatlash */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
 }
 
 @media only screen and (max-width: 768px) and (min-width: 600px){
