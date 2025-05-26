@@ -284,7 +284,7 @@ function Quiz() {
                 </div>
               </div>
               {/* btns */}
-              <div className="grid grid-cols-5 gap-[5px]">
+              <div className="grid grid-cols-4 xl:grid-cols-5 gap-[5px]">
                 {quizzes &&
                   quizzes.map((item, index) => {
                     const isChanged = selectOption.includes(item.id);
