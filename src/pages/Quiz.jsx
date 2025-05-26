@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
+import { Virtuoso } from "react-virtuoso";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { useGetFetch } from "../hooks/useGetFetch";
@@ -20,7 +21,7 @@ function Quiz() {
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
-  const [itemSize, setItemSize] = useState(550);
+  // const [itemSize, setItemSize] = useState(550);
 
   // get data
   const {
@@ -108,20 +109,20 @@ function Quiz() {
     localStorage.setItem("saved_answers", JSON.stringify(selectedAnswers));
   }, [selectedAnswers]);
 
-  useEffect(() => {
-    const updateItemSize = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setItemSize(500); // sm
-      } else {
-        setItemSize(550); // md va yuqori
-      }
-    };
+  // useEffect(() => {
+  //   const updateItemSize = () => {
+  //     const width = window.innerWidth;
+  //     if (width < 768) {
+  //       setItemSize(500); // sm
+  //     } else {
+  //       setItemSize(550); // md va yuqori
+  //     }
+  //   };
 
-    updateItemSize(); // birinchi renderda
-    window.addEventListener("resize", updateItemSize); // resize bo‘lsa
-    return () => window.removeEventListener("resize", updateItemSize); // cleanup
-  }, []);
+  //   updateItemSize(); // birinchi renderda
+  //   window.addEventListener("resize", updateItemSize); // resize bo‘lsa
+  //   return () => window.removeEventListener("resize", updateItemSize); // cleanup
+  // }, []);
   // ============================
 
   // submit
@@ -198,12 +199,9 @@ function Quiz() {
         {isPending && <p className="text-white">loading...</p>}
         {error && <p>{error}</p>}
         {Array.isArray(quizzes) && (
-          <MathJaxContext
-          config={mathJaxConfig}
-            version={3}
-          >
+          <MathJaxContext config={mathJaxConfig} version={3}>
             <form className="w-full md:w-[70%] h-full">
-              <List
+              {/* <List
                 height={window.innerHeight - 142}
                 itemCount={quizzes.length}
                 itemSize={itemSize}
@@ -224,8 +222,25 @@ function Quiz() {
                     </div>
                   );
                 }}
-              </List>
-              {/* </div> */}
+              </List> */}
+              <Virtuoso
+                style={{ height: window.innerHeight - 142 }}
+                totalCount={quizzes.length}
+                itemContent={(index) => {
+                  const item = quizzes[index];
+                  return (
+                    <QuestionItem
+                      key={item.id}
+                      item={item}
+                      index1={index}
+                      handleAnswerChange={handleAnswerChange}
+                      showResult={showResult}
+                      selectedAnswers={selectedAnswers}
+                      questionRefs={questionRefs}
+                    />
+                  );
+                }}
+              />
             </form>
             <div className="hidden md:block sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">

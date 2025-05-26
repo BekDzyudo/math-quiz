@@ -47,7 +47,7 @@ const QuestionItem = React.memo(
     }
 
     return (
-      <div className="w-full" ref={(el) => (questionRefs.current[index1] = el)}>
+      <div className="w-full mb-12 md:mb-20" ref={(el) => (questionRefs.current[index1] = el)}>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
             <button type="button" className="btn md:rounded-sm rounded-t-2xl btn-active btn-info text-[18px] md:text-2xl text-white">
