@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { FixedSizeList as List } from "react-window";
 import { Virtuoso } from "react-virtuoso";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";

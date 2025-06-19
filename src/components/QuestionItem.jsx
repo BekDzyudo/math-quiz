@@ -46,39 +46,97 @@ const QuestionItem = React.memo(
       return div.textContent || div.innerText || "";
     }
 
+    // test funktion
+    function parseHtmlContent(html) {
+      const div = document.createElement("div");
+      div.innerHTML = html;
+
+      const elements = Array.from(div.childNodes);
+      const parsed = elements.map((el, index) => {
+        if (el.nodeName === "IMG") {
+          return { type: "image", src: el.getAttribute("src"), key: index };
+        } else if (el.nodeName === "P") {
+          // ichidagi img'ni tekshiramiz
+          const img = el.querySelector("img");
+          if (img) {
+            return { type: "image", src: img.getAttribute("src"), key: index };
+          }
+          return { type: "text", content: el.textContent || "", key: index };
+        } else {
+          return { type: "text", content: el.textContent || "", key: index };
+        }
+      });
+
+      return parsed;
+    }
+
+    const parsedContent = parseHtmlContent(item?.savol);
+    const parsedContentVariant = parseHtmlContent(item?.javoblar);
+
     return (
-      <div className="w-full mb-12 md:mb-20" ref={(el) => (questionRefs.current[index1] = el)}>
+      <div
+        className="w-full mb-12 md:mb-20"
+        ref={(el) => (questionRefs.current[index1] = el)}
+      >
         <div className="flex flex-col gap-4 w-full">
           <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
-            <button type="button" className="btn md:rounded-sm rounded-t-2xl btn-active btn-info text-[18px] md:text-2xl text-white">
+            <button
+              type="button"
+              className="btn md:rounded-sm rounded-t-2xl btn-active btn-info text-[18px] md:text-2xl text-white"
+            >
               {index1 + 1}
             </button>
-            {/* <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
-              {containsMath(item.savol)
-                ? cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))
-                    .split(/\$(.*?)\$/)
-                    .map((part, idx) =>
-                      idx % 2 === 0 ? (
-                        <span key={idx}>{part}</span>
-                      ) : (
-                        <div key={idx} className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
-                          <MathJax dynamic inline={false}>
-                            {`\\(${part}\\)`}
-                          </MathJax>
-                        </div>
-                      )
-                    )
-                : stripHtmlTagsPreserveMath(item.savol)}
-            </h1> */}
-            <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
-            {containsMath(item.savol) ? (
-              <div className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar" style={{ WebkitOverflowScrolling: "touch" }}>
-              <MathJax dynamic inline={false} key={item.id}>{cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}</MathJax>
+            {item.savol && (
+              <div className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
+                <div
+                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar flex flex-col lg:flex-row lg:items-center"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                  {parsedContent.map((block) => {
+                    if (block.type === "image") {
+                      return (
+                        <img
+                          key={block.key}
+                          src={`https://matematikapro.uz${block.src}`}
+                          alt="Savol rasmi"
+                          className="w-full md:w-96 h-auto rounded shadow-md"
+                        />
+                      );
+                    } else if (containsMath(block.content)) {
+                      return (
+                        <MathJax dynamic inline={false} key={block.key}>
+                          {cleanMathFormula(block.content)}
+                        </MathJax>
+                      );
+                    } else {
+                      return (
+                        <p
+                          key={block.key}
+                          className="text-[18px] md:text-2xl leading-7 md:leading-10"
+                        >
+                          {block.content}
+                        </p>
+                      );
+                    }
+                  })}
+                </div>
               </div>
-            ) : (
-              stripHtmlTagsPreserveMath(item.savol).replace(/<[^>]*>/g, "")
             )}
-          </h1>
+
+            {/* <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
+              {containsMath(item.savol) ? (
+                <div
+                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar"
+                  style={{ WebkitOverflowScrolling: "touch" }}
+                >
+                  <MathJax dynamic inline={false} key={item.id}>
+                    {cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}
+                  </MathJax>
+                </div>
+              ) : (
+                stripHtmlTagsPreserveMath(item.savol).replace(/<[^>]*>/g, "")
+              )}
+            </h1> */}
           </div>
           {showResult && (
             <Link
@@ -131,12 +189,36 @@ const QuestionItem = React.memo(
                         )
                       }
                     />
-                    <div
-                      className="answerText text-[18px] md:text-xl text-start font-normal text-white"
-                      // dangerouslySetInnerHTML={{
-                      //   __html: cleanMathFormula(variant.matn),
-                      // }}
-                    >
+                    <div className="answerText text-[18px] md:text-xl text-start font-normal text-white">
+                      {/* {parsedContentVariant.map((block) => {
+                        
+                        if (block.type === "image") {
+                          return (
+                            <img
+                              key={block.key}
+                              src={`https://matematikapro.uz${block.src}`}
+                              alt="Javob rasmi"
+                              className="w-full md:w-96 h-auto rounded shadow-md"
+                            />
+                          );
+                        } else if (containsMath(block.content)) {
+                          return (
+                            <MathJax dynamic inline={false} key={block.key}>
+                              {cleanMathFormula(block.content)}
+                            </MathJax>
+                          );
+                        } else {
+                          return (
+                            <p
+                              key={block.key}
+                              className="text-[18px] md:text-2xl leading-7 md:leading-10"
+                            >
+                              {block.content}
+                            </p>
+                          );
+                        }
+                      })} */}
+
                       {containsMath(variant.matn) ? (
                         <MathJax dynamic key={item.id}>
                           <span>
