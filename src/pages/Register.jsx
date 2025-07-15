@@ -84,8 +84,8 @@ function Register() {
             className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 cursor-pointer bg-[#3B4D66] text-white"
             id="toifaselect"
           >
-            <option defaultValue="1-toifa">1-Toifa</option>
-            <option value="2-toifa">2-Toifa</option>
+            <option defaultValue="1-Toifa">1-Toifa</option>
+            <option value="2-Toifa">2-Toifa</option>
             <option value="Oliy toifa">Oliy toifa</option>
           </select>
         </div>
