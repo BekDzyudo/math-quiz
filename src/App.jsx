@@ -9,14 +9,15 @@ import Register from "./pages/Register";
 import Quiz from "./pages/Quiz";
 import Result from "./pages/Result";
 import { GlobalContext } from "./context/GlobalContext";
+import Login from "./pages/Login";
 
 function App() {
   const {userData} = useContext(GlobalContext)
 
   const routes = createBrowserRouter([
     {
-      path: "/quiz",
-      element: userData ? <MainLayout /> : <Navigate to="/"/>,
+      path: "/",
+      element: userData ? <MainLayout /> : <Navigate to="/login"/>,
       children: [
         {
           index: true,
@@ -25,8 +26,12 @@ function App() {
       ],
     },
     {
-      path: "/",
-      element: userData ? <Navigate to="/quiz"/> : <Register />,
+      path: "/login",
+      element: userData ? <Navigate to="/"/> : <Login/>,
+    },
+    {
+      path: "/register",
+      element: userData ? <Navigate to="/"/> : <Register />,
     },
   ]);
   return <RouterProvider router={routes} />;

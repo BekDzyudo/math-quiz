@@ -66,7 +66,7 @@ function Navbar({
             <li>
               <a className="flex items-center gap-2 text-white">
                 <FaUser style={{ color: "white", fontSize: "15px" }} />{" "}
-                {userName?.ism + " " + userName?.familya}
+                {userName?.first_name + " " + userName?.last_name}
               </a>
             </li>
             <li>

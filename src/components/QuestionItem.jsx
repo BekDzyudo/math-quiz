@@ -122,21 +122,6 @@ const QuestionItem = React.memo(
                 </div>
               </div>
             )}
-
-            {/* <h1 className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
-              {containsMath(item.savol) ? (
-                <div
-                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar"
-                  style={{ WebkitOverflowScrolling: "touch" }}
-                >
-                  <MathJax dynamic inline={false} key={item.id}>
-                    {cleanMathFormula(stripHtmlTagsPreserveMath(item.savol))}
-                  </MathJax>
-                </div>
-              ) : (
-                stripHtmlTagsPreserveMath(item.savol).replace(/<[^>]*>/g, "")
-              )}
-            </h1> */}
           </div>
           {showResult && (
             <Link
@@ -190,35 +175,6 @@ const QuestionItem = React.memo(
                       }
                     />
                     <div className="answerText text-[18px] md:text-xl text-start font-normal text-white">
-                      {/* {parsedContentVariant.map((block) => {
-                        
-                        if (block.type === "image") {
-                          return (
-                            <img
-                              key={block.key}
-                              src={`https://matematikapro.uz${block.src}`}
-                              alt="Javob rasmi"
-                              className="w-full md:w-96 h-auto rounded shadow-md"
-                            />
-                          );
-                        } else if (containsMath(block.content)) {
-                          return (
-                            <MathJax dynamic inline={false} key={block.key}>
-                              {cleanMathFormula(block.content)}
-                            </MathJax>
-                          );
-                        } else {
-                          return (
-                            <p
-                              key={block.key}
-                              className="text-[18px] md:text-2xl leading-7 md:leading-10"
-                            >
-                              {block.content}
-                            </p>
-                          );
-                        }
-                      })} */}
-
                       {containsMath(variant.matn) ? (
                         <MathJax dynamic key={item.id}>
                           <span>

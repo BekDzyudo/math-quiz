@@ -6,9 +6,11 @@ import { useGetFetch } from "../hooks/useGetFetch";
 import { MathJaxContext } from "better-react-mathjax";
 import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
+import { toast } from "react-toastify";
 
 function Quiz() {
   const userData = JSON.parse(localStorage.getItem("user-data"));
+  
   const [answers, setAnswers] = useState([]);
   const [selectOption, setSelectOption] = useState(
     JSON.parse(localStorage.getItem("selectOption")) || []
@@ -135,21 +137,28 @@ function Quiz() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        user_id: userData.id,
+        user_id: userData.user_id,
         answers: answers,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(res.statusText);
+      .then(async(res) => {
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData)
+        }
         return res.json();
       })
       .then((data) => {
+        console.log(data);
         setResult(data.ball);
         localStorage.setItem("result", data.ball);
         setShowResult(true);
         localStorage.setItem("showResult", true);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+        if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
+      });
   };
 
   const handleSubmitPermition = (e) => {
@@ -245,7 +254,7 @@ function Quiz() {
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
                 <FaUser style={{ color: "gray", fontSize: "25px" }} />{" "}
                 <h1 className="text-center text-2xl font-semibold text-white">
-                  {userData?.familya + " " + userData?.ism}
+                  {userData?.last_name + " " + userData?.first_name}
                 </h1>
               </div>
               {/* result */}

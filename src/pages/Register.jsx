@@ -1,7 +1,8 @@
 import React, { useContext, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GlobalContext } from "../context/GlobalContext";
+import { GrFormNextLink } from "react-icons/gr";
 
 function Register() {
   const {setUserData} = useContext(GlobalContext)
@@ -9,6 +10,8 @@ function Register() {
 
   const firstName = useRef();
   const lastname = useRef();
+  const username = useRef();
+  const password = useRef();
   const phoneNumber = useRef();
   const toifa = useRef();
 
@@ -16,28 +19,37 @@ function Register() {
     e.preventDefault();
 
     const newData = {
-      ism: firstName.current.value,
-      familya: lastname.current.value,
-      tel: phoneNumber.current.value,
+      first_name: firstName.current.value,
+      last_name: lastname.current.value,
+      username: username.current.value,
+      password: password.current.value,
+      phone: phoneNumber.current.value,
       toifa: toifa.current.value,
     };
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/user-data/`, {
+    fetch(`${import.meta.env.VITE_BASE_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newData),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(res.statusText);
+      .then(async(res) => {
+        if (!res.ok) {
+          const errorData = await res.json()
+          throw new Error(errorData)
+        }
         return res.json();
       })
       .then((data) => {
-        localStorage.setItem("user-data", JSON.stringify(data));
-        setUserData(data)
-        navigate("/quiz");
+        // localStorage.setItem("user-data", JSON.stringify(data));
+        // setUserData(data)
+        // navigate("/quiz");
         toast.success("Muvaffaqiyatli 👍");
+        navigate("/login");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err)
+        toast.error("Xatolik yuz berdi");
+      });
   }
 
   return (
@@ -68,6 +80,26 @@ function Register() {
           />
         </div>
         <div className="flex flex-col gap-0.5">
+          <label htmlFor="username" className="text-[#abc1e1]">Username:</label>
+          <input
+            ref={username}
+            required
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            type="text"
+            id="username"
+          />
+        </div>
+         <div className="flex flex-col gap-0.5">
+          <div className="flex justify-between items-end"><label htmlFor="password" className="text-[#abc1e1]">Password: </label><span className="text-green-400 text-sm">8 ta belgidan kam bo'lmasligi kerak</span></div>
+          <input
+            ref={password}
+            required
+            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            type="password"
+            id="password"
+          />
+        </div>
+        <div className="flex flex-col gap-0.5">
           <label htmlFor="phonenumber" className="text-[#abc1e1]">Telefon nomer:</label>
           <input
             ref={phoneNumber}
@@ -94,9 +126,10 @@ function Register() {
             type="submit"
             className="btn btn-info text-white text-lg py-2 rounded-[6px]"
           >
-            Testni boshlash
+            Yuborish
           </button>
         </div>
+        <div className="flex justify-center"><Link to="/login" className="text-[#abc1e1] text-center flex items-center">Login  <GrFormNextLink className="text-2xl"/></Link></div>
       </form>
     </div>
   );
