@@ -205,7 +205,8 @@ function Quiz() {
       />
       <div className="px-5 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5">
         {isPending && <p className="text-white">loading...</p>}
-        {error && <p>{error}</p>}
+        {/* {error && <p>{error}</p>} */}
+        {quizzes == null && <div className="flex justify-center items-center w-full h-[calc(100vh-200px)]"><span className="text-center text-[#abc1e1] text-2xl md:text-8xl">Hozircha <br/> aktiv testlar yo‘q</span></div>}
         {Array.isArray(quizzes) && (
           <MathJaxContext config={mathJaxConfig} version={3}>
             <form className="w-full md:w-[70%] h-full">
