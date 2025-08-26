@@ -21,11 +21,12 @@ function Register() {
     const newData = {
       first_name: firstName.current.value,
       last_name: lastname.current.value,
-      username: username.current.value,
+      // username: username.current.value,
       password: password.current.value,
       phone: phoneNumber.current.value,
       toifa: toifa.current.value,
     };
+console.log(newData);
 
     fetch(`${import.meta.env.VITE_BASE_URL}/register`, {
       method: "POST",
@@ -50,18 +51,18 @@ function Register() {
       })
       .catch((err) => {
         console.log(err.message);
-        try {
-          const parsedError = JSON.parse(err.message);
+        // try {
+        //   const parsedError = JSON.parse(err.message);
 
-          // Agar parsedError.username mavjud bo‘lsa
-          if (parsedError.username && Array.isArray(parsedError.username)) {
-            toast.error(parsedError.username[0]); // "Bu username band."
-          } else {
-            toast.error("Xatolik yuz berdi");
-          }
-        } catch {
-          toast.error("Xatolik yuz berdi");
-        }
+        //   // Agar parsedError.username mavjud bo‘lsa
+        //   if (parsedError.username && Array.isArray(parsedError.username)) {
+        //     toast.error(parsedError.username[0]); // "Bu username band."
+        //   } else {
+        //     toast.error("Xatolik yuz berdi");
+        //   }
+        // } catch {
+        //   toast.error("Xatolik yuz berdi");
+        // }
       });
   }
 
@@ -98,7 +99,7 @@ function Register() {
             id="lastname"
           />
         </div>
-        <div className="flex flex-col gap-0.5">
+        {/* <div className="flex flex-col gap-0.5">
           <label htmlFor="username" className="text-[#abc1e1]">
             Username:
           </label>
@@ -109,11 +110,11 @@ function Register() {
             type="text"
             id="username"
           />
-        </div>
+        </div> */}
         <div className="flex flex-col gap-0.5">
           <div className="flex justify-between items-end">
             <label htmlFor="password" className="text-[#abc1e1]">
-              Password:{" "}
+              Parol:{" "}
             </label>
             <span className="text-green-400 text-sm">
               8 ta belgidan kam bo'lmasligi kerak
@@ -134,9 +135,11 @@ function Register() {
           <input
             ref={phoneNumber}
             required
+             placeholder="+998 90 123 45 67"
+            pattern="^\+998[0-9]{9}$"
             className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
-            type="text"
-            id="phonenumber"
+            type="tel"
+            id="phoneNumber"
           />
         </div>
         <div className="flex flex-col gap-0.5">

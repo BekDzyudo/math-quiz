@@ -1,11 +1,10 @@
 import React, { useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { GlobalContext } from "../context/GlobalContext";
 import { GrFormNextLink } from "react-icons/gr";
+import ReactInputMask from "react-input-mask";
 
-function Login() {
-  const {setUserData} = useContext(GlobalContext)
+function NewPassword() {
   const navigate = useNavigate();
 
   const phoneNumber = useRef();
@@ -16,10 +15,11 @@ function Login() {
 
     const newData = {
       phone: phoneNumber.current.value,
-      password: password.current.value,
+      new_password: password.current.value,
     };
+    console.log(newData);
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/login/`, {
+    fetch(`${import.meta.env.VITE_BASE_URL}/password-reset/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newData),
@@ -29,24 +29,21 @@ function Login() {
         return res.json();
       })
       .then((data) => {
-        localStorage.setItem("user-data", JSON.stringify(data));
-        setUserData(data)
-        navigate("/option");
-        toast.success("Muvaffaqiyatli 👍");
+        navigate("/login");
+        toast.success("Parol muvaffaqiyatli o'gartirildi 👍");
       })
       .catch((err) => {
         console.log(err)
         toast.error("Telefon nomer yoki parol xato");
       });
   }
-
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <form
         className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5"
         onSubmit={handleSubmit}
       >
-        <h1 className="md:text-5xl text-3xl font-semibold text-center mb-4 text-[#abc1e1]">Login</h1>
+        <h1 className="md:text-4xl text-3xl font-semibold text-center mb-4 text-[#abc1e1]">Yangi parol</h1>
         <div className="flex flex-col gap-0.5">
           <label htmlFor="phoneNumber" className="text-[#abc1e1]">Telefon nomer:</label>
           <input
@@ -60,7 +57,14 @@ function Login() {
           />
         </div>
         <div className="flex flex-col gap-0.5">
-          <label htmlFor="password" className="text-[#abc1e1]">Parol:</label>
+          <div className="flex justify-between items-end">
+            <label htmlFor="password" className="text-[#abc1e1]">
+              Parol:{" "}
+            </label>
+            <span className="text-green-400 text-sm">
+              8 ta belgidan kam bo'lmasligi kerak
+            </span>
+          </div>
           <input
             ref={password}
             required
@@ -77,11 +81,10 @@ function Login() {
             Yuborish
           </button>
         </div>
-        <div className="flex justify-end opacity-80"><Link to="/yangi-parol" className="text-[#abc1e1] text-center flex items-center">Parolni unutdingizmi?</Link></div>
-        <div className="flex justify-center"><Link to="/register" className="text-[#abc1e1] text-center flex items-center">Ro'yxatdan o'tish  <GrFormNextLink className="text-2xl"/> </Link></div>
+        <div className="flex justify-center"><Link to="/login" className="text-[#abc1e1] text-center flex items-center">Loginga o‘tish  <GrFormNextLink className="text-2xl"/> </Link></div>
       </form>
     </div>
-  );
+  )
 }
 
-export default Login;
+export default NewPassword

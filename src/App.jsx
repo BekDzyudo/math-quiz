@@ -10,13 +10,16 @@ import Quiz from "./pages/Quiz";
 import Result from "./pages/Result";
 import { GlobalContext } from "./context/GlobalContext";
 import Login from "./pages/Login";
+import OptionQuiz from "./pages/optionQuiz";
+import MilliySertifikatTestlari from "./pages/MilliySertifikatTestlari";
+import NewPassword from "./pages/NewPassword";
 
 function App() {
   const {userData} = useContext(GlobalContext)
 
   const routes = createBrowserRouter([
     {
-      path: "/",
+      path: "/quiz",
       element: userData ? <MainLayout /> : <Navigate to="/login"/>,
       children: [
         {
@@ -26,12 +29,25 @@ function App() {
       ],
     },
     {
+      path: "/option",
+      element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
+      // element: <OptionQuiz />,
+    },
+    {
+      path: "/milliy-sertifikat-testlari",
+      element: <MilliySertifikatTestlari/>
+    },
+    {
+      path: "/yangi-parol",
+      element: <NewPassword/>
+    },
+    {
       path: "/login",
-      element: userData ? <Navigate to="/"/> : <Login/>,
+      element: userData ? <Navigate to="/option"/> : <Login/>,
     },
     {
       path: "/register",
-      element: userData ? <Navigate to="/"/> : <Register />,
+      element: userData ? <Navigate to="/option"/> : <Register />,
     },
   ]);
   return <RouterProvider router={routes} />;

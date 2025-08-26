@@ -22,7 +22,6 @@ function Quiz() {
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
-  // const [itemSize, setItemSize] = useState(550);
 
   // get data
   const {
