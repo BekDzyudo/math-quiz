@@ -31,7 +31,7 @@ function MilliySertifikatTestlari() {
           <p className="text-[#abc1e1] text-center">ball</p>
           </div>
           <button className="btn btn-success text-white btn-sm rounded-2xl">Yakunlangan</button>
-          <Link to="/quiz" className="btn btn-primary text-white">Ko‘rish</Link>
+          <Link to="/" className="btn btn-primary text-white">Ko‘rish</Link>
         </div>
       </div>
     </div>

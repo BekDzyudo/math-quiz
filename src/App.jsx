@@ -19,7 +19,7 @@ function App() {
 
   const routes = createBrowserRouter([
     {
-      path: "/quiz",
+      path: "/",
       element: userData ? <MainLayout /> : <Navigate to="/login"/>,
       children: [
         {
@@ -31,7 +31,6 @@ function App() {
     {
       path: "/option",
       element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
-      // element: <OptionQuiz />,
     },
     {
       path: "/milliy-sertifikat-testlari",
