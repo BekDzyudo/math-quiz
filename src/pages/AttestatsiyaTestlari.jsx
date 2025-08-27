@@ -2,15 +2,26 @@ import { Link } from "react-router-dom";
 import React from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { useGetFetch } from "../hooks/useGetFetch";
 
-function MilliySertifikatTestlari() {
-  return (
+function AttestatsiyaTestlari() {
+  const userData = JSON.parse(localStorage.getItem("user-data"));
+  
+    // get data
+    const {
+      data,
+      isPending,
+      error,
+    } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/test-list-exclude-active-intihon/${userData.user_id}/`);
+    console.log(data);
+    
+    return (
     <div className=" md:max-w-[1000px] sm:w-full px-5 md:mr-auto md:ml-auto">
       <div className="relative flex justify-center items-center md:py-10 py-5">
         <Link to="/option" className="absolute left-0 hidden text-white md:flex items-center gap-3"><FaArrowLeftLong/> Orqaga</Link>
         <div className="flex flex-col gap-2">
           <h1 className="text-center text-2xl md:text-4xl text-[#abc1e1]">
-            Milliy sertifikat testlari
+            Attestatsiya testlari
           </h1>
           <p className="text-center text-white text-xl">
             Test natijalaringiz va mavjud testlar
@@ -30,7 +41,6 @@ function MilliySertifikatTestlari() {
           </h3>
           <p className="text-[#abc1e1] text-center">ball</p>
           </div>
-          <button className="btn btn-success text-white btn-sm rounded-2xl">Yakunlangan</button>
           <Link to="/" className="btn btn-primary text-white">Ko‘rish</Link>
         </div>
       </div>
@@ -38,4 +48,4 @@ function MilliySertifikatTestlari() {
   );
 }
 
-export default MilliySertifikatTestlari;
+export default AttestatsiyaTestlari;

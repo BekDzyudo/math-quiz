@@ -11,7 +11,7 @@ import Result from "./pages/Result";
 import { GlobalContext } from "./context/GlobalContext";
 import Login from "./pages/Login";
 import OptionQuiz from "./pages/optionQuiz";
-import MilliySertifikatTestlari from "./pages/MilliySertifikatTestlari";
+import AttestatsiyaTestlari from "./pages/AttestatsiyaTestlari";
 import NewPassword from "./pages/NewPassword";
 
 function App() {
@@ -33,8 +33,8 @@ function App() {
       element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
     },
     {
-      path: "/milliy-sertifikat-testlari",
-      element: <MilliySertifikatTestlari/>
+      path: "/attestatsiya-testlari",
+      element: <AttestatsiyaTestlari/>
     },
     {
       path: "/yangi-parol",

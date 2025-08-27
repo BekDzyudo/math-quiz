@@ -2,7 +2,6 @@ import React, { useContext, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GrFormNextLink } from "react-icons/gr";
-import ReactInputMask from "react-input-mask";
 
 function NewPassword() {
   const navigate = useNavigate();

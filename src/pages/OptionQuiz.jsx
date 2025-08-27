@@ -18,7 +18,6 @@ function OptionQuiz() {
         <h1 className="md:text-3xl text-xl font-semibold text-center mb-4 text-[#abc1e1]">Milliy sertifikat</h1>
         <p className='text-[#abc1e1] text-center'>Milliy sertifikat olish uchun testlar</p>
           <Link
-            to="/milliy-sertifikat-testlari"
             className="btn btn-info text-white text-lg py-2 rounded-[6px]"
           >
             Testlarni ko‘rish
@@ -29,12 +28,12 @@ function OptionQuiz() {
       >
         <h1 className="md:text-3xl text-xl font-semibold text-center mb-4 text-[#abc1e1]">Attestatsiya</h1>
         <p className='text-[#abc1e1] text-center'>Attestatsiya testlari</p>
-          <button
-            type="submit"
+         <Link
+          to="/attestatsiya-testlari"
             className="btn btn-info text-white text-lg py-2 rounded-[6px]"
           >
             Testlarni ko‘rish
-          </button>
+          </Link>
       </div>
       </div>
       </div>
