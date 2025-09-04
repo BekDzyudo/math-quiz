@@ -214,28 +214,6 @@ function Quiz() {
         {Array.isArray(quizzes) && (
           <MathJaxContext config={mathJaxConfig} version={3}>
             <form className="w-full md:w-[70%] h-full">
-              {/* <List
-                height={window.innerHeight - 142}
-                itemCount={quizzes.length}
-                itemSize={itemSize}
-                width={"100%"}
-              >
-                {({ index, style }) => {
-                  const item = quizzes[index];
-                  return (
-                    <div style={style} key={item.id}>
-                      <QuestionItem
-                        item={item}
-                        index1={index}
-                        handleAnswerChange={handleAnswerChange}
-                        showResult={showResult}
-                        selectedAnswers={selectedAnswers}
-                        questionRefs={questionRefs}
-                      />
-                    </div>
-                  );
-                }}
-              </List> */}
               <Virtuoso
                 style={{ height: window.innerHeight - 142 }}
                 totalCount={quizzes.length}
@@ -247,7 +225,8 @@ function Quiz() {
                       item={item}
                       index1={index}
                       handleAnswerChange={handleAnswerChange}
-                      showResult={showResult}
+                      // showResult={showResult}
+                      showResult={isFinished}
                       selectedAnswers={selectedAnswers}
                       questionRefs={questionRefs}
                     />
@@ -272,7 +251,7 @@ function Quiz() {
               )}
               <Time
                 // 2 * 60 * 60 * 1000
-                showResult={showResult}
+                showResult={isFinished}
                 initialTime={2 * 60 * 60 * 1000}
                 onTimeUp={() => {
                   if (!isSubmittedRef.current) {

@@ -123,7 +123,7 @@ const QuestionItem = React.memo(
               </div>
             )}
           </div>
-          {showResult && (
+          {showResult == "true" && (
             <Link
               to={item.answer_video_url}
               target="_blank"
@@ -141,7 +141,7 @@ const QuestionItem = React.memo(
                   <label
                     style={{
                       border: "3px solid",
-                      borderColor: showResult
+                      borderColor: showResult == "true"
                         ? variant.togri
                           ? "green"
                           : isSelected

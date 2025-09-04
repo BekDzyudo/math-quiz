@@ -17,6 +17,7 @@ function AttestatsiyaTestlari() {
       userData.user_id
     }/`
   );
+console.log(optionTest);
 
   return (
     <div className=" md:max-w-[1000px] sm:w-full px-5 md:mr-auto md:ml-auto">
