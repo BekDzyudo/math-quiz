@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import OptionQuiz from "./pages/optionQuiz";
 import AttestatsiyaTestlari from "./pages/AttestatsiyaTestlari";
 import NewPassword from "./pages/NewPassword";
+import ProtectedRoute from "./pages/ProtectedRoute";
 
 function App() {
   const {userData} = useContext(GlobalContext)
@@ -30,7 +31,8 @@ function App() {
     // },
      {
       path: "/",
-      element: userData ? <MainLayout /> : <Navigate to="/login"/>,
+      // element: userData ? <MainLayout /> : <Navigate to="/login"/>,
+      element: <ProtectedRoute userData={userData}> <MainLayout /> </ProtectedRoute>,
       children: [
         {
           index: true,

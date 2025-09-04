@@ -7,12 +7,15 @@ import { MathJaxContext } from "better-react-mathjax";
 import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
 import { toast } from "react-toastify";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 
 function Quiz() {
   let { quizId} = useParams();
   const [searchParams] = useSearchParams()
   const isFinished = searchParams.get("finished")
+  const natija = searchParams.get("result")
+  
+  const navigate = useNavigate()
 
   const userData = JSON.parse(localStorage.getItem("user-data"));
   
@@ -20,9 +23,10 @@ function Quiz() {
   const [selectOption, setSelectOption] = useState(
     JSON.parse(localStorage.getItem("selectOption")) || []
   );
-  const [showResult, setShowResult] = useState(
-    localStorage.getItem("showResult") === "true" || false
-  );
+  // const [showResult, setShowResult] = useState(
+  //   localStorage.getItem("showResult") === "true" || false
+  // );
+   const [showResult, setShowResult] = useState(false);
   const [result, setResult] = useState(localStorage.getItem("result") || null);
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
@@ -164,6 +168,17 @@ function Quiz() {
         if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
       });
   };
+  // clear localstorage
+  const handleClearTime = (e) =>{
+    e.preventDefault();
+    navigate("/")
+    localStorage.removeItem("remainingTime");
+    localStorage.removeItem("result");
+    localStorage.removeItem("answers");
+    localStorage.removeItem("saved_answers")
+    localStorage.removeItem("showResult")
+    localStorage.removeItem("selectOption")
+  }
 
   const handleSubmitPermition = (e) => {
     if (answers?.length == quizzes?.length) {
@@ -205,6 +220,7 @@ function Quiz() {
         handleSubmit={handleSubmit}
         result={result}
         showResult={showResult}
+        isFinished={isFinished}
         isSubmittedRef={isSubmittedRef}
       />
       <div className="px-5 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5">
@@ -225,8 +241,8 @@ function Quiz() {
                       item={item}
                       index1={index}
                       handleAnswerChange={handleAnswerChange}
-                      // showResult={showResult}
-                      showResult={isFinished}
+                      showResult={showResult}
+                      isFinished={isFinished}
                       selectedAnswers={selectedAnswers}
                       questionRefs={questionRefs}
                     />
@@ -242,16 +258,17 @@ function Quiz() {
                 </h1>
               </div>
               {/* result */}
-              {showResult && (
+              {(showResult || isFinished) && (
                 <div className="my-5">
                   <h1 className="flex items-center gap-3 text-2xl font-bold text-info">
-                    Natija: <span className="text-3xl">{result}</span>ta
+                    Natija: <span className="text-3xl">{result == 0 ? natija : result}</span>ta
                   </h1>
                 </div>
               )}
               <Time
                 // 2 * 60 * 60 * 1000
-                showResult={isFinished}
+                showResult={showResult}
+                isFinished={isFinished}
                 initialTime={2 * 60 * 60 * 1000}
                 onTimeUp={() => {
                   if (!isSubmittedRef.current) {
@@ -297,8 +314,8 @@ function Quiz() {
               </div>
               <div className="w-full flex flex-col items-center mt-5">
                 {
-                  isFinished == "true" ? <Link
-                  to="/"
+                  ( showResult || isFinished == "true") ? <Link
+                  onClick={handleClearTime}
                   type="button"
                   className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
                 >

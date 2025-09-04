@@ -14,6 +14,7 @@ function Navbar({
   showResult,
   isSubmittedRef,
   handleSubmit,
+  isFinished
 }) {
   const { userData, setUserData } = useContext(GlobalContext);
   const navigate = useNavigate();
@@ -86,6 +87,7 @@ function Navbar({
         </h1>
         <Time
           showResult={showResult}
+          isFinished={isFinished}
           initialTime={2 * 60 * 60 * 1000}
           onTimeUp={() => {
             if (!isSubmittedRef.current) {
@@ -94,7 +96,7 @@ function Navbar({
             }
           }}
         />
-        {showResult ? (
+        {(showResult || isFinished) ? (
           <h1 className="flex items-center gap-1 font-bold text-info">
             Natija: <span className="text-[18px]">{result}</span>
           </h1>

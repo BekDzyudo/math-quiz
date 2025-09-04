@@ -7,7 +7,7 @@ function OptionQuiz() {
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <div className="absolute top-20">
-        <h1 className="text-6xl font-extrabold text-white text-center drop-shadow-[0_0_15px_rgba(0,198,255,0.4)]">Matematika Pro</h1>
+        <h1 className="md:text-6xl text-3xl font-extrabold text-white text-center drop-shadow-[0_0_15px_rgba(0,198,255,0.4)]">Matematika Pro</h1>
       </div>
       <div className=" flex flex-col gap-10 md:gap-10">
         <div className="flex flex-col gap-2">

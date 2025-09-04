@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 
-const Time = React.memo(({showResult, onTimeUp, initialTime }) => {
+const Time = React.memo(({showResult, isFinished, onTimeUp, initialTime }) => {
   const timerRef = useRef(null);
   const updateTimeCountRef = useRef(0);
 
@@ -19,7 +19,7 @@ const Time = React.memo(({showResult, onTimeUp, initialTime }) => {
           localStorage.setItem("remainingTime", 0);
           return 0;
         }
-        if(showResult == "true"){
+        if(showResult || (isFinished == "true")){
           clearInterval(timerRef.current);
           localStorage.setItem("remainingTime", 0);
           return newTime;

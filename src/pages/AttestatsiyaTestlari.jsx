@@ -17,7 +17,8 @@ function AttestatsiyaTestlari() {
       userData.user_id
     }/`
   );
-console.log(optionTest);
+  console.log(optionTest);
+  
 
   return (
     <div className=" md:max-w-[1000px] sm:w-full px-5 md:mr-auto md:ml-auto">
@@ -39,10 +40,10 @@ console.log(optionTest);
       </div>
       <div className="md:max-w-[800px] lg:max-w-[1000px] md:mr-auto md:ml-auto">
         {optionTest &&
-          optionTest.map((item, index) => {
+          optionTest.slice().reverse().map((item, index) => {
             return (
               <div key={item.id} className="bg-gray-800 opacity-75 rounded-2xl flex md:flex-row flex-col md:gap-0 gap-5 justify-between items-center px-5 py-10 md:mb-5 mb-2.5">
-                <IoMdCheckmarkCircleOutline className={`md:text-3xl text-3xl ${optionTest.length-1 == index ? "text-emerald-400" : item.is_finished == true ? "text-blue-400" : "text-amber-600"} font-bold`} />
+                <IoMdCheckmarkCircleOutline className={`md:text-3xl text-3xl ${0 == index ? "text-emerald-400" : item.is_finished == true ? "text-blue-400" : "text-amber-600"} font-bold`} />
                 <div>
                   <h3 className="text-white md:text-3xl text-xl">
                     {item.name}
@@ -54,18 +55,18 @@ console.log(optionTest);
                   <p className="text-[#abc1e1] text-center">ball</p>
                 </div>
                 {
-                  optionTest.length-1 == index 
+                  0 == index 
                   ? 
-                  <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}`}  className="btn bg-emerald-600 text-white min-w-[135px]">
+                  <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}&result=${item.natija}`}  className="btn bg-emerald-600 text-white min-w-[135px]">
                   Aktiv test
                 </Link> 
                 :
                   item.is_finished == true 
-                  ? <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}`}  className="btn bg-blue-600 text-white min-w-[135px]">
+                  ? <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}&result=${item.natija}`}  className="btn bg-blue-600 text-white min-w-[135px]">
                   Ko‘rish
                 </Link>
                 :
-                   <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}`} className="btn bg-amber-600 text-white min-w-[135px]">
+                   <Link to={`/quiz/${item.intihon_id}?finished=${item.is_finished}&result=${item.natija}`} className="btn bg-amber-600 text-white min-w-[135px]">
                   Testni boshlash
                 </Link>
                 }               

@@ -9,6 +9,7 @@ const QuestionItem = React.memo(
     index1,
     handleAnswerChange,
     showResult,
+    isFinished,
     selectedAnswers,
     questionRefs,
   }) => {
@@ -123,7 +124,7 @@ const QuestionItem = React.memo(
               </div>
             )}
           </div>
-          {showResult == "true" && (
+          {(isFinished == "true" || showResult) && (
             <Link
               to={item.answer_video_url}
               target="_blank"
@@ -141,7 +142,7 @@ const QuestionItem = React.memo(
                   <label
                     style={{
                       border: "3px solid",
-                      borderColor: showResult == "true"
+                      borderColor: (isFinished == "true" || showResult)
                         ? variant.togri
                           ? "green"
                           : isSelected
