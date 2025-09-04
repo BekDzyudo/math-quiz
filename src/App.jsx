@@ -18,20 +18,34 @@ function App() {
   const {userData} = useContext(GlobalContext)
 
   const routes = createBrowserRouter([
-    {
+    // {
+    //   path: "/",
+    //   element: userData ? <MainLayout /> : <Navigate to="/login"/>,
+    //   children: [
+    //     {
+    //       index: true,
+    //       element: <Quiz />,
+    //     },
+    //   ],
+    // },
+     {
       path: "/",
       element: userData ? <MainLayout /> : <Navigate to="/login"/>,
       children: [
         {
           index: true,
+          element: <OptionQuiz />,
+        },
+        {
+          path: "quiz/:quizId",
           element: <Quiz />,
         },
       ],
     },
-    {
-      path: "/option",
-      element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
-    },
+    // {
+    //   path: "/option",
+    //   element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
+    // },
     {
       path: "/attestatsiya-testlari",
       element: <AttestatsiyaTestlari/>
@@ -42,11 +56,11 @@ function App() {
     },
     {
       path: "/login",
-      element: userData ? <Navigate to="/option"/> : <Login/>,
+      element: userData ? <Navigate to="/"/> : <Login/>,
     },
     {
       path: "/register",
-      element: userData ? <Navigate to="/option"/> : <Register />,
+      element: userData ? <Navigate to="/"/> : <Register />,
     },
   ]);
   return <RouterProvider router={routes} />;

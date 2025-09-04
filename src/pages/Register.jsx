@@ -26,7 +26,6 @@ function Register() {
       phone: phoneNumber.current.value,
       toifa: toifa.current.value,
     };
-console.log(newData);
 
     fetch(`${import.meta.env.VITE_BASE_URL}/register`, {
       method: "POST",
@@ -41,8 +40,6 @@ console.log(newData);
         return res.json();
       })
       .then((data) => {
-        console.log(data);
-
         // localStorage.setItem("user-data", JSON.stringify(data));
         // setUserData(data)
         // navigate("/quiz");
@@ -50,7 +47,17 @@ console.log(newData);
         navigate("/login");
       })
       .catch((err) => {
-        console.log(err.message);
+        try {
+          const errorObj = JSON.parse(err.message); // string → object
+          Object.values(errorObj).forEach((errArray) => {
+            errArray.forEach((message) => {
+              toast.error(message);
+            });
+          });
+        } catch (e) {
+          console.error("Error parse qilishda xatolik:", e);
+        }
+
         // try {
         //   const parsedError = JSON.parse(err.message);
 
@@ -135,7 +142,7 @@ console.log(newData);
           <input
             ref={phoneNumber}
             required
-             placeholder="+998 90 123 45 67"
+            placeholder="+998 90 123 45 67"
             pattern="^\+998[0-9]{9}$"
             className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
             type="tel"

@@ -31,7 +31,7 @@ function Login() {
       .then((data) => {
         localStorage.setItem("user-data", JSON.stringify(data));
         setUserData(data)
-        navigate("/option");
+        navigate("/");
         toast.success("Muvaffaqiyatli 👍");
       })
       .catch((err) => {

@@ -7,8 +7,13 @@ import { MathJaxContext } from "better-react-mathjax";
 import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
 import { toast } from "react-toastify";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 
 function Quiz() {
+  let { quizId} = useParams();
+  const [searchParams] = useSearchParams()
+  const isFinished = searchParams.get("finished")
+
   const userData = JSON.parse(localStorage.getItem("user-data"));
   
   const [answers, setAnswers] = useState([]);
@@ -28,7 +33,8 @@ function Quiz() {
     data: quizzes,
     isPending,
     error,
-  } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/intihon/`);
+  } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/test-questions/${quizId}/`);
+  
 
   // click and scroll
   const handleScrollToQuestion = (index) => {
@@ -148,7 +154,6 @@ function Quiz() {
         return res.json();
       })
       .then((data) => {
-        console.log(data);
         setResult(data.ball);
         localStorage.setItem("result", data.ball);
         setShowResult(true);
@@ -312,14 +317,25 @@ function Quiz() {
                   })}
               </div>
               <div className="w-full flex flex-col items-center mt-5">
+                {
+                  isFinished == "true" ? <Link
+                  to="/"
+                  type="button"
+                  className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
+                >
+                  Testlarga qaytish
+                </Link> 
+                : 
                 <button
                   onClick={handleSubmitPermition}
                   disabled={result ? true : false}
                   type="button"
                   className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
                 >
-                  Testni yakunlash
+                  Yakunlash 
                 </button>
+                }
+                
               </div>
             </div>
           </MathJaxContext>
