@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useContext } from "react";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { useGetFetch } from "../hooks/useGetFetch";
+import { GlobalContext } from "../context/GlobalContext";
 
 function AttestatsiyaTestlari() {
-  const userData = JSON.parse(localStorage.getItem("user-data"));
+  // const userData = JSON.parse(localStorage.getItem("user-data"));
+  const {userData} = useContext(GlobalContext)
 
   // get data
   const {

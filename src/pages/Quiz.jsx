@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
@@ -8,6 +8,7 @@ import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
 import { toast } from "react-toastify";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
+import { GlobalContext } from "../context/GlobalContext";
 
 function Quiz() {
   let { quizId} = useParams();
@@ -17,7 +18,8 @@ function Quiz() {
   
   const navigate = useNavigate()
 
-  const userData = JSON.parse(localStorage.getItem("user-data"));
+  // const userData = JSON.parse(localStorage.getItem("user-data"));
+  const {userData} = useContext(GlobalContext)
   
   const [answers, setAnswers] = useState([]);
   const [selectOption, setSelectOption] = useState(

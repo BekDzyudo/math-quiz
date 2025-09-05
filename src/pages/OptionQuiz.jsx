@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { GrFormNextLink } from "react-icons/gr";
+import { useContext } from "react";
+import { GlobalContext } from "../context/GlobalContext";
 
 function OptionQuiz() {
-  const userData = JSON.parse(localStorage.getItem("user-data"));
-
+  // const userData = JSON.parse(localStorage.getItem("user-data"));
+const {userData} = useContext(GlobalContext)
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <div className="absolute top-20">

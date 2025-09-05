@@ -29,11 +29,11 @@ function Login() {
         return res.json();
       })
       .then((data) => {
-        localStorage.setItem("user-data", JSON.stringify(data));
+        // localStorage.setItem("user-data", JSON.stringify(data));
         setUserData(data)
         navigate("/");
         toast.success("Muvaffaqiyatli 👍");
-        // sessionStorage.setItem("loggedIn", "true");
+        sessionStorage.setItem("user-data", JSON.stringify(data));
       })
       .catch((err) => {
         console.log(err)
