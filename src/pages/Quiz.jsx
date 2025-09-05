@@ -7,7 +7,7 @@ import { MathJaxContext } from "better-react-mathjax";
 import Time from "../components/Time";
 import QuestionItem from "../components/QuestionItem";
 import { toast } from "react-toastify";
-import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { GlobalContext } from "../context/GlobalContext";
 
 function Quiz() {
@@ -15,6 +15,8 @@ function Quiz() {
   const [searchParams] = useSearchParams()
   const isFinished = searchParams.get("finished")
   const natija = searchParams.get("result")
+  const location = useLocation()
+  
   
   const navigate = useNavigate()
 
@@ -170,7 +172,24 @@ function Quiz() {
         if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
       });
   };
+
+
   // clear localstorage
+  useEffect(() => {
+    // cleanup funksiyasi sahifadan chiqishda ishlaydi
+    return () => {
+      if (location.pathname.startsWith("/quiz/")) {
+        navigate("/")
+        localStorage.removeItem("remainingTime");
+        localStorage.removeItem("result");
+        localStorage.removeItem("answers");
+        localStorage.removeItem("saved_answers")
+        localStorage.removeItem("showResult")
+        localStorage.removeItem("selectOption")
+      }
+    };
+  }, [location.pathname]);
+
   const handleClearTime = (e) =>{
     e.preventDefault();
     navigate("/")
@@ -181,7 +200,6 @@ function Quiz() {
     localStorage.removeItem("showResult")
     localStorage.removeItem("selectOption")
   }
-
   const handleSubmitPermition = (e) => {
     if (answers?.length == quizzes?.length) {
       handleSubmit(e);
@@ -260,10 +278,10 @@ function Quiz() {
                 </h1>
               </div>
               {/* result */}
-              {(showResult || isFinished) && (
+              {(showResult || (isFinished == "true")) && (
                 <div className="my-5">
                   <h1 className="flex items-center gap-3 text-2xl font-bold text-info">
-                    Natija: <span className="text-3xl">{result == 0 ? natija : result}</span>ta
+                    Natija: <span className="text-3xl">{(result == null && natija != "0") ? natija : result}</span>ta
                   </h1>
                 </div>
               )}
