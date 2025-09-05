@@ -33,7 +33,7 @@ function Login() {
         setUserData(data)
         navigate("/");
         toast.success("Muvaffaqiyatli 👍");
-        sessionStorage.setItem("loggedIn", "true");
+        // sessionStorage.setItem("loggedIn", "true");
       })
       .catch((err) => {
         console.log(err)

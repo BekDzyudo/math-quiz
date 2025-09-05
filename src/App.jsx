@@ -31,8 +31,8 @@ function App() {
     // },
      {
       path: "/",
-      // element: userData ? <MainLayout /> : <Navigate to="/login"/>,
-      element: <ProtectedRoute userData={userData}> <MainLayout /> </ProtectedRoute>,
+      element: userData ? <MainLayout /> : <Navigate to="/login"/>,
+      // element: <ProtectedRoute userData={userData}> <MainLayout /> </ProtectedRoute>,
       children: [
         {
           index: true,

@@ -24,7 +24,7 @@ function Navbar({
   function handleLogout() {
     localStorage.clear();
     setUserData(null);
-    sessionStorage.setItem("loggedIn", "false");
+    // sessionStorage.setItem("loggedIn", "false");
   }
   useEffect(() => {
     if (userData === null) {
