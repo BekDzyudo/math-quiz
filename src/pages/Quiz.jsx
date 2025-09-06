@@ -145,6 +145,11 @@ function Quiz() {
     isSubmittedRef.current = true;
     clearInterval(timerRef.current);
     localStorage.removeItem("remainingTime");
+    console.log({
+        user_id: userData.user_id,
+        answers: answers,
+      });
+    
 
     fetch(`${import.meta.env.VITE_BASE_URL}/check-answers/`, {
       method: "POST",
@@ -169,6 +174,7 @@ function Quiz() {
       })
       .catch((err) => {
         console.log(err);
+        console.log(err.message);
         if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
       });
   };
@@ -239,9 +245,11 @@ function Quiz() {
         handleSubmitPermition={handleSubmitPermition}
         handleSubmit={handleSubmit}
         result={result}
+        natija={natija}
         showResult={showResult}
         isFinished={isFinished}
         isSubmittedRef={isSubmittedRef}
+        handleClearTime={handleClearTime}
       />
       <div className="px-5 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5">
         {isPending && <p className="text-white">loading...</p>}
@@ -281,7 +289,7 @@ function Quiz() {
               {(showResult || (isFinished == "true")) && (
                 <div className="my-5">
                   <h1 className="flex items-center gap-3 text-2xl font-bold text-info">
-                    Natija: <span className="text-3xl">{(result == null && natija != "0") ? natija : result}</span>ta
+                    Natija: <span className="text-3xl">{(result == null || result*1 == 0) && natija*1 ? natija : result}</span>ta
                   </h1>
                 </div>
               )}

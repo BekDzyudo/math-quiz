@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 import { BsQuestionSquare } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import userImage from "../../public/assets/user.jfif";
 import { FaUser } from "react-icons/fa";
 import Time from "./Time";
@@ -14,13 +14,14 @@ function Navbar({
   showResult,
   isSubmittedRef,
   handleSubmit,
-  isFinished
+  isFinished,
+  natija,
+  handleClearTime,
 }) {
   const { userData, setUserData } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   const userName = JSON.parse(localStorage.getItem("user-data"));
-
   function handleLogout() {
     localStorage.clear();
     setUserData(null);
@@ -68,7 +69,7 @@ function Navbar({
             <li>
               <a className="flex items-center gap-2 text-white">
                 <FaUser style={{ color: "white", fontSize: "15px" }} />{" "}
-                {userName?.first_name + " " + userName?.last_name}
+                {userData?.first_name + " " + userData?.last_name}
               </a>
             </li>
             <li>
@@ -83,9 +84,19 @@ function Navbar({
         </div>
       </div>
       <div className="md:hidden mt-2 w-full flex justify-between items-center px-2">
-        <h1 className="text-white text-md">
-          Testlar soni: <span>{testLength}</span>
-        </h1>
+        {showResult || (isFinished == "true") ? (
+          <Link
+            onClick={handleClearTime}
+            type="button"
+            className={`btn btn-outline btn-info btn-sm text-white rounded-[8px]`}
+          >
+            Testlarga qaytish
+          </Link>
+        ) : (
+          <h1 className="text-white text-md">
+            Testlar soni: <span>{testLength}</span>
+          </h1>
+        )}
         <Time
           showResult={showResult}
           isFinished={isFinished}
@@ -97,9 +108,13 @@ function Navbar({
             }
           }}
         />
-        {(showResult || isFinished) ? (
+
+        {showResult || (isFinished == "true") ? (
           <h1 className="flex items-center gap-1 font-bold text-info">
-            Natija: <span className="text-[18px]">{result}</span>
+            Natija:{" "}
+            <span className="text-[18px]">
+              {(result == null || result*1 == 0) && natija*1 ? natija : result}
+            </span>
           </h1>
         ) : (
           <button
@@ -107,7 +122,7 @@ function Navbar({
             disabled={result ? true : false}
             className="btn btn-outline btn-info btn-sm text-white rounded-[8px]"
           >
-            Testni yakunlash
+            Yakunlash
           </button>
         )}
       </div>
