@@ -14,6 +14,8 @@ import OptionQuiz from "./pages/optionQuiz";
 import AttestatsiyaTestlari from "./pages/AttestatsiyaTestlari";
 import NewPassword from "./pages/NewPassword";
 import ProtectedRoute from "./pages/ProtectedRoute";
+import MilliyTestQuiz from "./pages/MilliyTestQuiz";
+import MilliySertifikatTasdiqlash from "./pages/MilliySertifikatTasdiqlash";
 
 function App() {
   const {userData} = useContext(GlobalContext)
@@ -48,6 +50,14 @@ function App() {
     //   path: "/option",
     //   element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
     // },
+    {
+      path: "/tasdiqlash-kodi",
+      element: <MilliySertifikatTasdiqlash/>
+    },
+    {
+      path:"/milliy-quiz",
+      element: <MilliyTestQuiz/>
+    },
     {
       path: "/attestatsiya-testlari",
       element: <AttestatsiyaTestlari/>

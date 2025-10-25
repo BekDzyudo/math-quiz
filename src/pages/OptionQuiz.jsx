@@ -27,7 +27,7 @@ const {userData} = useContext(GlobalContext)
             <p className="text-[#abc1e1] text-center">
               Milliy sertifikat olish uchun testlar
             </p>
-            <Link className="btn btn-info text-white text-lg py-2 rounded-[6px]">
+            <Link className="btn btn-info text-white text-lg py-2 rounded-[6px]" to="/tasdiqlash-kodi">
               Testlarni ko‘rish
             </Link>
           </div>
