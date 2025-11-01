@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 function MilliySertifikatTasdiqlash() {
 
-  const {setUserData} = useContext(GlobalContext)
+  const {setUserData, userData} = useContext(GlobalContext)
   const navigate = useNavigate();
 
   const kod = useRef();
@@ -14,7 +14,7 @@ function MilliySertifikatTasdiqlash() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/test/${kod.current.value}/status/`, {
+    fetch(`${import.meta.env.VITE_BASE_URL}/test/${kod.current.value}/status/${userData.user_id}/`, {
       method: "GET",
     })
       .then((res) => {
@@ -22,12 +22,17 @@ function MilliySertifikatTasdiqlash() {
         return res.json();
       })
       .then((data) => {
-        console.log(data);
-        navigate("/milliy-quiz");
-        toast.success("Muvaffaqiyatli 👍");
+        if(data.can_take_test){
+          navigate("/milliy-quiz");
+          localStorage.setItem("test-code", kod.current.value)
+      }
+      else{
+          toast.error(data.message);
+        }
+       
       })
       .catch((err) => {
-        console.log(err)
+        // console.log(err)
         toast.error("Tasdiqlash kodi noto'g'ri");
       });
   }

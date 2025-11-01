@@ -10,13 +10,16 @@ import Result from "../components/modal/result";
 import { toast } from "react-toastify";
 
 function MilliyTestQuiz() {
+
+  const code = localStorage.getItem("test-code")
+
   const ochiqQuizCount = Array.from({ length: 35 });
   const [yopiqQuizAnswers, setYopiqQuizAnswers] = useState(() => {
     const saved = localStorage.getItem("answers_yopiq");
-    return saved ? JSON.parse(saved) : Array(15).fill("");
+    return saved ? JSON.parse(saved) : Array(20).fill("");
   });
 
-  const { userData, activeModal, setActiveModal } = useContext(GlobalContext);
+  const { userData, activeModal, setActiveModal, setResult } = useContext(GlobalContext);
 
   const [answersM, setAnswersM] = useState([]);
   const [selectOptionM, setSelectOptionM] = useState(
@@ -83,7 +86,8 @@ function MilliyTestQuiz() {
   //   });
   // }
 
-  const savolNum = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50];
+  const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
+"41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
   const handleAnswerChangeYopiq = (index, newValue, question_number) => {
     setYopiqQuizAnswers((prev) => {
       const updated = [...prev];
@@ -117,13 +121,13 @@ function MilliyTestQuiz() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    fetch(`${import.meta.env.VITE_BASE_URL}/check/1/`, {
+    fetch(`${import.meta.env.VITE_BASE_URL}/check/${code}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         user_id: userData.user_id,
-        answers: result,
+        telegram_id: "123456789",
+        javoblar: result,
       }),
     })
       .then(async (res) => {
@@ -134,29 +138,39 @@ function MilliyTestQuiz() {
         return res.json();
       })
       .then((data) => {
-        console.log(data);
+        setResult(data)
+        setActiveModal(true)
         localStorage.clear();
       })
       .catch((err) => {
         console.error("Server xatosi:", err.message);
         try {
-          // Agar xatolik JSON bo‘lsa, parse qilib chiroyli ko‘rsatamiz
           const parsed = JSON.parse(err.message);
           console.error("Xatolik tafsilotlari:", parsed);
           toast.error(parsed.message)
         } catch {
           console.error("Oddiy xatolik:", err);
         }
-        // if (err.message == "bor")
-        //   toast.error("Siz oldin ushbu testni bajargansiz!");
       });
+  };
+
+const handleSubmitPermition = (e) => {
+  const hammasiToldi = result.every(item => item.javob?.trim());
+    if (hammasiToldi) {
+      handleSubmit(e);
+    } else {
+      if (confirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?")) {
+        handleSubmit(e);
+      } else {
+      }
+    }
   };
 
   return (
     <div className="min-h-screen">
       <NavbarMilliy />
       <div className="px-5 md:max-w-[700px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5 pb-5 md:pb-10">
-        <form className="w-full h-full" onSubmit={handleSubmit}>
+        <form className="w-full h-full" onSubmit={handleSubmitPermition}>
           <div className="w-full grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4 mb-5 pb-10 md:pb-20">
             {ochiqQuizCount.map((item, index) => {
               return (
@@ -267,12 +281,6 @@ function MilliyTestQuiz() {
               className={`w-1/2 md:w-1/2 btn btn-outline btn-info btn-md md:btn-xl text-white rounded-2xl`}
             >
               Testni yakunlash
-            </button>
-            <button
-              className="btn btn-info"
-              onClick={() => setActiveModal(true)}
-            >
-              modal
             </button>
           </div>
         </form>

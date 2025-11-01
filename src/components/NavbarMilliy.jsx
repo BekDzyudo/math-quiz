@@ -15,6 +15,7 @@ function NavbarMilliy() {
   function handleLogout() {
     localStorage.clear();
     setUserData(null);
+    navigate("/")
     // sessionStorage.setItem("loggedIn", "false");
   }
 
