@@ -10,12 +10,13 @@ import Quiz from "./pages/Quiz";
 import Result from "./pages/Result";
 import { GlobalContext } from "./context/GlobalContext";
 import Login from "./pages/Login";
-import OptionQuiz from "./pages/optionQuiz";
+import OptionQuiz from "./pages/OptionQuiz";
 import AttestatsiyaTestlari from "./pages/AttestatsiyaTestlari";
 import NewPassword from "./pages/NewPassword";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import MilliyTestQuiz from "./pages/MilliyTestQuiz";
 import MilliySertifikatTasdiqlash from "./pages/MilliySertifikatTasdiqlash";
+import { TelegramProvider } from "./context/TelegramContext";
 
 function App() {
   const {userData} = useContext(GlobalContext)
@@ -46,10 +47,7 @@ function App() {
         },
       ],
     },
-    // {
-    //   path: "/option",
-    //   element: userData ? <OptionQuiz /> : <Navigate to="/login"/>,
-    // },
+    // Milliy Sertifikat - Web siteda login kerak, Telegram Web App da kerak emas
     {
       path: "/tasdiqlash-kodi",
       element: <MilliySertifikatTasdiqlash/>

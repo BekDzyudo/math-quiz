@@ -29,7 +29,6 @@ function Login() {
         return res.json();
       })
       .then((data) => {
-        // localStorage.setItem("user-data", JSON.stringify(data));
         setUserData(data)
         navigate("/");
         toast.success("Muvaffaqiyatli 👍");

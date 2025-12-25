@@ -1,17 +1,20 @@
 import { FaUser } from "react-icons/fa";
 import NavbarMilliy from "../components/NavbarMilliy";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import { GlobalContext } from "../context/GlobalContext";
+import { useTelegram } from "../context/TelegramContext";
 import "mathlive";
 import { FaEdit } from "react-icons/fa";
 import MilliyQuestionItem from "../components/MilliyQuestionItem";
-import Result from "../components/modal/result";
+import Result from "../components/modal/Result";
 import { toast } from "react-toastify";
 
 function MilliyTestQuiz() {
 
   const code = localStorage.getItem("test-code")
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   const ochiqQuizCount = Array.from({ length: 35 });
   const [yopiqQuizAnswers, setYopiqQuizAnswers] = useState(() => {
@@ -19,7 +22,53 @@ function MilliyTestQuiz() {
     return saved ? JSON.parse(saved) : Array(20).fill("");
   });
 
-  const { userData, activeModal, setActiveModal, setResult } = useContext(GlobalContext);
+  const { userData, activeModal, setActiveModal, setResult, setUserData } = useContext(GlobalContext);
+  const { user, isTelegramMode, showBackButton, hideBackButton, showMainButton, hideMainButton, showConfirm, close } = useTelegram();
+
+  // Telegram Web App da auto-login
+  useEffect(() => {
+    const telegramLogin = async () => {
+      if (isTelegramMode && user && user.id) {
+        if (!userData) {
+          try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/telegram-login/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                telegram_id: user.id,
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                username: user.username || ''
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setUserData(data);
+              console.log('✅ Telegram auto-login successful:', data);
+            }
+          } catch (error) {
+            console.error('❌ Telegram login error:', error);
+          }
+        }
+        setIsLoading(false);
+      } else if (!isTelegramMode) {
+        setIsLoading(false);
+      }
+    };
+
+    telegramLogin();
+  }, [isTelegramMode, user, userData, setUserData]);
+
+  // Web siteda login tekshiruvi (Telegram Web App da emas)
+  useEffect(() => {
+    if (!isLoading && !isTelegramMode && !userData) {
+      toast.error("Iltimos, avval login qiling");
+      navigate("/login");
+    }
+  }, [isLoading, isTelegramMode, userData, navigate]);
 
   const [answersM, setAnswersM] = useState([]);
   const [selectOptionM, setSelectOptionM] = useState(
@@ -119,14 +168,56 @@ function MilliyTestQuiz() {
 
   const result = answersM.concat(yopiqQuizAnswers);
 
+  // Telegram Web App buttons
+  useEffect(() => {
+    if (isTelegramMode) {
+      // Back button
+      showBackButton(() => {
+        showConfirm("Testni to'xtatmoqchimisiz?", (confirmed) => {
+          if (confirmed) {
+            navigate("/tasdiqlash-kodi");
+          }
+        });
+      });
+
+      // Main button (Testni yakunlash)
+      showMainButton("Testni yakunlash", () => {
+        handleSubmitPermition(new Event('submit'));
+      });
+    }
+
+    return () => {
+      if (isTelegramMode) {
+        hideBackButton();
+        hideMainButton();
+      }
+    };
+  }, [isTelegramMode, result]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Telegram user ID ni ishlatish
+    const userId = isTelegramMode ? user?.id : userData?.user_id;
+    const telegramId = isTelegramMode ? user?.id : "";
+    
+    // FISH (Full Name) - Bot registratsiyasidan yoki web login'dan
+    let fullName = "";
+    if (isTelegramMode && user) {
+      // Telegram: first_name + last_name
+      fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    } else if (userData?.first_name && userData?.last_name) {
+      // Web: user data'dan
+      fullName = `${userData.first_name} ${userData.last_name}`.trim();
+    }
+
     fetch(`${import.meta.env.VITE_BASE_URL}/check/${code}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        user_id: userData.user_id,
-        telegram_id: "123456789",
+        user_id: userId,
+        telegram_id: telegramId,
+        full_name: fullName,  // ✅ FISH ni yuborish
         javoblar: result,
       }),
     })
@@ -138,18 +229,27 @@ function MilliyTestQuiz() {
         return res.json();
       })
       .then((data) => {
-        setResult(data)
-        setActiveModal(true)
-        localStorage.clear();
+        console.log('📊 API Response:', data);
+        // Backend natija qaytaradi
+        if (data.natija) {
+          setResult(data.natija);
+          setActiveModal(true);
+          localStorage.clear();
+          toast.success('✅ Test topshirildi!');
+        } else {
+          console.error('Natija topilmadi:', data);
+          toast.error('Natija saqlanmadi');
+        }
       })
       .catch((err) => {
         console.error("Server xatosi:", err.message);
         try {
           const parsed = JSON.parse(err.message);
           console.error("Xatolik tafsilotlari:", parsed);
-          toast.error(parsed.message)
+          toast.error(parsed.message || 'Xatolik yuz berdi')
         } catch {
           console.error("Oddiy xatolik:", err);
+          toast.error('Server bilan bog\'lanishda xato');
         }
       });
   };
@@ -159,9 +259,16 @@ const handleSubmitPermition = (e) => {
     if (hammasiToldi) {
       handleSubmit(e);
     } else {
-      if (confirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?")) {
-        handleSubmit(e);
+      if (isTelegramMode) {
+        showConfirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?", (confirmed) => {
+          if (confirmed) {
+            handleSubmit(e);
+          }
+        });
       } else {
+        if (confirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?")) {
+          handleSubmit(e);
+        }
       }
     }
   };
@@ -275,14 +382,16 @@ const handleSubmitPermition = (e) => {
               );
             })}
           </div>
-          <div className="flex justify-center mt-10 md:mt-20">
-            <button
-              type="submit"
-              className={`w-1/2 md:w-1/2 btn btn-outline btn-info btn-md md:btn-xl text-white rounded-2xl`}
-            >
-              Testni yakunlash
-            </button>
-          </div>
+          {!isTelegramMode && (
+            <div className="flex justify-center mt-10 md:mt-20">
+              <button
+                type="submit"
+                className={`w-1/2 md:w-1/2 btn btn-outline btn-info btn-md md:btn-xl text-white rounded-2xl`}
+              >
+                Testni yakunlash
+              </button>
+            </div>
+          )}
         </form>
 
         {/* <div className="hidden md:block sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">

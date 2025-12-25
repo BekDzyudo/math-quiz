@@ -1,20 +1,110 @@
 import {Link, useNavigate} from "react-router-dom";
-import React, { useContext, useRef } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { GlobalContext } from "../context/GlobalContext";
+import { useTelegram } from "../context/TelegramContext";
 import { toast } from "react-toastify";
 
 function MilliySertifikatTasdiqlash() {
 
   const {setUserData, userData} = useContext(GlobalContext)
+  const { user, isTelegramMode, showBackButton, hideBackButton, showMainButton, hideMainButton, close } = useTelegram();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const kod = useRef();
+
+  // Debug - contextni tekshirish
+  useEffect(() => {
+    console.log('🔍 MilliySertifikatTasdiqlash Debug:', {
+      isTelegramMode,
+      telegramUser: user,
+      userData,
+      windowTelegram: window.Telegram?.WebApp
+    });
+  }, [isTelegramMode, user, userData]);
+
+  // Telegram Web App da auto-login
+  useEffect(() => {
+    const telegramLogin = async () => {
+      if (isTelegramMode && user && user.id) {
+        if (!userData) {
+          try {
+            console.log('🔄 Telegram login attempt...');
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/telegram-login/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                telegram_id: user.id,
+                first_name: user.first_name || '',
+                last_name: user.last_name || '',
+                username: user.username || ''
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setUserData(data);
+              console.log('✅ Telegram auto-login successful:', data);
+              if (data.created) {
+                toast.success(`Xush kelibsiz, ${data.first_name}!`);
+              }
+            } else {
+              console.error('❌ Telegram login failed');
+              toast.error('Telegram login xatosi');
+            }
+          } catch (error) {
+            console.error('❌ Telegram login error:', error);
+            toast.error('Server bilan bog\'lanishda xato');
+          }
+        }
+        setIsLoading(false);
+      } else if (!isTelegramMode) {
+        // Web browser - login tekshiruvi kerak
+        setIsLoading(false);
+      }
+    };
+
+    telegramLogin();
+  }, [isTelegramMode, user, userData, setUserData]);
+
+  // Web siteda login tekshiruvi (Telegram Web App da emas)
+  useEffect(() => {
+    if (!isLoading && !isTelegramMode && !userData) {
+      toast.error("Iltimos, avval login qiling");
+      navigate("/login");
+    }
+  }, [isLoading, isTelegramMode, userData, navigate]);
+
+  // Telegram Back Button
+  useEffect(() => {
+    if (isTelegramMode) {
+      showBackButton(() => {
+        close(); // Telegram Web App ni yopish
+      });
+    }
+
+    return () => {
+      if (isTelegramMode) {
+        hideBackButton();
+      }
+    };
+  }, [isTelegramMode]);
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/test/${kod.current.value}/status/${userData.user_id}/`, {
+    // Telegram user ID ni ishlatish
+    const userId = isTelegramMode ? user?.id : userData?.user_id;
+
+    if (!userId) {
+      toast.error("Foydalanuvchi ma'lumotlari topilmadi");
+      return;
+    }
+
+    fetch(`${import.meta.env.VITE_BASE_URL}/test/${kod.current.value}/status/${userId}/`, {
       method: "GET",
     })
       .then((res) => {
@@ -44,6 +134,12 @@ function MilliySertifikatTasdiqlash() {
         <h1 className="text-center text-2xl md:text-4xl text-[#abc1e1]">
           Tasdiqlash kodi
         </h1>
+        {isTelegramMode && user && (
+          <div className="text-center text-white">
+            <p>👤 {user.first_name} {user.last_name}</p>
+            {user.username && <p className="text-sm text-gray-400">@{user.username}</p>}
+          </div>
+        )}
         <form action="" className="flex flex-col gap-7" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
             <label htmlFor="testkodi" className="text-white">
@@ -57,7 +153,9 @@ function MilliySertifikatTasdiqlash() {
             />
           </div>
             <button type="submit" className="btn btn-info text-white text-lg py-2 rounded-[6px]">Yuborish</button>
-            <Link to="/" className="text-white link flex items-center gap-2"><FaArrowLeftLong /> orqaga</Link>
+            {!isTelegramMode && (
+              <Link to="/" className="text-white link flex items-center gap-2"><FaArrowLeftLong /> orqaga</Link>
+            )}
         </form>
       </div>
     </div>
