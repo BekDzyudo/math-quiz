@@ -16,12 +16,6 @@ function MilliySertifikatTasdiqlash() {
 
   // Debug - contextni tekshirish
   useEffect(() => {
-    console.log('🔍 MilliySertifikatTasdiqlash Debug:', {
-      isTelegramMode,
-      telegramUser: user,
-      userData,
-      windowTelegram: window.Telegram?.WebApp
-    });
   }, [isTelegramMode, user, userData]);
 
   // Telegram Web App da auto-login
@@ -30,7 +24,6 @@ function MilliySertifikatTasdiqlash() {
       if (isTelegramMode && user && user.id) {
         if (!userData) {
           try {
-            console.log('🔄 Telegram login attempt...');
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/telegram-login/`, {
               method: 'POST',
               headers: {
@@ -47,16 +40,13 @@ function MilliySertifikatTasdiqlash() {
             if (response.ok) {
               const data = await response.json();
               setUserData(data);
-              console.log('✅ Telegram auto-login successful:', data);
               if (data.created) {
                 toast.success(`Xush kelibsiz, ${data.first_name}!`);
               }
             } else {
-              console.error('❌ Telegram login failed');
               toast.error('Telegram login xatosi');
             }
           } catch (error) {
-            console.error('❌ Telegram login error:', error);
             toast.error('Server bilan bog\'lanishda xato');
           }
         }
@@ -113,8 +103,14 @@ function MilliySertifikatTasdiqlash() {
       })
       .then((data) => {
         if(data.can_take_test){
+          // ✅ localStorage'ga safely yozish
+          try {
+            localStorage.setItem("test-code", kod.current.value);
+          } catch (error) {
+            toast.error("Ma'lumot saqlashda xatolik");
+            return;
+          }
           navigate("/milliy-quiz");
-          localStorage.setItem("test-code", kod.current.value)
       }
       else{
           toast.error(data.message);

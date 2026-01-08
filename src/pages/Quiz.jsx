@@ -35,6 +35,7 @@ function Quiz() {
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // get data
   const {
@@ -142,6 +143,14 @@ function Quiz() {
   // submit
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Agar yuborilayotgan bo'lsa, qayta yubormaslik
+    if (isSubmitting) {
+      console.log('⚠️ Javob allaqachon yuborilmoqda...');
+      return;
+    }
+    
+    setIsSubmitting(true);
     isSubmittedRef.current = true;
     clearInterval(timerRef.current);
     localStorage.removeItem("remainingTime");
@@ -176,6 +185,9 @@ function Quiz() {
         console.log(err);
         console.log(err.message);
         if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
   };
 
@@ -352,11 +364,11 @@ function Quiz() {
                 : 
                 <button
                   onClick={handleSubmitPermition}
-                  disabled={result ? true : false}
+                  disabled={result || isSubmitting}
                   type="button"
-                  className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl`}
+                  className={`w-full btn btn-outline btn-info btn-xl text-white rounded-2xl ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  Yakunlash 
+                  {isSubmitting ? 'Yuborilmoqda...' : 'Yakunlash'}
                 </button>
                 }
                 

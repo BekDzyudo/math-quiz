@@ -19,24 +19,33 @@ function Login() {
       password: password.current.value,
     };
 
+    console.log('🔐 Login attempt:', { phone: newData.phone });
+
     fetch(`${import.meta.env.VITE_BASE_URL}/login/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newData),
     })
       .then((res) => {
-        if (!res.ok) throw new Error(res.statusText);
+        console.log('📡 Login response status:', res.status);
+        if (!res.ok) {
+          return res.json().then(errData => {
+            console.error('❌ Login error:', errData);
+            throw new Error(errData.non_field_errors?.[0] || 'Login xatosi');
+          });
+        }
         return res.json();
       })
       .then((data) => {
-        setUserData(data)
-        navigate("/");
-        toast.success("Muvaffaqiyatli 👍");
+        console.log('✅ Login successful:', data);
+        setUserData(data);
         sessionStorage.setItem("user-data", JSON.stringify(data));
+        toast.success("Muvaffaqiyatli 👍");
+        navigate("/");
       })
       .catch((err) => {
-        console.log(err)
-        toast.error("Telefon nomer yoki parol xato");
+        console.error('❌ Login catch error:', err);
+        toast.error(err.message || "Telefon nomer yoki parol xato");
       });
   }
 
