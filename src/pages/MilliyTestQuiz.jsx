@@ -23,13 +23,15 @@ function MilliyTestQuiz() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false); // ✅ Submit holatini boshqarish
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false); // ✅ Confirmation modal
+  const [unansweredCount, setUnansweredCount] = useState(0); // ✅ Javob berilmagan savollar soni
 
   const ochiqSavollar = Array.from({ length: 35 });
-  
+
   // ✅ 20 ta yopiq savol uchun boshlang'ich struktura
   const yopiqSavollarRaqamlari = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
     "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
-  
+
   const [yopiqQuizAnswers, setYopiqQuizAnswers] = useState(() => {
     try {
       const saved = localStorage.getItem("answers_yopiq");
@@ -49,18 +51,18 @@ function MilliyTestQuiz() {
     }
   });
 
-  const { userData, activeModal, setActiveModal, setResult, setUserData } = useContext(GlobalContext);
-  const { 
-    user, 
-    isTelegramMode, 
-    showBackButton, 
-    hideBackButton, 
-    showMainButton, 
-    hideMainButton, 
-    disableMainButton, 
-    enableMainButton, 
-    showConfirm, 
-    close 
+  const { userData, activeModal, setActiveModal, result, setResult, setUserData } = useContext(GlobalContext);
+  const {
+    user,
+    isTelegramMode,
+    showBackButton,
+    hideBackButton,
+    showMainButton,
+    hideMainButton,
+    disableMainButton,
+    enableMainButton,
+    showConfirm,
+    close
   } = useTelegram() || {}; // ✅ Fallback agar context undefined bo'lsa
 
   // Telegram Web App da auto-login
@@ -106,56 +108,9 @@ function MilliyTestQuiz() {
     }
   }, [isLoading, isTelegramMode, userData, navigate]);
 
-  // ✅ Test statusini tekshirish - faqat aktiv/deadline uchun (re-submission allowed)
-  useEffect(() => {
-    const checkTestStatus = async () => {
-      if (!code) {
-        toast.error("Test kodi topilmadi");
-        navigate("/tasdiqlash-kodi");
-        return;
-      }
-
-      const userId = isTelegramMode && user ? user.id : userData?.user_id;
-      if (!userId) return; // Hali login bo'lmagan
-
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/test/${code}/status/${userId}/`, {
-          method: "GET",
-        });
-
-        if (response.ok) {
-          const statusData = await response.json();
-          
-          // ✅ Faqat test aktiv emas yoki deadline o'tgan bo'lsa bloklash
-          if (!statusData.can_take_test && statusData.message !== "Test topshirish mumkin") {
-            toast.error(statusData.message || "Test topshirib bo'lmaydi");
-            
-            // localStorage'ni tozalash
-            clearTestAnswers();
-            try {
-              localStorage.removeItem("test-code");
-            } catch (error) {
-              // localStorage xatosi - davom etish
-            }
-            
-            // Tasdiqlash sahifasiga qaytarish
-            setTimeout(() => {
-              navigate("/tasdiqlash-kodi");
-            }, 2000);
-          }
-        }
-      } catch (error) {
-        // Silent fail - agar API ishlamasa, davom etsin
-      }
-    };
-
-    if (!isLoading && (userData || (isTelegramMode && user))) {
-      checkTestStatus();
-    }
-  }, [isLoading, code, isTelegramMode, user, userData, navigate]);
 
   const [selectedAnswersM, setSelectedAnswersM] = useState({});
-  
+
   // ✅ localStorage tozalash utility function
   const clearTestAnswers = () => {
     try {
@@ -167,7 +122,7 @@ function MilliyTestQuiz() {
       console.error('localStorage tozalashda xato:', error);
     }
   };
-  
+
   // ✅ Component mount bo'lganda localStorage'ni tozalash
   useEffect(() => {
     clearTestAnswers();
@@ -182,20 +137,20 @@ function MilliyTestQuiz() {
 
 
   const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
-"41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
+    "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
   const handleAnswerChangeYopiq = (index, newValue, question_number) => {
     setYopiqQuizAnswers((prev) => {
       const savolRaqami = savolNum[index];
-      
+
       // ✅ Faqat to'ldirilgan javoblarni saqlash
       if (!newValue || newValue.trim() === '') {
         // Bo'sh bo'lsa - olib tashlash
         return prev.filter(item => item.savol_raqami !== savolRaqami);
       }
-      
+
       // Mavjud javobni yangilash yoki yangi javob qo'shish
       const existingIndex = prev.findIndex(item => item.savol_raqami === savolRaqami);
-      
+
       if (existingIndex !== -1) {
         // Mavjud javobni yangilash
         const updated = [...prev];
@@ -217,7 +172,7 @@ function MilliyTestQuiz() {
   // ✅ Barcha 55 savolni to'ldirib yuborish (bo'sh bo'lsa ham)
   const ensureAllAnswers = () => {
     const options = ['A', 'B', 'C', 'D'];
-    
+
     // 1-35 ochiq savollar (test variant javoblari)
     const ochiqJavoblar = Array.from({ length: 35 }, (_, i) => {
       const questionNum = (i + 1).toString();
@@ -227,11 +182,11 @@ function MilliyTestQuiz() {
         javob: optionIndex !== undefined ? options[optionIndex] : ""
       };
     });
-    
+
     // 36a-45b yopiq savollar (20 ta yozma javob)
     const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
       "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
-    
+
     const yopiqJavoblar = savolNum.map(raqam => {
       const existing = yopiqQuizAnswers.find(a => a.savol_raqami === raqam);
       return {
@@ -239,7 +194,7 @@ function MilliyTestQuiz() {
         javob: existing?.javob || ""
       };
     });
-    
+
     return [...ochiqJavoblar, ...yopiqJavoblar];
   };
 
@@ -267,7 +222,7 @@ function MilliyTestQuiz() {
 
     // Main button (Testni yakunlash)
     showMainButton("Testni yakunlash", handleMainButtonClick);
-    
+
     // ✅ Submit holatiga qarab tugmani disable/enable qilish
     if (isSubmitting && disableMainButton) {
       disableMainButton();
@@ -283,22 +238,22 @@ function MilliyTestQuiz() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     console.log('🚀 handleSubmit called, isSubmitting:', isSubmitting);
-    
+
     // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik
     if (isSubmitting) {
       console.log('⏸️ Already submitting, skipping...');
       return;
     }
-    
+
     console.log('✅ Starting submission process...');
     setIsSubmitting(true);
-    
+
     // Telegram user ID ni ishlatish
     const userId = isTelegramMode ? user?.id : userData?.user_id;
     const telegramId = isTelegramMode ? user?.id : "";
-    
+
     // FISH (Full Name) - Bot registratsiyasidan yoki web login'dan
     let fullName = "";
     if (isTelegramMode && user) {
@@ -311,13 +266,13 @@ function MilliyTestQuiz() {
 
     // ✅ Barcha 55 savolni to'ldirib olish (bo'sh javoblar bilan)
     const allAnswers = ensureAllAnswers();
-    
+
     console.log('📦 Prepared answers:', allAnswers.length, 'items');
     console.log('� Full answers array:', JSON.stringify(allAnswers, null, 2));
     console.log('📊 User info:', { userId, telegramId, fullName });
     console.log('�📡 Sending to backend...');
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/api/check/${code}/`, {
+    fetch(`${import.meta.env.VITE_BASE_URL}/check/${code}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -328,6 +283,7 @@ function MilliyTestQuiz() {
       }),
     })
       .then(async (res) => {
+        console.log("Check output", res)
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(JSON.stringify(errorData));
@@ -337,30 +293,28 @@ function MilliyTestQuiz() {
       .then((data) => {
         console.log('📊 Backend response:', data);
         setIsSubmitting(false); // ✅ Loading ni o'chirish
-        
+
         // Backend natija qaytaradi
         if (data.status === 'success' && data.natija) {
           console.log('✅ Test muvaffaqiyatli topshirildi:', data.natija);
-          
+
           // ✅ Faqat javoblarni tozalash - test-code ni saqlab qolish
           clearTestAnswers();
-          
+
           console.log('🎯 Setting result and opening modal...');
           setResult(data.natija);
-          
+
           // ✅ State update'dan keyin modal ochish
           setTimeout(() => {
             console.log('🎭 Opening modal now...');
             setActiveModal(true);
           }, 100);
-          
+
           toast.success('✅ Test topshirildi!');
         } else if (data.status === 'error') {
           console.error('❌ Backend error:', data.message);
-          toast.error(data.message || 'Test topshirishda xatolik');
         } else {
           console.error('❌ Unexpected response format:', data);
-          toast.error('Natija saqlanmadi');
         }
       })
       .catch((err) => {
@@ -369,32 +323,46 @@ function MilliyTestQuiz() {
         try {
           const parsed = JSON.parse(err.message);
           console.error('❌ Parsed error:', parsed);
-          toast.error(parsed.message || 'Xatolik yuz berdi')
+
         } catch {
           console.error('❌ Unparseable error:', err.message);
-          toast.error('Server bilan bog\'lanishda xato');
+
         }
       });
   };
 
-const handleSubmitPermition = (e) => {
+  // ✅ Submit permission checker - incomplete answers ga confirmation modal ko'rsatish
+  const handleSubmitPermition = (e) => {
     e.preventDefault();
-    
-    // ✅ To'ldirilgan javoblar sonini hisoblash
+
+    // To'ldirilgan javoblar sonini hisoblash
     const filledOchiqCount = Object.keys(selectedAnswersM).length;
     const filledYopiqCount = yopiqQuizAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
     const filledCount = filledOchiqCount + filledYopiqCount;
-    
+
     const totalQuestions = 55;
-    const unansweredCount = totalQuestions - filledCount;
-    
-    // ✅ Ogohlantirish: Hammasi belgilanmagan bo'lsa
-    if (unansweredCount > 0) {
-      toast.warning(`⚠️ Diqqat! ${unansweredCount} ta savol belgilanmagan.`);
+    const unanswered = totalQuestions - filledCount;
+
+    // Agar barcha javoblar to'ldirilgan bo'lsa, to'g'ridan-to'g'ri yuborish
+    if (unanswered === 0) {
+      handleSubmit(e);
+      return;
     }
-    
-    // ✅ To'g'ridan yuborish - barcha 55 savolni to'ldirib
-    handleSubmit(e);
+
+    // Aks holda, confirmation modal ko'rsatish
+    setUnansweredCount(unanswered);
+    setShowConfirmationModal(true);
+  };
+
+  // ✅ Confirmation modal'dan tasdiqlash
+  const handleConfirmSubmit = () => {
+    setShowConfirmationModal(false);
+    handleSubmit(new Event('submit'));
+  };
+
+  // ✅ Confirmation modal'dan bekor qilish
+  const handleCancelSubmit = () => {
+    setShowConfirmationModal(false);
   };
 
   return (
@@ -417,11 +385,10 @@ const handleSubmitPermition = (e) => {
                       className={`test-label group flex justify-center items-center`}
                     >
                       <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${
-                          selectedAnswersM[index + 1] == 0
-                            ? "bg-info text-white"
-                            : "bg-gray-300"
-                        } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
+                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 0
+                          ? "bg-info text-white"
+                          : "bg-gray-300"
+                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
                       >
                         A
                       </div>
@@ -435,11 +402,10 @@ const handleSubmitPermition = (e) => {
                       className={`test-label group flex justify-center items-center`}
                     >
                       <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${
-                          selectedAnswersM[index + 1] == 1
-                            ? "bg-info text-white"
-                            : "bg-gray-300"
-                        } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
+                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 1
+                          ? "bg-info text-white"
+                          : "bg-gray-300"
+                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
                       >
                         B
                       </div>
@@ -453,11 +419,10 @@ const handleSubmitPermition = (e) => {
                       className={`test-label group flex justify-center items-center`}
                     >
                       <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${
-                          selectedAnswersM[index + 1] == 2
-                            ? "bg-info text-white"
-                            : "bg-gray-300"
-                        } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
+                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 2
+                          ? "bg-info text-white"
+                          : "bg-gray-300"
+                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
                       >
                         C
                       </div>
@@ -471,11 +436,10 @@ const handleSubmitPermition = (e) => {
                       className={`test-label group flex justify-center items-center`}
                     >
                       <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${
-                          selectedAnswersM[index + 1] == 3
-                            ? "bg-info text-white"
-                            : "bg-gray-300"
-                        } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
+                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 3
+                          ? "bg-info text-white"
+                          : "bg-gray-300"
+                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
                       >
                         D
                       </div>
@@ -537,7 +501,7 @@ const handleSubmitPermition = (e) => {
         </div> */}
       </div>
       {activeModal && result && <Result />}
-      
+
       {/* Loading Overlay */}
       {isSubmitting && (
         <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
@@ -548,9 +512,60 @@ const handleSubmitPermition = (e) => {
           </div>
         </div>
       )}
-      
+
       {/* Debug Panel */}
-      <DebugPanel selectedAnswersM={selectedAnswersM} yopiqQuizAnswers={yopiqQuizAnswers} />
+      <DebugPanel
+        answersM={Object.entries(selectedAnswersM).map(([savol_raqami, optionIndex]) => ({
+          savol_raqami: parseInt(savol_raqami),
+          javob: ['A', 'B', 'C', 'D'][optionIndex] || ''
+        }))}
+        yopiqQuizAnswers={yopiqQuizAnswers}
+        result={ensureAllAnswers()}
+      />
+
+      {/* Confirmation Modal for Incomplete Submission */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 flex justify-center items-center z-50">
+          {/* Backdrop - cannot be clicked */}
+          <div
+            className="absolute inset-0 bg-black opacity-70"
+            onClick={(e) => e.stopPropagation()}
+          ></div>
+
+          {/* Modal Content */}
+          <div className="relative text-white flex justify-center items-center shadow-2xl rounded-2xl p-6 w-[90%] max-w-[450px] md:p-8 border-2 border-orange-500 bg-gradient-to-br from-[#263244] to-[#1a2332]">
+            <div className="flex flex-col gap-5 items-center w-full">
+              {/* Warning Icon */}
+              <div className="text-6xl">⚠️</div>
+
+              {/* Message */}
+              <div className="text-center">
+                <p className="text-xl md:text-2xl font-bold text-orange-400 mb-2">Diqqat!</p>
+                <p className="text-base md:text-lg text-gray-300">
+                  <span className="font-bold text-orange-300">{unansweredCount} ta</span> savol belgilanmagan.
+                </p>
+                <p className="text-sm text-gray-400 mt-2">Testni topshirmoqchimisiz?</p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 w-full mt-2">
+                <button
+                  onClick={handleCancelSubmit}
+                  className="flex-1 btn btn-outline btn-error text-white text-base md:text-lg py-3 hover:scale-105 transition-transform"
+                >
+                  Yo'q, qaytish
+                </button>
+                <button
+                  onClick={handleConfirmSubmit}
+                  className="flex-1 btn btn-success text-white text-base md:text-lg py-3 hover:scale-105 transition-transform"
+                >
+                  Ha, topshirish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

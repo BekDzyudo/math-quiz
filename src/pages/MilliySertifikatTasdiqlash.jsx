@@ -1,4 +1,4 @@
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import React, { useContext, useRef, useEffect } from "react";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { GlobalContext } from "../context/GlobalContext";
@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 function MilliySertifikatTasdiqlash() {
 
-  const {setUserData, userData} = useContext(GlobalContext)
+  const { setUserData, userData } = useContext(GlobalContext)
   const { user, isTelegramMode, showBackButton, hideBackButton, showMainButton, hideMainButton, close } = useTelegram();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -102,20 +102,21 @@ function MilliySertifikatTasdiqlash() {
         return res.json();
       })
       .then((data) => {
-        if(data.can_take_test){
+        if (data.can_take_test) {
           // ✅ localStorage'ga safely yozish
           try {
             localStorage.setItem("test-code", kod.current.value);
+            // console.log(kod.current.value)
           } catch (error) {
             toast.error("Ma'lumot saqlashda xatolik");
             return;
           }
           navigate("/milliy-quiz");
-      }
-      else{
-          toast.error(data.message);
         }
-       
+        else {
+          toast.error(data.message)
+        }
+
       })
       .catch((err) => {
         // console.log(err)
@@ -142,16 +143,16 @@ function MilliySertifikatTasdiqlash() {
               Test kodi:
             </label>
             <input
-            ref={kod}
+              ref={kod}
               type="text"
               className="border border-gray-400 rounded p-1.5 text-white outline-0"
               placeholder="Kodni kiriting..."
             />
           </div>
-            <button type="submit" className="btn btn-info text-white text-lg py-2 rounded-[6px]">Yuborish</button>
-            {!isTelegramMode && (
-              <Link to="/" className="text-white link flex items-center gap-2"><FaArrowLeftLong /> orqaga</Link>
-            )}
+          <button type="submit" className="btn btn-info text-white text-lg py-2 rounded-[6px]">Yuborish</button>
+          {!isTelegramMode && (
+            <Link to="/" className="text-white link flex items-center gap-2"><FaArrowLeftLong /> orqaga</Link>
+          )}
         </form>
       </div>
     </div>
