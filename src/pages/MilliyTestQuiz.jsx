@@ -531,7 +531,7 @@ function MilliyTestQuiz() {
               <div className="text-center">
                 <p className="text-xl md:text-2xl font-bold text-orange-400 mb-2">Diqqat!</p>
                 <p className="text-base md:text-lg text-gray-300">
-                  <span className="font-bold text-orange-300">{unansweredCount} ta</span> savol belgilanmagan.
+                  Belgilanmagan savollar mavjud.
                 </p>
                 <p className="text-sm text-gray-400 mt-2">Testni topshirmoqchimisiz?</p>
               </div>
