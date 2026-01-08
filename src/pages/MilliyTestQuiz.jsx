@@ -9,7 +9,6 @@ import { FaEdit } from "react-icons/fa";
 import MilliyQuestionItem from "../components/MilliyQuestionItem";
 import Result from "../components/modal/Result";
 import { toast } from "react-toastify";
-import DebugPanel from "../components/DebugPanel";
 
 function MilliyTestQuiz() {
 
@@ -512,16 +511,6 @@ function MilliyTestQuiz() {
           </div>
         </div>
       )}
-
-      {/* Debug Panel */}
-      <DebugPanel
-        answersM={Object.entries(selectedAnswersM).map(([savol_raqami, optionIndex]) => ({
-          savol_raqami: parseInt(savol_raqami),
-          javob: ['A', 'B', 'C', 'D'][optionIndex] || ''
-        }))}
-        yopiqQuizAnswers={yopiqQuizAnswers}
-        result={ensureAllAnswers()}
-      />
 
       {/* Confirmation Modal for Incomplete Submission */}
       {showConfirmationModal && (
