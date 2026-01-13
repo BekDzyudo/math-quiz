@@ -53,34 +53,34 @@ function MilliyTestQuiz() {
   // ✅ Virtual keyboard handling for mobile
   useEffect(() => {
     let lastScrollY = 0;
-    
+
     const handleFocusIn = (e) => {
       // Math-field yoki input focus bo'lganda
       if (e.target.tagName === 'MATH-FIELD' || e.target.tagName === 'INPUT') {
         lastScrollY = window.scrollY;
         document.body.classList.add('keyboard-open');
-        
+
         // Scroll to input with delay
         setTimeout(() => {
           e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 300);
       }
     };
-    
+
     const handleFocusOut = (e) => {
       if (e.target.tagName === 'MATH-FIELD' || e.target.tagName === 'INPUT') {
         document.body.classList.remove('keyboard-open');
-        
+
         // Restore scroll position
         setTimeout(() => {
           window.scrollTo({ top: lastScrollY, behavior: 'smooth' });
         }, 100);
       }
     };
-    
+
     document.addEventListener('focusin', handleFocusIn);
     document.addEventListener('focusout', handleFocusOut);
-    
+
     return () => {
       document.removeEventListener('focusin', handleFocusIn);
       document.removeEventListener('focusout', handleFocusOut);
@@ -178,7 +178,7 @@ function MilliyTestQuiz() {
 
   const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
     "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
-  
+
   // ✅ useCallback bilan optimizatsiya - funksiya har safar qayta yaratilmaydi
   const handleAnswerChangeYopiq = useCallback((index, newValue, question_number) => {
     setYopiqQuizAnswers((prev) => {
@@ -416,41 +416,41 @@ function MilliyTestQuiz() {
             {ochiqSavollar.map((item, index) => {
               // 33-35 savollar uchun 6 ta variant (A, B, C, D, E, F)
               const has6Options = index >= 32 && index <= 34; // 33, 34, 35 (0-indexed: 32, 33, 34)
-              const options = has6Options 
-                ? ['A', 'B', 'C', 'D', 'E', 'F'] 
+              const options = has6Options
+                ? ['A', 'B', 'C', 'D', 'E', 'F']
                 : ['A', 'B', 'C', 'D'];
-              
+
               return (
                 <div
                   key={index}
                   className={`bg-[#3b4d66] rounded-lg p-3 md:p-4 border-b-2 border-gray-600`}
                 >
-                  <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex items-center justify-between gap-2 md:gap-3">
                     <span className="text-sm md:text-xl font-bold px-3 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap flex-shrink-0">
                       {index + 1}.
                     </span>
-                    <div className="flex flex-wrap gap-2 md:gap-3 flex-1">
-                    {options.map((option, optionIndex) => (
-                      <label
-                        key={option}
-                        className="test-label group flex justify-center items-center cursor-pointer"
-                      >
-                        <div
-                          className={`test-letter text-center text-[13px] md:text-[16px] font-bold ${selectedAnswersM[index + 1] == optionIndex
-                            ? "bg-info text-white"
-                            : "bg-gray-300"
-                            } px-3 py-2 md:px-4 md:py-3 rounded group-hover:text-[#00A4F2] text-gray-500 min-w-[40px] md:min-w-[50px]`}
+                    <div className="flex gap-4">
+                      {options.map((option, optionIndex) => (
+                        <label
+                          key={option}
+                          className="test-label group flex justify-center items-center cursor-pointer"
                         >
-                          {option}
-                        </div>
-                        <input
-                          type="radio"
-                          name={`question-${index}`}
-                          onChange={() => handleAnswerChange(index + 1, option, optionIndex)}
-                          className="hidden"
-                        />
-                      </label>
-                    ))}
+                          <div
+                            className={`test-letter text-center text-[13px] md:text-[16px] font-bold ${selectedAnswersM[index + 1] == optionIndex
+                              ? "bg-info text-white"
+                              : "bg-gray-300"
+                              } px-2 py-2 md:px-3 md:py-3 rounded group-hover:text-[#00A4F2] text-gray-500 w-[40px] md:w-[50px]`}
+                          >
+                            {option}
+                          </div>
+                          <input
+                            type="radio"
+                            name={`question-${index}`}
+                            onChange={() => handleAnswerChange(index + 1, option, optionIndex)}
+                            className="hidden"
+                          />
+                        </label>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState } from "react";
+import { FaKeyboard } from "react-icons/fa";
 
-const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami}) => {
+const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) => {
   const mathFieldRef = useRef(null);
   const debounceTimerRef = useRef(null);
   const isInitializedRef = useRef(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   // ✅ Debounced onChange - har bir keystroke uchun emas, 300ms kutadi
   const debouncedOnChange = useCallback((newValue) => {
@@ -30,7 +32,7 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami}) =
     const handleInput = () => {
       debouncedOnChange(mf.value);
     };
-    
+
     mf.addEventListener("input", handleInput);
 
     return () => {
@@ -53,102 +55,96 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami}) =
   }, [value]);
 
   function getSavolRaqami(index) {
-  const start = 36;
+    const start = 36;
 
-  // 36a–45b oralig‘i uchun
-  const pairStart = 36;
-  const pairEnd = 45;
-  const totalPairCount = (pairEnd - pairStart + 1) * 2; // 20 ta (36a,b ... 45a,b)
+    // 36a–45b oralig'i uchun
+    const pairStart = 36;
+    const pairEnd = 45;
+    const totalPairCount = (pairEnd - pairStart + 1) * 2; // 20 ta (36a,b ... 45a,b)
 
-  if (index < totalPairCount) {
-    const number = pairStart + Math.floor(index / 2);
-    const suffix = index % 2 === 0 ? "a" : "b";
-    return `${number}${suffix}`;
+    if (index < totalPairCount) {
+      const number = pairStart + Math.floor(index / 2);
+      const suffix = index % 2 === 0 ? "a" : "b";
+      return `${number}${suffix}`;
+    }
+
+    // qolganlari 46–50
+    // const remainingIndex = index - totalPairCount;
+    // return `${46 + remainingIndex}`;
   }
 
-  // qolganlari 46–50
-  // const remainingIndex = index - totalPairCount;
-  // return `${46 + remainingIndex}`;
-}
-
-  // ✅ Math-field setup with built-in keyboard toggle
+  // ✅ Virtual keyboard setup
   useEffect(() => {
     const mf = mathFieldRef.current;
     if (!mf) return;
 
     // Virtual keyboard ni manual mode'ga o'rnatish
     mf.mathVirtualKeyboardPolicy = 'manual';
-    
-    // Focus/blur eventlarni handle qilish
-    const handleFocus = () => {
-      if (window.mathVirtualKeyboard) {
-        window.mathVirtualKeyboard.show();
+
+    // Built-in toggle button'ni yashirish
+    const style = document.createElement('style');
+    style.textContent = `
+      math-field::part(virtual-keyboard-toggle) {
+        display: none !important;
       }
-    };
-
-    const handleBlur = () => {
-      // Blur hodisasini kechiktirish - toggle button click'ini kutish uchun
-      setTimeout(() => {
-        if (window.mathVirtualKeyboard && document.activeElement !== mf) {
-          window.mathVirtualKeyboard.hide();
-        }
-      }, 100);
-    };
-
-    mf.addEventListener('focus', handleFocus);
-    mf.addEventListener('blur', handleBlur);
-
-    // Shadow DOM ichidagi toggle button'ni topish va handle qilish
-    setTimeout(() => {
-      const toggleBtn = mf.shadowRoot?.querySelector('.ML__virtual-keyboard-toggle');
-      if (toggleBtn) {
-        const handleToggleClick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          if (window.mathVirtualKeyboard?.visible) {
-            window.mathVirtualKeyboard.hide();
-            mf.blur();
-          } else {
-            mf.focus();
-            window.mathVirtualKeyboard?.show();
-          }
-        };
-        
-        toggleBtn.addEventListener('click', handleToggleClick, true);
-        
-        // Cleanup uchun saqlash
-        mf._toggleBtnCleanup = () => {
-          toggleBtn.removeEventListener('click', handleToggleClick, true);
-        };
-      }
-    }, 100);
+    `;
+    document.head.appendChild(style);
 
     return () => {
-      mf.removeEventListener('focus', handleFocus);
-      mf.removeEventListener('blur', handleBlur);
-      if (mf._toggleBtnCleanup) {
-        mf._toggleBtnCleanup();
+      // Cleanup - keyboard yopish
+      if (window.mathVirtualKeyboard) {
+        window.mathVirtualKeyboard.hide();
       }
+      document.head.removeChild(style);
     };
   }, []);
+
+  // ✅ Keyboard toggle function
+  const toggleKeyboard = useCallback(() => {
+    const mf = mathFieldRef.current;
+    if (!mf || !window.mathVirtualKeyboard) return;
+
+    if (isKeyboardVisible) {
+      // Keyboard yopish
+      window.mathVirtualKeyboard.hide();
+      setIsKeyboardVisible(false);
+    } else {
+      // Keyboard ochish
+      mf.focus();
+      window.mathVirtualKeyboard.show();
+      setIsKeyboardVisible(true);
+    }
+  }, [isKeyboardVisible]);
 
   return (
     <div key={index} className="flex justify-between items-center gap-2">
       <span className="flex w-[22%] max-h-min justify-center items-center text-[14px] md:text-xl font-bold px-2 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap">
         {getSavolRaqami(index)}-savol
       </span>
-      <math-field
-        ref={mathFieldRef}
-        smartMode
-        virtual-keyboard-mode="manual"
-        className="cursor-text outline-0 border border-gray-400 py-2 md:py-0.5 px-1 md:px-2 rounded w-[76%] text-[16px] md:text-[18px] bg-[#3b4d66] touch-action-manipulation"
-        style={{
-          '--keyboard-zindex': '1000',
-          minHeight: '40px',
-          fontSize: '16px'
-        }}
-      ></math-field>
+      <div className="flex items-center gap-2 flex-1">
+        <math-field
+          ref={mathFieldRef}
+          smartMode
+          virtual-keyboard-mode="manual"
+          className="cursor-text outline-0 border border-gray-400 py-2 md:py-0.5 px-1 md:px-2 rounded flex-1 text-[16px] md:text-[18px] bg-[#3b4d66] touch-action-manipulation"
+          style={{
+            '--keyboard-zindex': '1000',
+            minHeight: '40px',
+            fontSize: '16px'
+          }}
+        ></math-field>
+        <button
+          type="button"
+          onClick={toggleKeyboard}
+          className={`p-2 md:p-3 rounded border-2 transition-all ${isKeyboardVisible
+            ? 'bg-blue-500 border-blue-600 text-white'
+            : 'bg-gray-600 border-gray-500 text-gray-300'
+            } hover:scale-105`}
+          aria-label="Toggle Virtual Keyboard"
+        >
+          <FaKeyboard className="text-lg md:text-xl" />
+        </button>
+      </div>
     </div>
   );
 });
