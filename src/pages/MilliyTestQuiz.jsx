@@ -1,7 +1,7 @@
 import { FaUser } from "react-icons/fa";
 import NavbarMilliy from "../components/NavbarMilliy";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 import { useTelegram } from "../context/TelegramContext";
 import "mathlive";
@@ -49,6 +49,44 @@ function MilliyTestQuiz() {
       }));
     }
   });
+
+  // ✅ Virtual keyboard handling for mobile
+  useEffect(() => {
+    let lastScrollY = 0;
+    
+    const handleFocusIn = (e) => {
+      // Math-field yoki input focus bo'lganda
+      if (e.target.tagName === 'MATH-FIELD' || e.target.tagName === 'INPUT') {
+        lastScrollY = window.scrollY;
+        document.body.classList.add('keyboard-open');
+        
+        // Scroll to input with delay
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
+    
+    const handleFocusOut = (e) => {
+      if (e.target.tagName === 'MATH-FIELD' || e.target.tagName === 'INPUT') {
+        document.body.classList.remove('keyboard-open');
+        
+        // Restore scroll position
+        setTimeout(() => {
+          window.scrollTo({ top: lastScrollY, behavior: 'smooth' });
+        }, 100);
+      }
+    };
+    
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+    
+    return () => {
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+      document.body.classList.remove('keyboard-open');
+    };
+  }, []);
 
   const { userData, activeModal, setActiveModal, result, setResult, setUserData } = useContext(GlobalContext);
   const {
@@ -128,16 +166,21 @@ function MilliyTestQuiz() {
   }, []);
 
   const handleAnswerChange = (question_number, selectedOption, optionIndex) => {
-    setSelectedAnswersM(prev => ({
-      ...prev,
-      [question_number]: optionIndex
-    }));
+    setSelectedAnswersM(prev => {
+      const updated = {
+        ...prev,
+        [question_number]: optionIndex
+      };
+      return updated;
+    });
   };
 
 
   const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
     "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
-  const handleAnswerChangeYopiq = (index, newValue, question_number) => {
+  
+  // ✅ useCallback bilan optimizatsiya - funksiya har safar qayta yaratilmaydi
+  const handleAnswerChangeYopiq = useCallback((index, newValue, question_number) => {
     setYopiqQuizAnswers((prev) => {
       const savolRaqami = savolNum[index];
 
@@ -166,7 +209,7 @@ function MilliyTestQuiz() {
         }];
       }
     });
-  };
+  }, []); // ✅ Empty dependency - savolNum static array
 
   // ✅ Barcha 55 savolni to'ldirib yuborish (bo'sh bo'lsa ham)
   const ensureAllAnswers = () => {
@@ -365,98 +408,59 @@ function MilliyTestQuiz() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-y-auto">
       <NavbarMilliy />
-      <div className="px-5 md:max-w-[700px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5 pb-5 md:pb-10">
+      <div className="px-3 md:px-5 md:max-w-[700px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5 pb-32 md:pb-10">
         <form className="w-full h-full" onSubmit={handleSubmitPermition}>
           <div className="w-full grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4 mb-5 pb-10 md:pb-20">
             {ochiqSavollar.map((item, index) => {
+              // 33-35 savollar uchun 6 ta variant (A, B, C, D, E, F)
+              const has6Options = index >= 32 && index <= 34; // 33, 34, 35 (0-indexed: 32, 33, 34)
+              const options = has6Options 
+                ? ['A', 'B', 'C', 'D', 'E', 'F'] 
+                : ['A', 'B', 'C', 'D'];
+              
               return (
                 <div
                   key={index}
-                  className={`bg-[#3b4d66] rounded-lg flex justify-between gap-2 md:gap-6 items-center p-2 md:p-4`}
+                  className={`bg-[#3b4d66] rounded-lg p-3 md:p-4 border-b-2 border-gray-600`}
                 >
-                  <span className="text-sm md:text-xl font-bold px-4 py-1 bg-[#5e7a9e] rounded text-white">
-                    {index + 1}-savol
-                  </span>
-                  <div className="flex items-center justify-between gap-5 md:gap-4">
-                    <label
-                      className={`test-label group flex justify-center items-center`}
-                    >
-                      <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 0
-                          ? "bg-info text-white"
-                          : "bg-gray-300"
-                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <span className="text-sm md:text-xl font-bold px-3 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap flex-shrink-0">
+                      {index + 1}.
+                    </span>
+                    <div className="flex flex-wrap gap-2 md:gap-3 flex-1">
+                    {options.map((option, optionIndex) => (
+                      <label
+                        key={option}
+                        className="test-label group flex justify-center items-center cursor-pointer"
                       >
-                        A
-                      </div>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        onChange={() => handleAnswerChange(index + 1, "A", 0)}
-                      />
-                    </label>
-                    <label
-                      className={`test-label group flex justify-center items-center`}
-                    >
-                      <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 1
-                          ? "bg-info text-white"
-                          : "bg-gray-300"
-                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
-                      >
-                        B
-                      </div>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        onChange={() => handleAnswerChange(index + 1, "B", 1)}
-                      />
-                    </label>
-                    <label
-                      className={`test-label group flex justify-center items-center`}
-                    >
-                      <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 2
-                          ? "bg-info text-white"
-                          : "bg-gray-300"
-                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
-                      >
-                        C
-                      </div>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        onChange={() => handleAnswerChange(index + 1, "C", 2)}
-                      />
-                    </label>
-                    <label
-                      className={`test-label group flex justify-center items-center`}
-                    >
-                      <div
-                        className={`test-letter w-min text-[14px] md:text-[18px] md:text-xl font-bold ${selectedAnswersM[index + 1] == 3
-                          ? "bg-info text-white"
-                          : "bg-gray-300"
-                          } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500 cursor-pointer`}
-                      >
-                        D
-                      </div>
-                      <input
-                        type="radio"
-                        name={`question-${index}`}
-                        onChange={() => handleAnswerChange(index + 1, "D", 3)}
-                      />
-                    </label>
+                        <div
+                          className={`test-letter text-center text-[13px] md:text-[16px] font-bold ${selectedAnswersM[index + 1] == optionIndex
+                            ? "bg-info text-white"
+                            : "bg-gray-300"
+                            } px-3 py-2 md:px-4 md:py-3 rounded group-hover:text-[#00A4F2] text-gray-500 min-w-[40px] md:min-w-[50px]`}
+                        >
+                          {option}
+                        </div>
+                        <input
+                          type="radio"
+                          name={`question-${index}`}
+                          onChange={() => handleAnswerChange(index + 1, option, optionIndex)}
+                          className="hidden"
+                        />
+                      </label>
+                    ))}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-          <h2 className="text-md text-white flex items-center gap-3">
+          <h2 className="text-md text-white flex items-center gap-3 border-t border-gray-400 pt-5 mb-3">
             <FaEdit className="text-xl" /> Yozma javoblar (36-50)
           </h2>
-          <div className="mt-1 grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4 border-t border-gray-400 pt-5">
+          <div className="mt-1 grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4">
             {yopiqQuizAnswers.map((item, index) => {
               return (
                 <MilliyQuestionItem

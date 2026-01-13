@@ -76,6 +76,22 @@ body{
   white-space: normal !important;
   overflow-wrap: anywhere;
   word-break: break-word;
+  /* ✅ Mobile touch scrolling optimization */
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ✅ Mobile scroll fix */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+}
+
+#root {
+  min-height: 100%;
+  position: relative;
 }
 .dracula {
   --light-grey-color: #313e51;
@@ -158,10 +174,51 @@ body{
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* Firefox qo‘llab-quvvatlash */
+/* Firefox qo'llab-quvvatlash */
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+}
+
+/* ✅ Mobile keyboard handling - prevent layout shift */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari */
+  body {
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+    height: 100vh;
+  }
+  
+  #root {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ✅ Input focus - prevent zoom on mobile */
+input, textarea, select {
+  font-size: 16px !important; /* iOS won't zoom if font-size >= 16px */
+}
+
+/* ✅ Math-field specific fixes for mobile */
+math-field {
+  font-size: 16px !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation;
+}
+
+math-field:focus {
+  outline: 2px solid #00A4F2;
+  outline-offset: 2px;
+}
+
+/* ✅ Virtual keyboard padding */
+.keyboard-open {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 @media only screen and (max-width: 768px) and (min-width: 600px){
@@ -173,6 +230,44 @@ body{
 @media only screen and (max-width: 600px) {
  body{
   background-image: var(--body-bg-image-mobile);
+  /* ✅ Mobile scroll optimization */
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ✅ Better touch scrolling on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ✅ Allow text selection in inputs */
+input, textarea, math-field {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* ✅ Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ✅ Radio button touch target */
+.test-label {
+  min-height: 44px; /* iOS touch target minimum */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ Better button spacing on mobile */
+.test-letter {
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 }
 

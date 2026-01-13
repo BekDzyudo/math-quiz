@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState, useCallback } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
@@ -66,7 +66,8 @@ function Quiz() {
     }
   }, []);
 
-  const handleAnswerChange = (
+  // ✅ useCallback bilan optimizatsiya - funksiya har safar qayta yaratilmaydi
+  const handleAnswerChange = useCallback((
     question_id,
     question_number,
     selectedOption,
@@ -114,7 +115,7 @@ function Quiz() {
       localStorage.setItem("selectOption", JSON.stringify(updated));
       return updated;
     });
-  };
+  }, [selectedAnswers]); // ✅ Minimal dependency
   // ============================
   useEffect(() => {
     localStorage.setItem("answers", JSON.stringify(answers));
