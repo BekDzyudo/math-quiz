@@ -429,7 +429,7 @@ function MilliyTestQuiz() {
                     <span className="text-sm md:text-xl font-bold px-3 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap flex-shrink-0">
                       {index + 1}.
                     </span>
-                    <div className="flex gap-4">
+                    <div className="flex gap-1">
                       {options.map((option, optionIndex) => (
                         <label
                           key={option}
