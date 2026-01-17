@@ -201,7 +201,7 @@ function MilliyTestQuiz() {
       const questionNum = (i + 1).toString();
       const optionIndex = selectedAnswersM[questionNum];
       // 33, 34, 35 (0-index: 32, 33, 34) uchun 6 ta variant
-      const options = (i >= 32 && i <= 34) ? ['A', 'B', 'C', 'D', 'E', 'F'] : ['A', 'B', 'C', 'D'];
+      const options = ['A', 'B', 'C', 'D', 'E', 'F'];
       return {
         savol_raqami: questionNum,
         javob: optionIndex !== undefined ? options[optionIndex] : ""
