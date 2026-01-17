@@ -48,9 +48,9 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) 
     const mf = mathFieldRef.current;
     if (!mf || !isInitializedRef.current) return;
 
-    // Faqat input bo'sh bo'lsa va value bor bo'lsa yangilash
-    if ((!mf.value || mf.value.trim() === '') && value && value.trim() !== '') {
-      mf.value = value;
+    // Faqat parentdan value o'zgarganda inputni yangilash
+    if (value !== mf.value) {
+      mf.value = value || '';
     }
   }, [value]);
 
