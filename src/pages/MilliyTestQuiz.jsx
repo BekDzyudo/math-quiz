@@ -195,12 +195,13 @@ function MilliyTestQuiz() {
 
   // ✅ Barcha 55 savolni to'ldirib yuborish (bo'sh bo'lsa ham)
   const ensureAllAnswers = () => {
-    const options = ['A', 'B', 'C', 'D'];
 
     // 1-35 ochiq savollar (test variant javoblari)
     const ochiqJavoblar = Array.from({ length: 35 }, (_, i) => {
       const questionNum = (i + 1).toString();
       const optionIndex = selectedAnswersM[questionNum];
+      // 33, 34, 35 (0-index: 32, 33, 34) uchun 6 ta variant
+      const options = (i >= 32 && i <= 34) ? ['A', 'B', 'C', 'D', 'E', 'F'] : ['A', 'B', 'C', 'D'];
       return {
         savol_raqami: questionNum,
         javob: optionIndex !== undefined ? options[optionIndex] : ""
