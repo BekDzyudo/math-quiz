@@ -182,34 +182,16 @@ function MilliyTestQuiz() {
   // ✅ useCallback bilan optimizatsiya - funksiya har safar qayta yaratilmaydi
   const handleAnswerChangeYopiq = useCallback((index, newValue, question_number) => {
     setYopiqQuizAnswers((prev) => {
-      const savolRaqami = savolNum[index];
-
-      // ✅ Faqat to'ldirilgan javoblarni saqlash
-      if (!newValue || newValue.trim() === '') {
-        // Bo'sh bo'lsa - olib tashlash
-        return prev.filter(item => item.savol_raqami !== savolRaqami);
-      }
-
-      // Mavjud javobni yangilash yoki yangi javob qo'shish
-      const existingIndex = prev.findIndex(item => item.savol_raqami === savolRaqami);
-
-      if (existingIndex !== -1) {
-        // Mavjud javobni yangilash
-        const updated = [...prev];
-        updated[existingIndex] = {
-          savol_raqami: savolRaqami,
+      const updated = [...prev];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
           javob: newValue
         };
-        return updated;
-      } else {
-        // Yangi javob qo'shish
-        return [...prev, {
-          savol_raqami: savolRaqami,
-          javob: newValue
-        }];
       }
+      return updated;
     });
-  }, []); // ✅ Empty dependency - savolNum static array
+  }, []); // ✅ Har doim 20 ta element saqlanadi, input bo'sh bo'lsa ham
 
   // ✅ Barcha 55 savolni to'ldirib yuborish (bo'sh bo'lsa ham)
   const ensureAllAnswers = () => {
