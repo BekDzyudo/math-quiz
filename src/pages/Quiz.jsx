@@ -74,11 +74,10 @@ function Quiz() {
     index1,
     index
   ) => {
-    const update = { ...selectedAnswers, [question_id]: index };
+    // Harfni saqlash
+    const update = { ...selectedAnswers, [question_id]: selectedOption };
     setSelectedAnswers(update);
-    // localStorage.setItem("saved_answers", JSON.stringify(update));
 
-    // =====
     setAnswers((prevAnswers) => {
       const existingIndex = prevAnswers.findIndex(
         (item) => item.savol_id === question_id
@@ -98,13 +97,6 @@ function Quiz() {
       }
     });
 
-    //  localStorage.setItem(
-    //   "answers",
-    //   JSON.stringify([
-    //     ...answers,
-    //     { savol_id: question_id, tanlangan_javob: selectedOption },
-    //   ])
-    // );
     setSelectOption((prev) => {
       let updated;
       if (!prev.includes(question_id)) {
@@ -115,7 +107,7 @@ function Quiz() {
       localStorage.setItem("selectOption", JSON.stringify(updated));
       return updated;
     });
-  }, [selectedAnswers]); // ✅ Minimal dependency
+  }, [selectedAnswers]);
   // ============================
   useEffect(() => {
     localStorage.setItem("answers", JSON.stringify(answers));

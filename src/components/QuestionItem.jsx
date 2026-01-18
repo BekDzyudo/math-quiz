@@ -137,7 +137,7 @@ const QuestionItem = React.memo(
           <div className="space-y-3 md:ml-6">
             {Array.isArray(item?.javoblar) &&
               item?.javoblar?.map((variant, index) => {
-                const isSelected = selectedAnswers[item.id] === index;
+                const isSelected = selectedAnswers[item.id] === String.fromCharCode(index + 65);
                 return (
                   <label
                     style={{
