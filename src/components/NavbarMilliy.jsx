@@ -3,7 +3,8 @@ import { GlobalContext } from "../context/GlobalContext";
 import { BsQuestionSquare } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
-import userImage from "../../public/assets/user.jfif";
+// Use URL for public assets
+const userImage = "/assets/user.jfif";
 import { FaUser } from "react-icons/fa";
 import Time from "./Time";
 

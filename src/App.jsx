@@ -16,6 +16,7 @@ import NewPassword from "./pages/NewPassword";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import MilliyTestQuiz from "./pages/MilliyTestQuiz";
 import MilliySertifikatTasdiqlash from "./pages/MilliySertifikatTasdiqlash";
+import TestYaratish from "./pages/TestYaratish";
 
 // ErrorBoundary component
 class ErrorBoundary extends React.Component {
@@ -39,7 +40,7 @@ class ErrorBoundary extends React.Component {
           <div className="flex flex-col gap-5 shadow-2xl rounded-2xl p-5 w-full md:w-96 md:p-10">
             <h1 className="text-center text-2xl text-red-500">Xatolik yuz berdi</h1>
             <p className="text-white text-center">Iltimos, sahifani qayta yuklang</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/tasdiqlash-kodi'}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
@@ -55,12 +56,12 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-  const {userData} = useContext(GlobalContext)
+  const { userData } = useContext(GlobalContext)
 
   const routes = createBrowserRouter([
-     {
+    {
       path: "/",
-      element: userData ? <MainLayout /> : <Navigate to="/login"/>,
+      element: userData ? <MainLayout /> : <Navigate to="/login" />,
       children: [
         {
           index: true,
@@ -74,29 +75,33 @@ function App() {
     },
     {
       path: "/tasdiqlash-kodi",
-      element: <ErrorBoundary><MilliySertifikatTasdiqlash/></ErrorBoundary>,
+      element: <ErrorBoundary><MilliySertifikatTasdiqlash /></ErrorBoundary>,
       errorElement: <ErrorBoundary><div>Error loading page</div></ErrorBoundary>
     },
     {
-      path:"/milliy-quiz",
-      element: <ErrorBoundary><MilliyTestQuiz/></ErrorBoundary>,
+      path: "/milliy-quiz",
+      element: <ErrorBoundary><MilliyTestQuiz /></ErrorBoundary>,
       errorElement: <ErrorBoundary><div>Error loading quiz</div></ErrorBoundary>
     },
     {
+      path: "/test-yaratish",
+      element: <TestYaratish />
+    },
+    {
       path: "/attestatsiya-testlari",
-      element: <AttestatsiyaTestlari/>
+      element: <AttestatsiyaTestlari />
     },
     {
       path: "/yangi-parol",
-      element: <NewPassword/>
+      element: <NewPassword />
     },
     {
       path: "/login",
-      element: userData ? <Navigate to="/"/> : <Login/>,
+      element: userData ? <Navigate to="/" /> : <Login />,
     },
     {
       path: "/register",
-      element: userData ? <Navigate to="/"/> : <Register />,
+      element: userData ? <Navigate to="/" /> : <Register />,
     },
   ]);
   return <RouterProvider router={routes} />;

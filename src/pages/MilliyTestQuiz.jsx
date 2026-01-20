@@ -360,23 +360,57 @@ function MilliyTestQuiz() {
   const handleSubmitPermition = (e) => {
     e.preventDefault();
 
-    // To'ldirilgan javoblar sonini hisoblash
-    const filledOchiqCount = Object.keys(selectedAnswersM).length;
-    const filledYopiqCount = yopiqQuizAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
-    const filledCount = filledOchiqCount + filledYopiqCount;
+    // ✅ CRITICAL: Force flush all pending debounced values from math fields
+    // In Telegram WebApp, users might submit quickly after typing
+    const allMathFields = document.querySelectorAll('math-field');
+    allMathFields.forEach((mf, index) => {
+      if (mf.value && mf.value.trim() !== '') {
+        // Trigger immediate onChange for any field with a value
+        const savolRaqami = yopiqSavollarRaqamlari[index];
+        if (savolRaqami) {
+          setYopiqQuizAnswers((prev) => {
+            const updated = [...prev];
+            if (updated[index]) {
+              updated[index] = {
+                ...updated[index],
+                javob: mf.value
+              };
+            }
+            return updated;
+          });
+        }
+      }
+    });
 
-    const totalQuestions = 55;
-    const unanswered = totalQuestions - filledCount;
+    // Small delay to ensure state is updated
+    setTimeout(() => {
+      // To'ldirilgan javoblar sonini hisoblash
+      const filledOchiqCount = Object.keys(selectedAnswersM).length;
+      const filledYopiqCount = yopiqQuizAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
+      const filledCount = filledOchiqCount + filledYopiqCount;
 
-    // Agar barcha javoblar to'ldirilgan bo'lsa, to'g'ridan-to'g'ri yuborish
-    if (unanswered === 0) {
-      handleSubmit(e);
-      return;
-    }
+      const totalQuestions = 55;
+      const unanswered = totalQuestions - filledCount;
 
-    // Aks holda, confirmation modal ko'rsatish
-    setUnansweredCount(unanswered);
-    setShowConfirmationModal(true);
+      // ✅ Debug logging
+      console.log('=== Submission Validation ===');
+      console.log('Ochiq (1-35):', filledOchiqCount, 'filled');
+      console.log('selectedAnswersM:', selectedAnswersM);
+      console.log('Yopiq (36a-45b):', filledYopiqCount, 'filled');
+      console.log('yopiqQuizAnswers:', yopiqQuizAnswers);
+      console.log('Total filled:', filledCount, '/ 55');
+      console.log('Unanswered:', unanswered);
+
+      // Agar barcha javoblar to'ldirilgan bo'lsa, to'g'ridan-to'g'ri yuborish
+      if (unanswered === 0) {
+        handleSubmit(e);
+        return;
+      }
+
+      // Aks holda, confirmation modal ko'rsatish
+      setUnansweredCount(unanswered);
+      setShowConfirmationModal(true);
+    }, 100); // Short delay to ensure setState completes
   };
 
   // ✅ Confirmation modal'dan tasdiqlash
