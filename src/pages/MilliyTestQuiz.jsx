@@ -146,7 +146,19 @@ function MilliyTestQuiz() {
   }, [isLoading, isTelegramMode, userData, navigate]);
 
 
-  const [selectedAnswersM, setSelectedAnswersM] = useState({});
+  const [selectedAnswersM, setSelectedAnswersM] = useState(() => {
+    try {
+      const saved = localStorage.getItem("answersM");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        console.log('🔄 Loaded ochiq answers from localStorage:', parsed);
+        return parsed;
+      }
+    } catch (error) {
+      console.error('localStorage ochiq answers yuklanmadi:', error);
+    }
+    return {};
+  });
 
   // ✅ localStorage tozalash utility function
   const clearTestAnswers = () => {
@@ -155,15 +167,17 @@ function MilliyTestQuiz() {
       localStorage.removeItem("saved_answersM");
       localStorage.removeItem("answers_yopiq");
       localStorage.removeItem("selectOptionM");
+      console.log('🗑️ localStorage cleared');
     } catch (error) {
       console.error('localStorage tozalashda xato:', error);
     }
   };
 
-  // ✅ Component mount bo'lganda localStorage'ni tozalash
-  useEffect(() => {
-    clearTestAnswers();
-  }, []);
+  // ❌ Component mount bo'lganda localStorage'ni tozalash OLIB TASHLANDI
+  // Test topshirilgandan keyin tozalanadi (handleSubmit ichida)
+  // useEffect(() => {
+  //   clearTestAnswers();
+  // }, []);
 
   const handleAnswerChange = (question_number, selectedOption, optionIndex) => {
     setSelectedAnswersM(prev => {
@@ -171,6 +185,12 @@ function MilliyTestQuiz() {
         ...prev,
         [question_number]: optionIndex
       };
+      // ✅ localStorage'ga saqlash
+      try {
+        localStorage.setItem("answersM", JSON.stringify(updated));
+      } catch (error) {
+        console.error('localStorage saqlashda xato:', error);
+      }
       return updated;
     });
   };
@@ -261,10 +281,12 @@ function MilliyTestQuiz() {
     };
   }, [isTelegramMode, isSubmitting]); // result o'chirildi - kerak emas
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e, skipValidation = false) => {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
 
-    console.log('🚀 handleSubmit called, isSubmitting:', isSubmitting);
+    console.log('🚀 handleSubmit called, isSubmitting:', isSubmitting, 'skipValidation:', skipValidation);
 
     // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik
     if (isSubmitting) {
@@ -360,67 +382,81 @@ function MilliyTestQuiz() {
   const handleSubmitPermition = (e) => {
     e.preventDefault();
 
+    console.log('🔍 === Submission Validation START ===');
+
     // ✅ CRITICAL: Force flush all pending debounced values from math fields
     // In Telegram WebApp, users might submit quickly after typing
     const allMathFields = document.querySelectorAll('math-field');
+    const updatedYopiqAnswers = [...yopiqQuizAnswers];
+    let flushCount = 0;
+    
     allMathFields.forEach((mf, index) => {
       if (mf.value && mf.value.trim() !== '') {
-        // Trigger immediate onChange for any field with a value
         const savolRaqami = yopiqSavollarRaqamlari[index];
-        if (savolRaqami) {
-          setYopiqQuizAnswers((prev) => {
-            const updated = [...prev];
-            if (updated[index]) {
-              updated[index] = {
-                ...updated[index],
-                javob: mf.value
-              };
-            }
-            return updated;
-          });
+        if (savolRaqami && updatedYopiqAnswers[index]) {
+          const oldValue = updatedYopiqAnswers[index].javob;
+          updatedYopiqAnswers[index] = {
+            ...updatedYopiqAnswers[index],
+            javob: mf.value
+          };
+          if (oldValue !== mf.value) {
+            flushCount++;
+            console.log(`🔄 Flushed ${savolRaqami}: "${oldValue}" → "${mf.value}"`);
+          }
         }
       }
     });
 
-    // Small delay to ensure state is updated
-    setTimeout(() => {
-      // To'ldirilgan javoblar sonini hisoblash
-      const filledOchiqCount = Object.keys(selectedAnswersM).length;
-      const filledYopiqCount = yopiqQuizAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
-      const filledCount = filledOchiqCount + filledYopiqCount;
+    if (flushCount > 0) {
+      console.log(`✅ Flushed ${flushCount} math field values`);
+      setYopiqQuizAnswers(updatedYopiqAnswers);
+    }
 
-      const totalQuestions = 55;
-      const unanswered = totalQuestions - filledCount;
+    // To'ldirilgan javoblar sonini hisoblash (flushed values bilan)
+    const filledOchiqCount = Object.keys(selectedAnswersM).length;
+    const filledYopiqCount = updatedYopiqAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
+    const filledCount = filledOchiqCount + filledYopiqCount;
 
-      // ✅ Debug logging
-      console.log('=== Submission Validation ===');
-      console.log('Ochiq (1-35):', filledOchiqCount, 'filled');
-      console.log('selectedAnswersM:', selectedAnswersM);
-      console.log('Yopiq (36a-45b):', filledYopiqCount, 'filled');
-      console.log('yopiqQuizAnswers:', yopiqQuizAnswers);
-      console.log('Total filled:', filledCount, '/ 55');
-      console.log('Unanswered:', unanswered);
+    const totalQuestions = 55;
+    const unanswered = totalQuestions - filledCount;
 
-      // Agar barcha javoblar to'ldirilgan bo'lsa, to'g'ridan-to'g'ri yuborish
-      if (unanswered === 0) {
-        handleSubmit(e);
-        return;
-      }
+    // ✅ Debug logging
+    console.log('📊 Ochiq (1-35):', filledOchiqCount, '/ 35 filled');
+    console.log('📝 selectedAnswersM:', selectedAnswersM);
+    console.log('📝 selectedAnswersM keys:', Object.keys(selectedAnswersM).sort((a, b) => Number(a) - Number(b)));
+    console.log('📊 Yopiq (36a-45b):', filledYopiqCount, '/ 20 filled');
+    console.log('📝 yopiqQuizAnswers with values:', updatedYopiqAnswers.filter(item => item?.javob && item.javob.trim() !== '').map(item => item.savol_raqami));
+    console.log('📊 Total filled:', filledCount, '/ 55');
+    console.log('⚠️  Unanswered:', unanswered);
 
-      // Aks holda, confirmation modal ko'rsatish
-      setUnansweredCount(unanswered);
-      setShowConfirmationModal(true);
-    }, 100); // Short delay to ensure setState completes
+    // Agar barcha javoblar to'ldirilgan bo'lsa, to'g'ridan-to'g'ri yuborish
+    if (unanswered === 0) {
+      console.log('✅ All questions answered, submitting directly...');
+      handleSubmit(e, true);
+      return;
+    }
+
+    // Aks holda, confirmation modal ko'rsatish
+    console.log('⚠️  Showing confirmation modal for', unanswered, 'unanswered questions');
+    setUnansweredCount(unanswered);
+    setShowConfirmationModal(true);
   };
 
   // ✅ Confirmation modal'dan tasdiqlash
   const handleConfirmSubmit = () => {
+    console.log('✅ Confirm submit clicked');
     setShowConfirmationModal(false);
-    handleSubmit(new Event('submit'));
+    
+    // Modal yopilgandan keyin submit qilish (state update tugashini kutish)
+    setTimeout(() => {
+      console.log('🚀 Triggering handleSubmit from modal...');
+      handleSubmit(null, true);
+    }, 150);
   };
 
   // ✅ Confirmation modal'dan bekor qilish
   const handleCancelSubmit = () => {
+    console.log('❌ Cancel submit clicked');
     setShowConfirmationModal(false);
   };
 
@@ -536,14 +572,17 @@ function MilliyTestQuiz() {
       {/* Confirmation Modal for Incomplete Submission */}
       {showConfirmationModal && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
-          {/* Backdrop - cannot be clicked */}
+          {/* Backdrop - clicking closes modal */}
           <div
             className="absolute inset-0 bg-black opacity-70"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleCancelSubmit}
           ></div>
 
           {/* Modal Content */}
-          <div className="relative text-white flex justify-center items-center shadow-2xl rounded-2xl p-6 w-[90%] max-w-[450px] md:p-8 border-2 border-orange-500 bg-gradient-to-br from-[#263244] to-[#1a2332]">
+          <div 
+            className="relative text-white flex justify-center items-center shadow-2xl rounded-2xl p-6 w-[90%] max-w-[450px] md:p-8 border-2 border-orange-500 bg-gradient-to-br from-[#263244] to-[#1a2332]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex flex-col gap-5 items-center w-full">
               {/* Warning Icon */}
               <div className="text-6xl">⚠️</div>
