@@ -7,14 +7,15 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) 
   const isInitializedRef = useRef(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
-  // ✅ Debounced onChange - har bir keystroke uchun emas, 300ms kutadi
+  // ✅ Debounced onChange - har bir keystroke uchun emas, lekin Telegram uchun tezroq
   const debouncedOnChange = useCallback((newValue) => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
     debounceTimerRef.current = setTimeout(() => {
+      console.log(`📝 Debounced onChange for savol ${savolRaqami}:`, newValue);
       onChange(index, newValue, savolRaqami);
-    }, 300); // 300ms debounce
+    }, 150); // 150ms debounce - Telegram uchun tezroq
   }, [index, onChange, savolRaqami]);
 
   // ✅ Initial setup - faqat bir marta
