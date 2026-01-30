@@ -35,6 +35,7 @@ function Quiz() {
   const questionRefs = useRef([]);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
+  const isSubmittingRef = useRef(false); // ✅ Ref orqali ham boshqarish (immediate check)
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // get data
@@ -137,12 +138,13 @@ function Quiz() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Agar yuborilayotgan bo'lsa, qayta yubormaslik
-    if (isSubmitting) {
-      console.log('⚠️ Javob allaqachon yuborilmoqda...');
+    // Agar yuborilayotgan bo'lsa, qayta yubormaslik (ref orqali tekshirish)
+    if (isSubmittingRef.current) {
+      console.log('⚠️ Javob allaqachon yuborilmoqda (ref check)...');
       return;
     }
     
+    isSubmittingRef.current = true; // ✅ Ref'ni darhol o'zgartirish
     setIsSubmitting(true);
     isSubmittedRef.current = true;
     clearInterval(timerRef.current);
@@ -178,8 +180,10 @@ function Quiz() {
         console.log(err);
         console.log(err.message);
         if(err.message == "bor") toast.error("Siz oldin ushbu testni bajargansiz!");
+        else toast.error("Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.");
       })
       .finally(() => {
+        isSubmittingRef.current = false; // ✅ Ref'ni reset qilish
         setIsSubmitting(false);
       });
   };
@@ -212,12 +216,19 @@ function Quiz() {
     localStorage.removeItem("selectOption")
   }
   const handleSubmitPermition = (e) => {
+    // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik
+    if (isSubmittingRef.current) {
+      console.log('⏸️ Already submitting, ignoring button click');
+      return;
+    }
+    
     if (answers?.length == quizzes?.length) {
       handleSubmit(e);
     } else {
       if (confirm("Test to'liq bajarilmadi! Baribir yakunlansinmi?")) {
         handleSubmit(e);
       } else {
+        // Bekor qilinganda ref'ni reset qilish shart emas, chunki handleSubmit chaqirilmagan
       }
     }
   };

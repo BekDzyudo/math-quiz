@@ -22,8 +22,10 @@ function MilliyTestQuiz() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false); // ✅ Submit holatini boshqarish
+  const isSubmittingRef = useRef(false); // ✅ Ref orqali ham boshqarish (immediate check)
   const [showConfirmationModal, setShowConfirmationModal] = useState(false); // ✅ Confirmation modal
   const [unansweredCount, setUnansweredCount] = useState(0); // ✅ Javob berilmagan savollar soni
+  const [isOnline, setIsOnline] = useState(navigator.onLine); // ✅ Network status tracking
 
   const ochiqSavollar = Array.from({ length: 35 });
 
@@ -145,21 +147,43 @@ function MilliyTestQuiz() {
     }
   }, [isLoading, isTelegramMode, userData, navigate]);
 
+  // ✅ Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('✅ Internet aloqasi qayta tiklandi');
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.warning('⚠️ Internet aloqasi yo\'q! Javoblaringiz localStorage\'da saqlanmoqda.');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Initial check
+    if (!navigator.onLine) {
+      setIsOnline(false);
+    }
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
 
   const [selectedAnswersM, setSelectedAnswersM] = useState(() => {
     try {
       const saved = localStorage.getItem("answersM");
       if (saved) {
         const parsed = JSON.parse(saved);
-        console.log('🔄 Loaded ochiq answers from localStorage:', parsed);
-        console.log('📊 Total loaded answers:', Object.keys(parsed).length);
-        console.log('📊 Valid answers:', Object.entries(parsed).filter(([k, v]) => v !== undefined && v !== null && v !== '').length);
         return parsed;
       }
     } catch (error) {
       console.error('localStorage ochiq answers yuklanmadi:', error);
     }
-    console.log('⚠️ No saved answers in localStorage, starting fresh');
     return {};
   });
 
@@ -170,7 +194,6 @@ function MilliyTestQuiz() {
       localStorage.removeItem("saved_answersM");
       localStorage.removeItem("answers_yopiq");
       localStorage.removeItem("selectOptionM");
-      console.log('🗑️ localStorage cleared');
     } catch (error) {
       console.error('localStorage tozalashda xato:', error);
     }
@@ -188,12 +211,10 @@ function MilliyTestQuiz() {
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        console.log('📱 Telegram Web App visible again - reloading from localStorage');
         try {
           const saved = localStorage.getItem("answersM");
           if (saved) {
             const parsed = JSON.parse(saved);
-            console.log('🔄 Reloaded answers:', Object.keys(parsed).length, 'answers');
             setSelectedAnswersM(parsed);
           }
         } catch (error) {
@@ -207,7 +228,6 @@ function MilliyTestQuiz() {
     // Telegram Web App viewportChanged event
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.onEvent('viewportChanged', () => {
-        console.log('📱 Telegram viewport changed - syncing localStorage');
         handleVisibilityChange();
       });
     }
@@ -219,25 +239,20 @@ function MilliyTestQuiz() {
 
   const handleAnswerChange = (question_number, selectedOption, optionIndex) => {
     const questionKey = question_number.toString();
-    console.log(`📝 handleAnswerChange called:`, { question_number: questionKey, selectedOption, optionIndex });
     setSelectedAnswersM(prev => {
       const updated = {
         ...prev,
         [questionKey]: optionIndex
       };
-      console.log(`✅ Updated selectedAnswersM (${isTelegramMode ? 'Telegram' : 'Web'}):`, updated);
-      // ✅ localStorage'ga saqlash (immediate sync)
+      // localStorage'ga saqlash (immediate sync)
       try {
         localStorage.setItem("answersM", JSON.stringify(updated));
-        console.log(`💾 Saved answer for question ${questionKey}: ${selectedOption} (index: ${optionIndex})`);
         
-        // ✅ Telegram Web App uchun: CloudStorage'ga ham saqlash
+        // Telegram Web App uchun: CloudStorage'ga ham saqlash
         if (isTelegramMode && window.Telegram?.WebApp?.CloudStorage) {
           window.Telegram.WebApp.CloudStorage.setItem(`answersM_${code}`, JSON.stringify(updated), (error) => {
             if (error) {
               console.error('☁️ CloudStorage save error:', error);
-            } else {
-              console.log('☁️ Saved to Telegram CloudStorage');
             }
           });
         }
@@ -262,10 +277,9 @@ function MilliyTestQuiz() {
           javob: newValue
         };
       }
-      // ✅ localStorage'ga saqlash
+      // localStorage'ga saqlash
       try {
         localStorage.setItem("answers_yopiq", JSON.stringify(updated));
-        console.log(`💾 Saved to localStorage [${question_number}]: "${newValue}"`);
       } catch (error) {
         console.error('localStorage yopiq savollar saqlashda xato:', error);
       }
@@ -284,38 +298,32 @@ function MilliyTestQuiz() {
       const saved = localStorage.getItem("answersM");
       if (saved) {
         currentAnswers = JSON.parse(saved);
-        console.log('✅ ensureAllAnswers: Loaded from localStorage');
-        console.log('📊 Total keys in localStorage:', Object.keys(currentAnswers).length);
-        console.log('📋 All answers:', JSON.stringify(currentAnswers));
       } else {
         console.warn('⚠️ localStorage answersM is EMPTY - using state');
-        console.log('📊 State has', Object.keys(selectedAnswersM).length, 'keys');
       }
     } catch (error) {
       console.error('❌ Error reading localStorage:', error);
+      currentAnswers = {}; // Fallback to empty object
     }
 
     // 1-35 ochiq savollar (test variant javoblari)
     const ochiqJavoblar = Array.from({ length: 35 }, (_, i) => {
       const questionNum = (i + 1).toString();
-      const optionIndex = currentAnswers[questionNum];  // ✅ localStorage'dan olish
+      const optionIndex = currentAnswers[questionNum];
       // 33, 34, 35 (0-index: 32, 33, 34) uchun 6 ta variant
       const has6Options = i >= 32 && i <= 34;
       const options = has6Options ? ['A', 'B', 'C', 'D', 'E', 'F'] : ['A', 'B', 'C', 'D'];
       
-      // ✅ CRITICAL FIX: optionIndex 0 bo'lishi mumkin (A variant), shuning uchun !== undefined va !== null tekshiramiz
+      // ✅ CRITICAL: optionIndex 0 bo'lishi mumkin (A variant), shuning uchun !== undefined va !== null tekshiramiz
+      // Bo'sh javob bo'lsa, empty string yuborish (backend uchun)
       const javob = (optionIndex !== undefined && optionIndex !== null) ? options[optionIndex] : "";
-      
-      // Har bir savol uchun debug
-      console.log(`Q${questionNum}: index=${optionIndex}, javob="${javob}"`);
       
       return {
         savol_raqami: questionNum,
-        javob: javob
+        javob: javob  // Bo'sh string ham yuboriladi
       };
     });
 
-    console.log('📊 SUMMARY: Ochiq javoblar (1-35):', ochiqJavoblar.filter(j => j.javob).length, '/ 35 filled');
 
     // 36a-45b yopiq savollar (20 ta yozma javob)
     const savolNum = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
@@ -325,13 +333,21 @@ function MilliyTestQuiz() {
       const existing = yopiqSource.find(a => a.savol_raqami === raqam);
       return {
         savol_raqami: raqam,
-        javob: existing?.javob || ""
+        javob: existing?.javob || ""  // Bo'sh string ham yuboriladi
       };
     });
 
-    console.log('✅ Yopiq javoblar (36a-45b):', yopiqJavoblar.filter(j => j.javob).length, 'filled');
 
-    return [...ochiqJavoblar, ...yopiqJavoblar];
+    const allAnswers = [...ochiqJavoblar, ...yopiqJavoblar];
+    
+    // ✅ CRITICAL VALIDATION: Barcha 55 ta javob borligini tekshirish
+    if (allAnswers.length !== 55) {
+      console.error('❌ CRITICAL ERROR: Expected 55 answers, got', allAnswers.length);
+      console.error('Missing answers! This should never happen!');
+    } else {
+    }
+
+    return allAnswers;
   };
 
   // Telegram Web App buttons
@@ -370,22 +386,20 @@ function MilliyTestQuiz() {
       hideBackButton();
       hideMainButton();
     };
-  }, [isTelegramMode, isSubmitting]); // result o'chirildi - kerak emas
+  }, [isTelegramMode, isSubmitting, showBackButton, hideBackButton, showMainButton, hideMainButton, disableMainButton, enableMainButton, showConfirm]);
 
   const handleSubmit = (e, skipValidation = false, customYopiqAnswers = null) => {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
 
-    console.log('🚀 handleSubmit called, isSubmitting:', isSubmitting, 'skipValidation:', skipValidation);
 
-    // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik
-    if (isSubmitting) {
-      console.log('⏸️ Already submitting, skipping...');
+    // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik (ref orqali tekshirish)
+    if (isSubmittingRef.current) {
       return;
     }
 
-    console.log('✅ Starting submission process...');
+    isSubmittingRef.current = true; // ✅ Ref'ni darhol o'zgartirish
     setIsSubmitting(true);
 
     // Telegram user ID ni ishlatish
@@ -407,10 +421,28 @@ function MilliyTestQuiz() {
     const yopiqToUse = customYopiqAnswers || yopiqQuizAnswers;
     const allAnswers = ensureAllAnswers(yopiqToUse);
 
-    console.log('📦 Prepared answers:', allAnswers.length, 'items');
-    console.log('� Full answers array:', JSON.stringify(allAnswers, null, 2));
-    console.log('📊 User info:', { userId, telegramId, fullName });
-    console.log('�📡 Sending to backend...');
+    // ✅ FINAL VALIDATION: 55 ta javob borligini ta'minlash
+    if (allAnswers.length !== 55) {
+      console.error('❌ CRITICAL: Cannot submit! Expected 55 answers, got', allAnswers.length);
+      toast.error('Xatolik: Barcha javoblar tayyorlanmadi. Qaytadan urinib ko\'ring.');
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+      return;
+    }
+
+
+    // ✅ Network status check
+    if (!navigator.onLine) {
+      console.error('❌ No internet connection');
+      toast.error('Internet aloqasi yo\'q. Iltimos, internetni tekshiring.');
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
+      return;
+    }
+
+    // ✅ Request with timeout and retry
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
     fetch(`${import.meta.env.VITE_BASE_URL}/check/${code}/`, {
       method: "POST",
@@ -418,12 +450,13 @@ function MilliyTestQuiz() {
       body: JSON.stringify({
         user_id: userId,
         telegram_id: telegramId,
-        full_name: fullName,  // ✅ FISH ni yuborish
-        javoblar: allAnswers,  // ✅ Barcha 55 savol (bo'sh javoblar bilan)
+        full_name: fullName,
+        javoblar: allAnswers,
       }),
+      signal: controller.signal, // ✅ Add abort signal
     })
       .then(async (res) => {
-        console.log("Check output", res)
+        clearTimeout(timeoutId); // ✅ Clear timeout on success
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(JSON.stringify(errorData));
@@ -431,42 +464,56 @@ function MilliyTestQuiz() {
         return res.json();
       })
       .then((data) => {
-        console.log('📊 Backend response:', data);
-        setIsSubmitting(false); // ✅ Loading ni o'chirish
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
 
         // Backend natija qaytaradi
         if (data.status === 'success' && data.natija) {
-          console.log('✅ Test muvaffaqiyatli topshirildi:', data.natija);
 
           // ✅ Faqat javoblarni tozalash - test-code ni saqlab qolish
           clearTestAnswers();
 
-          console.log('🎯 Setting result and opening modal...');
           setResult(data.natija);
 
           // ✅ State update'dan keyin modal ochish
           setTimeout(() => {
-            console.log('🎭 Opening modal now...');
             setActiveModal(true);
           }, 100);
 
           toast.success('✅ Test topshirildi!');
         } else if (data.status === 'error') {
           console.error('❌ Backend error:', data.message);
+          toast.error(data.message || 'Xatolik yuz berdi');
         } else {
           console.error('❌ Unexpected response format:', data);
+          toast.error('Kutilmagan xatolik yuz berdi');
         }
       })
       .catch((err) => {
+        clearTimeout(timeoutId); // ✅ Clear timeout on error
         console.error('❌ Submission error:', err);
-        setIsSubmitting(false); // ✅ Xatolikda qayta yuborish imkonini berish
-        try {
-          const parsed = JSON.parse(err.message);
-          console.error('❌ Parsed error:', parsed);
-
-        } catch {
-          console.error('❌ Unparseable error:', err.message);
-
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+        
+        // ✅ Network-specific error handling
+        if (err.name === 'AbortError') {
+          console.error('❌ Request timeout');
+          toast.error('⏱️ Server javob bermadi (30s). Internet aloqasini tekshiring va qaytadan urinib ko\'ring.');
+        } else if (!navigator.onLine) {
+          console.error('❌ Lost internet connection');
+          toast.error('📡 Internet aloqasi uzilib qoldi. Iltimos, qaytadan ulanib, testni qayta topshiring.');
+        } else {
+          try {
+            const parsed = JSON.parse(err.message);
+            toast.error(parsed.message || 'Testni yuborishda xatolik yuz berdi');
+          } catch {
+            // Network error yoki boshqa xatolar
+            if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+              toast.error('🌐 Server bilan bog\'lanib bo\'lmadi. Internet aloqasini tekshiring.');
+            } else {
+              toast.error('Testni yuborishda xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            }
+          }
         }
       });
   };
@@ -475,7 +522,11 @@ function MilliyTestQuiz() {
   const handleSubmitPermition = (e) => {
     e.preventDefault();
 
-    console.log('🔍 === Submission Validation START ===');
+    // ✅ Agar allaqachon yuborilayotgan bo'lsa, qayta yubormaslik
+    if (isSubmittingRef.current) {
+      return;
+    }
+
 
     // ✅ CRITICAL: Force flush all pending debounced values from math fields
     // In Telegram WebApp, users might submit quickly after typing
@@ -483,19 +534,10 @@ function MilliyTestQuiz() {
     const updatedYopiqAnswers = [...yopiqQuizAnswers];
     let flushCount = 0;
     
-    console.log('🔍 Starting math-field flush process...');
-    console.log('📊 Found', allMathFields.length, 'math-field elements');
-    console.log('📊 Current yopiqQuizAnswers:', yopiqQuizAnswers);
     
     allMathFields.forEach((mf, index) => {
       const currentValue = mf.value || '';
       const savolRaqami = yopiqSavollarRaqamlari[index];
-      
-      console.log(`🔎 Math field [${index}] (${savolRaqami}):`, {
-        value: currentValue,
-        hasValue: !!currentValue,
-        trimmed: currentValue.trim()
-      });
       
       if (currentValue.trim() !== '') {
         if (savolRaqami && updatedYopiqAnswers[index]) {
@@ -506,28 +548,22 @@ function MilliyTestQuiz() {
           };
           if (oldValue !== currentValue) {
             flushCount++;
-            console.log(`🔄 Flushed ${savolRaqami}: "${oldValue}" → "${currentValue}"`);
           } else {
-            console.log(`✓ ${savolRaqami} already up-to-date: "${currentValue}"`);
           }
         }
       } else {
-        console.log(`⚠️  ${savolRaqami} is empty`);
       }
     });
 
     if (flushCount > 0) {
-      console.log(`✅ Flushed ${flushCount} math field values`);
       setYopiqQuizAnswers(updatedYopiqAnswers);
       // ✅ localStorage'ga ham saqlash
       try {
         localStorage.setItem("answers_yopiq", JSON.stringify(updatedYopiqAnswers));
-        console.log('💾 Saved flushed values to localStorage');
       } catch (error) {
         console.error('localStorage saqlashda xato:', error);
       }
     } else {
-      console.log('ℹ️  No new values to flush');
     }
 
     // To'ldirilgan javoblar sonini hisoblash (flushed values bilan)
@@ -537,9 +573,6 @@ function MilliyTestQuiz() {
       const savedAnswers = localStorage.getItem("answersM");
       if (savedAnswers) {
         currentSelectedAnswers = JSON.parse(savedAnswers);
-        console.log('🔄 Re-loaded answers from localStorage:', currentSelectedAnswers);
-        console.log('📊 localStorage keys:', Object.keys(currentSelectedAnswers));
-        console.log('📊 localStorage all entries:', Object.entries(currentSelectedAnswers));
       } else {
         console.warn('⚠️ localStorage answersM is empty!');
       }
@@ -553,8 +586,6 @@ function MilliyTestQuiz() {
     );
     const filledOchiqCount = validEntries.length;
     
-    console.log('🔍 Valid entries after filter:', validEntries);
-    console.log('🔢 filledOchiqCount:', filledOchiqCount);
     const filledYopiqCount = updatedYopiqAnswers.filter(item => item?.javob && item.javob.trim() !== '').length;
     const filledCount = filledOchiqCount + filledYopiqCount;
 
@@ -562,17 +593,6 @@ function MilliyTestQuiz() {
     const unanswered = totalQuestions - filledCount;
     
     // ✅ DEBUG: Javoblar sonini ko'rsatish
-    console.log('📊 ========== COUNTING ANSWERS ==========');
-    console.log('  → selectedAnswersM (state):', selectedAnswersM);
-    console.log('  → State keys count:', Object.keys(selectedAnswersM).length);
-    console.log('  → currentSelectedAnswers (from localStorage):', currentSelectedAnswers);
-    console.log('  → localStorage keys count:', Object.keys(currentSelectedAnswers).length);
-    console.log('  → Valid entries count:', validEntries.length);
-    console.log('  → Ochiq savollar (1-35) filled:', filledOchiqCount, '/ 35');
-    console.log('  → Yopiq savollar (36a-45b) filled:', filledYopiqCount, '/ 20');
-    console.log('  → 🎯 JAMI to\'ldirilgan:', filledCount, '/ 55');
-    console.log('  → ⚠️ BELGILANMAGAN:', unanswered);
-    console.log('========================================');
 
    
 
@@ -585,21 +605,18 @@ function MilliyTestQuiz() {
 
     // ✅ Telegram Web App da native confirm, oddiy browserda custom modal
     if (isTelegramMode && showConfirm) {
-      console.log('⚠️  Showing Telegram native confirm for', unanswered, 'unanswered questions');
       showConfirm(`${unanswered} ta savol belgilanmagan. Testni topshirmoqchimisiz?`, (confirmed) => {
         if (confirmed) {
-          console.log('✅ User confirmed submission');
           // ✅ CRITICAL: Flush qilingan updatedYopiqAnswers ni uzatish!
           handleSubmit(null, true, updatedYopiqAnswers);
         } else {
-          console.log('❌ User cancelled submission');
           // ✅ Bekor qilinganda isSubmitting ni false qilish kerak
+          isSubmittingRef.current = false; // ✅ Ref'ni ham reset qilish
           setIsSubmitting(false);
         }
       });
     } else {
       // Oddiy browser uchun custom modal
-      console.log('⚠️  Showing custom modal for', unanswered, 'unanswered questions');
       setUnansweredCount(unanswered);
       setShowConfirmationModal(true);
     }
@@ -607,7 +624,6 @@ function MilliyTestQuiz() {
 
   // ✅ Confirmation modal'dan tasdiqlash
   const handleConfirmSubmit = () => {
-    console.log('✅ Confirm submit clicked');
     setShowConfirmationModal(false);
     
     // ✅ CRITICAL: Oddiy browserda ham math field'lardan flush qilish
@@ -626,19 +642,16 @@ function MilliyTestQuiz() {
           };
           if (oldValue !== mf.value) {
             flushCount++;
-            console.log(`🔄 Browser Flushed ${savolRaqami}: "${oldValue}" → "${mf.value}"`);
           }
         }
       }
     });
 
     if (flushCount > 0) {
-      console.log(`✅ Browser Flushed ${flushCount} math field values`);
     }
     
     // Modal yopilgandan keyin submit qilish (state update tugashini kutish)
     setTimeout(() => {
-      console.log('🚀 Triggering handleSubmit from modal...');
       // ✅ Flush qilingan updatedYopiqAnswers ni uzatish
       handleSubmit(null, true, updatedYopiqAnswers);
     }, 150);
@@ -646,7 +659,6 @@ function MilliyTestQuiz() {
 
   // ✅ Confirmation modal'dan bekor qilish
   const handleCancelSubmit = () => {
-    console.log('❌ Cancel submit clicked');
     setShowConfirmationModal(false);
   };
 
