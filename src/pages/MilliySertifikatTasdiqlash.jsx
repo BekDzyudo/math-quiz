@@ -29,6 +29,7 @@ function MilliySertifikatTasdiqlash() {
               headers: {
                 'Content-Type': 'application/json',
               },
+              credentials: 'include', // Session uchun
               body: JSON.stringify({
                 telegram_id: user.id,
                 first_name: user.first_name || '',

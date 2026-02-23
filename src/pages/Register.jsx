@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GlobalContext } from "../context/GlobalContext";
 import { GrFormNextLink } from "react-icons/gr";
+import { apiPost } from "../utils/api";
 
 function Register() {
   const { setUserData } = useContext(GlobalContext);
@@ -21,17 +22,12 @@ function Register() {
     const newData = {
       first_name: firstName.current.value,
       last_name: lastname.current.value,
-      // username: username.current.value,
       password: password.current.value,
       phone: phoneNumber.current.value,
       toifa: toifa.current.value,
     };
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newData),
-    })
+    apiPost("/register", newData)
       .then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json();
@@ -40,9 +36,6 @@ function Register() {
         return res.json();
       })
       .then((data) => {
-        // localStorage.setItem("user-data", JSON.stringify(data));
-        // setUserData(data)
-        // navigate("/quiz");
         toast.success("Muvaffaqiyatli 👍");
         navigate("/login");
       })

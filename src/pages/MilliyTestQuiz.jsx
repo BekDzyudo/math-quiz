@@ -9,6 +9,7 @@ import { FaEdit } from "react-icons/fa";
 import MilliyQuestionItem from "../components/MilliyQuestionItem";
 import Result from "../components/modal/Result";
 import { toast } from "react-toastify";
+import { apiPost } from "../utils/api";
 
 function MilliyTestQuiz() {
 
@@ -33,24 +34,13 @@ function MilliyTestQuiz() {
   const yopiqSavollarRaqamlari = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
     "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
 
-  const [yopiqQuizAnswers, setYopiqQuizAnswers] = useState(() => {
-    try {
-      const saved = localStorage.getItem("answers_yopiq");
-      if (saved) {
-        return JSON.parse(saved);
-      }
-      // ✅ Boshlang'ich 20 ta bo'sh javob yaratish
-      return yopiqSavollarRaqamlari.map(raqam => ({
-        savol_raqami: raqam,
-        javob: ""
-      }));
-    } catch (error) {
-      return yopiqSavollarRaqamlari.map(raqam => ({
-        savol_raqami: raqam,
-        javob: ""
-      }));
-    }
-  });
+  // ✅ Har doim bo'sh array bilan boshlash
+  const [yopiqQuizAnswers, setYopiqQuizAnswers] = useState(
+    yopiqSavollarRaqamlari.map(raqam => ({
+      savol_raqami: raqam,
+      javob: ""
+    }))
+  );
 
   // ✅ Virtual keyboard handling for mobile
   useEffect(() => {
@@ -110,17 +100,11 @@ function MilliyTestQuiz() {
       if (isTelegramMode && user && user.id) {
         if (!userData) {
           try {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/telegram-login/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                telegram_id: user.id,
-                first_name: user.first_name || '',
-                last_name: user.last_name || '',
-                username: user.username || ''
-              })
+            const response = await apiPost('/telegram-login/', {
+              telegram_id: user.id,
+              first_name: user.first_name || '',
+              last_name: user.last_name || '',
+              username: user.username || ''
             });
 
             if (response.ok) {
@@ -174,18 +158,7 @@ function MilliyTestQuiz() {
   }, []);
 
 
-  const [selectedAnswersM, setSelectedAnswersM] = useState(() => {
-    try {
-      const saved = localStorage.getItem("answersM");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return parsed;
-      }
-    } catch (error) {
-      console.error('localStorage ochiq answers yuklanmadi:', error);
-    }
-    return {};
-  });
+  const [selectedAnswersM, setSelectedAnswersM] = useState({});
 
   // ✅ localStorage tozalash utility function
   const clearTestAnswers = () => {
@@ -199,43 +172,48 @@ function MilliyTestQuiz() {
     }
   };
 
-  // ❌ Component mount bo'lganda localStorage'ni tozalash OLIB TASHLANDI
-  // Test topshirilgandan keyin tozalanadi (handleSubmit ichida)
-  // useEffect(() => {
-  //   clearTestAnswers();
-  // }, []);
-
-  // ✅ Telegram Web App uchun: visibility change'da localStorage'dan qayta yuklash
+  // ✅ Component mount bo'lganda localStorage'ni tozalash (har safar testga kirganda)
   useEffect(() => {
-    if (!isTelegramMode) return;
+    clearTestAnswers();
+    // ✅ Bo'sh state bilan boshlash
+    setSelectedAnswersM({});
+    // ✅ Yopiq savollar uchun ham bo'sh struktura
+    const yopiqSavollarRaqamlari = ["36a", "36b", "37a", "37b", "38a", "38b", "39a", "39b", "40a", "40b",
+      "41a", "41b", "42a", "42b", "43a", "43b", "44a", "44b", "45a", "45b"];
+    const emptyYopiqAnswers = yopiqSavollarRaqamlari.map(raqam => ({
+      savol_raqami: raqam,
+      javob: ""
+    }));
+    setYopiqQuizAnswers(emptyYopiqAnswers);
+  }, [code]); // ✅ code (test-code) o'zgarganda tozalash
 
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        try {
-          const saved = localStorage.getItem("answersM");
-          if (saved) {
-            const parsed = JSON.parse(saved);
-            setSelectedAnswersM(parsed);
-          }
-        } catch (error) {
-          console.error('Reload error:', error);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Telegram Web App viewportChanged event
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.onEvent('viewportChanged', () => {
-        handleVisibilityChange();
-      });
-    }
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isTelegramMode]);
+  // ✅ Visibility change orqali javoblarni qayta yuklash OLIB TASHLANDI
+  // Har safar testga kirganda bo'sh holatda boshlash kerak
+  // useEffect(() => {
+  //   if (!isTelegramMode) return;
+  //   const handleVisibilityChange = () => {
+  //     if (!document.hidden) {
+  //       try {
+  //         const saved = localStorage.getItem("answersM");
+  //         if (saved) {
+  //           const parsed = JSON.parse(saved);
+  //           setSelectedAnswersM(parsed);
+  //         }
+  //       } catch (error) {
+  //         console.error('Reload error:', error);
+  //       }
+  //     }
+  //   };
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+  //   if (window.Telegram?.WebApp) {
+  //     window.Telegram.WebApp.onEvent('viewportChanged', () => {
+  //       handleVisibilityChange();
+  //     });
+  //   }
+  //   return () => {
+  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
+  //   };
+  // }, [isTelegramMode]);
 
   const handleAnswerChange = (question_number, selectedOption, optionIndex) => {
     const questionKey = question_number.toString();
@@ -364,9 +342,12 @@ function MilliyTestQuiz() {
     };
 
     const handleMainButtonClick = () => {
-      if (!isSubmitting) {
-        handleSubmitPermition(new Event('submit'));
+      // ✅ Agar yuborilayotgan bo'lsa, qayta yubormaslik
+      if (isSubmittingRef.current || isSubmitting) {
+        console.log('⚠️ Submission already in progress, ignoring click');
+        return;
       }
+      handleSubmitPermition(new Event('submit'));
     };
 
     // Back button
@@ -440,13 +421,17 @@ function MilliyTestQuiz() {
       return;
     }
 
+    // ✅ Show loading toast
+    const loadingToastId = toast.loading('📝 Test tekshirilmoqda...');
+
     // ✅ Request with timeout and retry
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout (55 savolni tekshirish uchun yetarli)
 
     fetch(`${import.meta.env.VITE_BASE_URL}/check/${code}/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: 'include', // ✅ Admin session uchun
       body: JSON.stringify({
         user_id: userId,
         telegram_id: telegramId,
@@ -464,6 +449,8 @@ function MilliyTestQuiz() {
         return res.json();
       })
       .then((data) => {
+        clearTimeout(timeoutId); // ✅ Clear timeout
+        toast.dismiss(loadingToastId); // ✅ Dismiss loading toast
         isSubmittingRef.current = false;
         setIsSubmitting(false);
 
@@ -491,6 +478,7 @@ function MilliyTestQuiz() {
       })
       .catch((err) => {
         clearTimeout(timeoutId); // ✅ Clear timeout on error
+        toast.dismiss(loadingToastId); // ✅ Dismiss loading toast
         console.error('❌ Submission error:', err);
         isSubmittingRef.current = false;
         setIsSubmitting(false);
@@ -498,7 +486,7 @@ function MilliyTestQuiz() {
         // ✅ Network-specific error handling
         if (err.name === 'AbortError') {
           console.error('❌ Request timeout');
-          toast.error('⏱️ Server javob bermadi (30s). Internet aloqasini tekshiring va qaytadan urinib ko\'ring.');
+          toast.error('⏱️ Server javoblarni tekshirishda ko\'proq vaqt ketmoqda (90s). Iltimos, bir oz kuting va qaytadan urinib ko\'ring.');
         } else if (!navigator.onLine) {
           console.error('❌ Lost internet connection');
           toast.error('📡 Internet aloqasi uzilib qoldi. Iltimos, qaytadan ulanib, testni qayta topshiring.');

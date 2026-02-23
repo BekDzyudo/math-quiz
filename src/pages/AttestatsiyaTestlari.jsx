@@ -51,7 +51,7 @@ function AttestatsiyaTestlari() {
                   {/* <p className="text-[#abc1e1] text-center">05.05.2025</p> */}
                 </div>
                 <div>
-                  <h3 className="text-white md:text-3xl text-xl">{item.natija}/35</h3>
+                  <h3 className="text-white md:text-3xl text-xl">{item.natija}/{item.jami_savollar}</h3>
                   <p className="text-[#abc1e1] text-center">ball</p>
                 </div>
                 {

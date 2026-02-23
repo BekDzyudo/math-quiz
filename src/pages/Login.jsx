@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GlobalContext } from "../context/GlobalContext";
 import { GrFormNextLink } from "react-icons/gr";
+import { apiPost } from "../utils/api";
 
 function Login() {
   const {setUserData} = useContext(GlobalContext)
@@ -21,11 +22,7 @@ function Login() {
 
     console.log('🔐 Login attempt:', { phone: newData.phone });
 
-    fetch(`${import.meta.env.VITE_BASE_URL}/login/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newData),
-    })
+    apiPost("/login/", newData)
       .then((res) => {
         console.log('📡 Login response status:', res.status);
         if (!res.ok) {
@@ -39,7 +36,6 @@ function Login() {
       .then((data) => {
         console.log('✅ Login successful:', data);
         setUserData(data);
-        sessionStorage.setItem("user-data", JSON.stringify(data));
         toast.success("Muvaffaqiyatli 👍");
         navigate("/");
       })

@@ -27,12 +27,12 @@ function Quiz() {
   const [selectOption, setSelectOption] = useState(
     JSON.parse(localStorage.getItem("selectOption")) || []
   );
-  // const [showResult, setShowResult] = useState(
-  //   localStorage.getItem("showResult") === "true" || false
-  // );
-   const [showResult, setShowResult] = useState(false);
+  const [showResult, setShowResult] = useState(
+    localStorage.getItem("showResult") === "true" || false
+  );
   const [result, setResult] = useState(localStorage.getItem("result") || null);
   const questionRefs = useRef([]);
+  const virtuosoRef = useRef(null);
   const timerRef = useRef(null);
   const isSubmittedRef = useRef(false);
   const isSubmittingRef = useRef(false); // ✅ Ref orqali ham boshqarish (immediate check)
@@ -46,26 +46,39 @@ function Quiz() {
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/test-questions/${quizId}/`);
   
 
-  // click and scroll
+  // click and scroll (Virtuoso API orqali)
   const handleScrollToQuestion = (index) => {
-    questionRefs.current[index]?.scrollIntoView({
+    virtuosoRef.current?.scrollToIndex({
+      index,
+      align: "center",
       behavior: "smooth",
-      block: "center",
     });
   };
 
   // change input
   const [selectedAnswers, setSelectedAnswers] = useState({});
+  const prevQuizIdRef = useRef(quizId);
+  
+  // ✅ quizId o'zgarganda localStorage'ni tozalash (yangi testga kirganda)
   useEffect(() => {
-    const savedAnswers = localStorage.getItem("saved_answers");
-    const answers = JSON.parse(localStorage.getItem("answers"));
-    if (answers) {
-      setAnswers(answers);
+    // ✅ Faqat quizId o'zgarganda tozalash (reload emas!)
+    if (prevQuizIdRef.current !== quizId) {
+      localStorage.removeItem("saved_answers");
+      localStorage.removeItem("answers");
+      localStorage.removeItem("selectOption");
+      localStorage.removeItem("showResult");
+      localStorage.removeItem("result");
+      
+      // ✅ Bo'sh state bilan boshlash
+      setAnswers([]);
+      setSelectedAnswers({});
+      setSelectOption([]);
+      setShowResult(false);
+      setResult(null);
+      
+      prevQuizIdRef.current = quizId;
     }
-    if (savedAnswers) {
-      setSelectedAnswers(JSON.parse(savedAnswers));
-    }
-  }, []);
+  }, [quizId]);
 
   // ✅ useCallback bilan optimizatsiya - funksiya har safar qayta yaratilmaydi
   const handleAnswerChange = useCallback((
@@ -193,14 +206,14 @@ function Quiz() {
   useEffect(() => {
     // cleanup funksiyasi sahifadan chiqishda ishlaydi
     return () => {
-      if (location.pathname.startsWith("/quiz/")) {
-        navigate("/")
+      // ✅ navigate() chaqirmaslik - faqat localStorage'ni tozalash
+      if (!location.pathname.startsWith("/quiz/")) {
         localStorage.removeItem("remainingTime");
         localStorage.removeItem("result");
         localStorage.removeItem("answers");
-        localStorage.removeItem("saved_answers")
-        localStorage.removeItem("showResult")
-        localStorage.removeItem("selectOption")
+        localStorage.removeItem("saved_answers");
+        localStorage.removeItem("showResult");
+        localStorage.removeItem("selectOption");
       }
     };
   }, [location.pathname]);
@@ -275,6 +288,7 @@ function Quiz() {
           <MathJaxContext config={mathJaxConfig} version={3}>
             <form className="w-full md:w-[70%] h-full">
               <Virtuoso
+                ref={virtuosoRef}
                 style={{ height: window.innerHeight - 142 }}
                 totalCount={quizzes.length}
                 itemContent={(index) => {

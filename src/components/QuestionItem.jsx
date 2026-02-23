@@ -13,66 +13,58 @@ const QuestionItem = React.memo(
     selectedAnswers,
     questionRefs,
   }) => {
-    function cleanMathFormula(str) {
-      if (!str) return "";
-      return str
-        .replace(/(?<!\\)sqrt(?=[[{])/g, "\\sqrt")
-        .replace(/(?<!\\)frac/g, "\\frac")
-        .replace(/(?<!\\)pi/g, "\\pi")
-        .replace(/(?<!\\)left/g, "\\left")
-        .replace(/(?<!\\)right/g, "\\right")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&");
-    }
-
-    //     function cleanMathFormula(str) {
-    //   if (!str) return "";
-    //   return str
-    //     .replace(/&nbsp;/g, " ")
-    //     .replace(/&lt;/g, "<")
-    //     .replace(/&gt;/g, ">")
-    //     .replace(/&amp;/g, "&");
-    // }  bu funksiya latex format to'g'ri kelganda ishlaydi
-
-    function containsMath(str) {
-      return /\\|sqrt|frac|pi|left|right|\$|\\\(|\\\)/.test(str);
-    }
-
-    function stripHtmlTagsPreserveMath(html) {
-      if (!html) return "";
-      const div = document.createElement("div");
-      div.innerHTML = html;
-      return div.textContent || div.innerText || "";
-    }
-
-    // test funktion
+    // HTML contentni parse qilish: rasmlarni ajratib, matnni yaxlit saqlash
     function parseHtmlContent(html) {
+      if (!html) return [];
+
       const div = document.createElement("div");
       div.innerHTML = html;
 
-      const elements = Array.from(div.childNodes);
-      const parsed = elements.map((el, index) => {
-        if (el.nodeName === "IMG") {
-          return { type: "image", src: el.getAttribute("src"), key: index };
-        } else if (el.nodeName === "P") {
-          // ichidagi img'ni tekshiramiz
-          const img = el.querySelector("img");
-          if (img) {
-            return { type: "image", src: img.getAttribute("src"), key: index };
-          }
-          return { type: "text", content: el.textContent || "", key: index };
-        } else {
-          return { type: "text", content: el.textContent || "", key: index };
+      // Rasmlar bor-yo'qligini tekshirish
+      const images = div.querySelectorAll("img");
+      
+      if (images.length === 0) {
+        // Rasmlar yo'q - butun HTML'ni bitta blok sifatida qaytarish
+        const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(html);
+        return [{ type: "html", content: html, hasMath, key: "full-html" }];
+      }
+
+      // Rasmlar bor - matn va rasmlarni ajratish
+      const parsed = [];
+      let currentHtml = "";
+      
+      const flush = (idx) => {
+        if (currentHtml.trim()) {
+          const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(currentHtml);
+          parsed.push({ type: "html", content: currentHtml, hasMath, key: `html-${idx}` });
+          currentHtml = "";
         }
-      });
+      };
+
+      const walk = (nodes) => {
+        nodes.forEach((el, index) => {
+          if (el.nodeName === "IMG") {
+            flush(index);
+            parsed.push({ type: "image", src: el.getAttribute("src"), key: `img-${index}` });
+          } else if (el.nodeName === "P" && el.querySelector("img")) {
+            // P ichida rasm bor
+            flush(index);
+            // P ichidagi elementlarni rekursiv yurish
+            walk(Array.from(el.childNodes));
+          } else {
+            // Matnli element - HTML sifatida yig'ish
+            currentHtml += el.outerHTML || el.textContent || "";
+          }
+        });
+      };
+
+      walk(Array.from(div.childNodes));
+      flush(999);
 
       return parsed;
     }
 
     const parsedContent = parseHtmlContent(item?.savol);
-    const parsedContentVariant = parseHtmlContent(item?.javoblar);
 
     return (
       <div
@@ -90,7 +82,7 @@ const QuestionItem = React.memo(
             {item.savol && (
               <div className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
                 <div
-                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar flex flex-col lg:flex-row lg:items-center"
+                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar"
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
                   {parsedContent.map((block) => {
@@ -100,23 +92,25 @@ const QuestionItem = React.memo(
                           key={block.key}
                           src={`https://matematikapro.uz${block.src}`}
                           alt="Savol rasmi"
-                          className="w-full md:w-96 h-auto rounded shadow-md"
+                          className="w-full md:w-96 h-auto rounded shadow-md my-2"
                         />
                       );
-                    } else if (containsMath(block.content)) {
+                    } else if (block.hasMath) {
                       return (
                         <MathJax dynamic inline={false} key={block.key}>
-                          {cleanMathFormula(block.content)}
+                          <div
+                            className="text-[18px] md:text-2xl leading-7 md:leading-10"
+                            dangerouslySetInnerHTML={{ __html: block.content }}
+                          />
                         </MathJax>
                       );
                     } else {
                       return (
-                        <p
+                        <div
                           key={block.key}
                           className="text-[18px] md:text-2xl leading-7 md:leading-10"
-                        >
-                          {block.content}
-                        </p>
+                          dangerouslySetInnerHTML={{ __html: block.content }}
+                        />
                       );
                     }
                   })}
@@ -124,47 +118,68 @@ const QuestionItem = React.memo(
               </div>
             )}
           </div>
-          {(isFinished == "true" || showResult) && (
+          {(isFinished === "true" || showResult) && item.answer_video_url && (
             <Link
               to={item.answer_video_url}
               target="_blank"
-              className="flex items-center justify-center md:justify-start gap-3 link text-white"
+              className="flex items-center justify-center md:justify-start gap-3 link text-white hover:text-red-400 transition-colors duration-200"
             >
-              {" "}
-              <FaYoutube className="text-3xl text-red-500" /> Yechimni ko'rish
+              <FaYoutube className="text-3xl text-red-500" /> 
+              <span className="text-lg font-medium">Yechimni ko'rish</span>
             </Link>
           )}
           <div className="space-y-3 md:ml-6">
             {Array.isArray(item?.javoblar) &&
               item?.javoblar?.map((variant, index) => {
                 const isSelected = selectedAnswers[item.id] === String.fromCharCode(index + 65);
+                const isCorrect = variant.togri;
+                const testFinished = isFinished === "true" || showResult;
+                
+                // Ranglarni aniqlash
+                let borderColor = "transparent";
+                let bgColor = "bg-[#3b4d66]";
+                let letterBgColor = "bg-gray-300";
+                let letterTextColor = "text-gray-500";
+                
+                if (testFinished) {
+                  // Test tugallangan - natijalarni ko'rsatish
+                  if (isCorrect) {
+                    borderColor = "#22c55e"; // yashil - to'g'ri javob
+                    letterBgColor = "bg-green-500";
+                    letterTextColor = "text-white";
+                  } else if (isSelected) {
+                    borderColor = "#ef4444"; // qizil - noto'g'ri tanlangan javob
+                    letterBgColor = "bg-red-500";
+                    letterTextColor = "text-white";
+                  }
+                } else {
+                  // Test davom etayotgan - faqat tanlangan javobni ko'rsatish
+                  if (isSelected) {
+                    borderColor = "#00A4F2"; // ko'k - tanlangan javob
+                    letterBgColor = "bg-info";
+                    letterTextColor = "text-white";
+                  }
+                }
+                
                 return (
                   <label
                     style={{
                       border: "3px solid",
-                      borderColor: (isFinished == "true" || showResult)
-                        ? variant.togri
-                          ? "green"
-                          : isSelected
-                          ? "red"
-                          : "transparent"
-                        : isSelected
-                        ? "#00A4F2"
-                        : "transparent",
+                      borderColor: borderColor,
                     }}
                     key={index}
-                    className={`test-label group flex items-center gap-2 md:gap-4 p-2 md:p-4 cursor-pointer bg-[#3b4d66] rounded-lg`}
+                    className={`test-label group flex items-center gap-2 md:gap-4 p-2 md:p-4 ${testFinished ? 'cursor-default' : 'cursor-pointer'} ${bgColor} rounded-lg transition-all duration-200`}
                   >
                     <div
-                      className={`test-letter text-[18px] md:text-xl font-bold ${
-                        isSelected ? "bg-info text-white" : "bg-gray-300"
-                      } px-3 py-1 rounded group-hover:text-[#00A4F2] text-gray-500`}
+                      className={`test-letter text-[18px] md:text-xl font-bold ${letterBgColor} ${letterTextColor} px-3 py-1 rounded`}
                     >
                       {String.fromCharCode(index + 65)}
                     </div>
                     <input
                       type="radio"
                       name={item.id}
+                      checked={isSelected}
+                      disabled={testFinished}
                       onChange={() =>
                         handleAnswerChange(
                           item.id,
@@ -174,22 +189,37 @@ const QuestionItem = React.memo(
                           index
                         )
                       }
+                      className={testFinished ? 'hidden' : ''}
                     />
-                    <div className="answerText text-[18px] md:text-xl text-start font-normal text-white">
-                      {containsMath(variant.matn) ? (
-                        <MathJax dynamic key={item.id}>
-                          <span>
-                            {cleanMathFormula(
-                              stripHtmlTagsPreserveMath(variant.matn)
-                            )}
-                          </span>
-                        </MathJax>
-                      ) : (
-                        stripHtmlTagsPreserveMath(variant.matn).replace(
-                          /<[^>]*>/g,
-                          ""
-                        )
-                      )}
+                    <div className="answerText text-[18px] md:text-xl text-start font-normal text-white w-full">
+                      {(() => {
+                        const parsedVariant = parseHtmlContent(variant.matn);
+                        return parsedVariant.map((block) => {
+                          if (block.type === "image") {
+                            return (
+                              <img
+                                key={block.key}
+                                src={`https://matematikapro.uz${block.src}`}
+                                alt="Javob rasmi"
+                                className="w-full md:w-64 h-auto rounded shadow-md my-2"
+                              />
+                            );
+                          } else if (block.hasMath) {
+                            return (
+                              <MathJax dynamic inline={true} key={block.key}>
+                                <span dangerouslySetInnerHTML={{ __html: block.content }} />
+                              </MathJax>
+                            );
+                          } else {
+                            return (
+                              <span
+                                key={block.key}
+                                dangerouslySetInnerHTML={{ __html: block.content }}
+                              />
+                            );
+                          }
+                        });
+                      })()}
                     </div>
                   </label>
                 );

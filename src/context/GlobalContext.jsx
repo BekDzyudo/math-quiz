@@ -7,26 +7,29 @@ export const GlobalProvider = ({children}) =>{
     const [activeModal, setActiveModal] = useState(false)
     const [result, setResult] = useState(null)
     
-    // userData - sessionStorage'dan olish va saqrash
+    // userData - localStorage'dan olish va saqlash (sessionStorage o'rniga)
     const [userData, setUserData] = useState(() => {
         try {
-            const saved = sessionStorage.getItem("user-data");
+            const saved = localStorage.getItem("user-data");
             return saved ? JSON.parse(saved) : null;
         } catch (error) {
-            console.error('❌ Error loading user data from sessionStorage:', error);
+            console.error('❌ Error loading user data from localStorage:', error);
             return null;
         }
     });
 
-    // userData o'zgarganda sessionStorage'ga saqlash
+    // userData o'zgarganda localStorage'ga saqlash
     useEffect(() => {
         if (userData) {
             try {
-                sessionStorage.setItem("user-data", JSON.stringify(userData));
-                console.log('💾 User data saved to sessionStorage:', userData);
+                localStorage.setItem("user-data", JSON.stringify(userData));
+                console.log('💾 User data saved to localStorage:', userData);
             } catch (error) {
-                console.error('❌ Error saving user data to sessionStorage:', error);
+                console.error('❌ Error saving user data to localStorage:', error);
             }
+        } else {
+            // userData null bo'lsa, localStorage'dan o'chirish (logout)
+            localStorage.removeItem("user-data");
         }
     }, [userData]);
     

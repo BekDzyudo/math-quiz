@@ -5,6 +5,7 @@ import { FaEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
 import MilliyQuestionItem from "../components/MilliyQuestionItem";
 import "mathlive";
+import { apiPost } from "../utils/api";
 
 function TestYaratish() {
     const navigate = useNavigate();
@@ -96,12 +97,8 @@ function TestYaratish() {
 
         console.log("Test data:", testData);
 
-        // TODO: Send to backend
-        fetch(`${import.meta.env.VITE_BASE_URL}/rash-test-create/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(testData),
-        })
+        // Send to backend
+        apiPost("/rash-test-create/", testData)
             .then(async (res) => {
                 if (!res.ok) {
                     const errorData = await res.json();

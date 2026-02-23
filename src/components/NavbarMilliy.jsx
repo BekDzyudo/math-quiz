@@ -14,10 +14,23 @@ function NavbarMilliy() {
   const navigate = useNavigate();
 
   function handleLogout() {
-    localStorage.clear();
-    setUserData(null);
-    navigate("/")
-    // sessionStorage.setItem("loggedIn", "false");
+    // Backend logout endpoint'ga so'rov yuborish
+    fetch(`${import.meta.env.VITE_BASE_URL}/logout/`, {
+      method: "POST",
+      credentials: 'include', // Cookie yuborish
+    })
+      .then(() => {
+        console.log('✅ Logout successful');
+      })
+      .catch((err) => {
+        console.error('❌ Logout error:', err);
+      })
+      .finally(() => {
+        // Frontend state ni tozalash
+        localStorage.clear();
+        setUserData(null);
+        navigate("/");
+      });
   }
 
   return (
