@@ -13,7 +13,41 @@ const QuestionItem = React.memo(
     selectedAnswers,
     questionRefs,
   }) => {
-    // HTML contentni parse qilish: rasmlarni ajratib, matnni yaxlit saqlash
+    function cleanMathFormula(str) {
+      if (!str) return "";
+      return str
+        .replace(/(?<!\\)\bsqrt\b(?=[[{])/g, "\\sqrt")
+        .replace(/(?<!\\)\bfrac\b/g, "\\frac")
+        .replace(/(?<![a-zA-Z])pi(?![a-zA-Z])/g, "\\pi")
+        .replace(/(?<!\\)\bleft\b(?=[\\(\[{|.])/g, "\\left")
+        .replace(/(?<!\\)\bright\b(?=[\\)\]}|.])/g, "\\right")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&amp;/g, "&");
+    }
+
+    //     function cleanMathFormula(str) {
+    //   if (!str) return "";
+    //   return str
+    //     .replace(/&nbsp;/g, " ")
+    //     .replace(/&lt;/g, "<")
+    //     .replace(/&gt;/g, ">")
+    //     .replace(/&amp;/g, "&");
+    // }  bu funksiya latex format to'g'ri kelganda ishlaydi
+
+    function containsMath(str) {
+      return /\\\(|\\\)|\\\[|\\\]|\$|\\[a-zA-Z]/.test(str);
+    }
+
+    function stripHtmlTagsPreserveMath(html) {
+      if (!html) return "";
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      return div.textContent || div.innerText || "";
+    }
+
+    // test funktion
     function parseHtmlContent(html) {
       if (!html) return [];
 
@@ -97,11 +131,8 @@ const QuestionItem = React.memo(
                       );
                     } else if (block.hasMath) {
                       return (
-                        <MathJax dynamic inline={false} key={block.key}>
-                          <div
-                            className="text-[18px] md:text-2xl leading-7 md:leading-10"
-                            dangerouslySetInnerHTML={{ __html: block.content }}
-                          />
+                        <MathJax dynamic inline key={block.key}>
+                          <span dangerouslySetInnerHTML={{ __html: block.content }} />
                         </MathJax>
                       );
                     } else {

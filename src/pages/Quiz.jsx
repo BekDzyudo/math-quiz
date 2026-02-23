@@ -1,5 +1,4 @@
 import { useContext, useEffect, useRef, useState, useCallback } from "react";
-import { Virtuoso } from "react-virtuoso";
 import { FaUser } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import { useGetFetch } from "../hooks/useGetFetch";
@@ -46,13 +45,12 @@ function Quiz() {
   } = useGetFetch(`${import.meta.env.VITE_BASE_URL}/test-questions/${quizId}/`);
   
 
-  // click and scroll (Virtuoso API orqali)
+  // click and scroll
   const handleScrollToQuestion = (index) => {
-    virtuosoRef.current?.scrollToIndex({
-      index,
-      align: "center",
-      behavior: "smooth",
-    });
+    const el = questionRefs.current[index];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   };
 
   // change input
@@ -286,27 +284,19 @@ function Quiz() {
         {quizzes == null && <div className="flex justify-center items-center w-full h-[calc(100vh-200px)]"><span className="text-center text-[#abc1e1] text-2xl md:text-8xl">Hozircha <br/> aktiv testlar yo‘q</span></div>}
         {Array.isArray(quizzes) && (
           <MathJaxContext config={mathJaxConfig} version={3}>
-            <form className="w-full md:w-[70%] h-full">
-              <Virtuoso
-                ref={virtuosoRef}
-                style={{ height: window.innerHeight - 142 }}
-                totalCount={quizzes.length}
-                itemContent={(index) => {
-                  const item = quizzes[index];
-                  return (
-                    <QuestionItem
-                      key={item.id}
-                      item={item}
-                      index1={index}
-                      handleAnswerChange={handleAnswerChange}
-                      showResult={showResult}
-                      isFinished={isFinished}
-                      selectedAnswers={selectedAnswers}
-                      questionRefs={questionRefs}
-                    />
-                  );
-                }}
-              />
+            <form className="w-full md:w-[70%] h-full overflow-y-auto" style={{ height: window.innerHeight - 142 }}>
+              {quizzes.map((item, index) => (
+                <QuestionItem
+                  key={item.id}
+                  item={item}
+                  index1={index}
+                  handleAnswerChange={handleAnswerChange}
+                  showResult={showResult}
+                  isFinished={isFinished}
+                  selectedAnswers={selectedAnswers}
+                  questionRefs={questionRefs}
+                />
+              ))}
             </form>
             <div className="hidden md:block sidebar w-[30%] p-5 border border-gray-400 sticky top-32 rounded-xl">
               <div className="user flex items-center gap-5 border-b border-gray-400 pb-1">
