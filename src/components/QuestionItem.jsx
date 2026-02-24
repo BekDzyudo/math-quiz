@@ -102,21 +102,21 @@ const QuestionItem = React.memo(
 
     return (
       <div
-        className="w-full mb-12 md:mb-20"
+        className="w-full mb-8 md:mb-12 lg:mb-20"
         ref={(el) => (questionRefs.current[index1] = el)}
       >
-        <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
+        <div className="flex flex-col gap-3 md:gap-4 w-full">
+          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 w-full">
             <button
               type="button"
-              className="btn md:rounded-sm rounded-t-2xl btn-active btn-info text-[18px] md:text-2xl text-white"
+              className="btn rounded-t-xl md:rounded-sm btn-active btn-info text-base md:text-[18px] lg:text-2xl text-white min-h-[44px]"
             >
               {index1 + 1}
             </button>
             {item.savol && (
-              <div className="w-full text-[18px] md:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-7 md:leading-10 text-white overflow-wrap">
+              <div className="w-full text-base md:text-[18px] lg:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-6 md:leading-7 lg:leading-10 text-white overflow-wrap">
                 <div
-                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar"
+                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar pb-2"
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
                   {parsedContent.map((block) => {
@@ -126,7 +126,7 @@ const QuestionItem = React.memo(
                           key={block.key}
                           src={`https://matematikapro.uz${block.src}`}
                           alt="Savol rasmi"
-                          className="w-full md:w-96 h-auto rounded shadow-md my-2"
+                          className="w-full sm:w-4/5 md:w-96 h-auto rounded shadow-md my-2"
                         />
                       );
                     } else if (block.hasMath) {
@@ -139,7 +139,7 @@ const QuestionItem = React.memo(
                       return (
                         <div
                           key={block.key}
-                          className="text-[18px] md:text-2xl leading-7 md:leading-10"
+                          className="text-base md:text-[18px] lg:text-2xl leading-6 md:leading-7 lg:leading-10"
                           dangerouslySetInnerHTML={{ __html: block.content }}
                         />
                       );
@@ -153,13 +153,13 @@ const QuestionItem = React.memo(
             <Link
               to={item.answer_video_url}
               target="_blank"
-              className="flex items-center justify-center md:justify-start gap-3 link text-white hover:text-red-400 transition-colors duration-200"
+              className="flex items-center justify-center md:justify-start gap-2 md:gap-3 link text-white hover:text-red-400 transition-colors duration-200 py-2"
             >
-              <FaYoutube className="text-3xl text-red-500" /> 
-              <span className="text-lg font-medium">Yechimni ko'rish</span>
+              <FaYoutube className="text-2xl md:text-3xl text-red-500" /> 
+              <span className="text-base md:text-lg font-medium">Yechimni ko'rish</span>
             </Link>
           )}
-          <div className="space-y-3 md:ml-6">
+          <div className="space-y-2 md:space-y-3 md:ml-6">
             {Array.isArray(item?.javoblar) &&
               item?.javoblar?.map((variant, index) => {
                 const isSelected = selectedAnswers[item.id] === String.fromCharCode(index + 65);
@@ -199,10 +199,10 @@ const QuestionItem = React.memo(
                       borderColor: borderColor,
                     }}
                     key={index}
-                    className={`test-label group flex items-center gap-2 md:gap-4 p-2 md:p-4 ${testFinished ? 'cursor-default' : 'cursor-pointer'} ${bgColor} rounded-lg transition-all duration-200`}
+                    className={`test-label group flex items-center gap-2 md:gap-3 lg:gap-4 p-3 md:p-4 ${testFinished ? 'cursor-default' : 'cursor-pointer'} ${bgColor} rounded-lg transition-all duration-200 min-h-[52px]`}
                   >
                     <div
-                      className={`test-letter text-[18px] md:text-xl font-bold ${letterBgColor} ${letterTextColor} px-3 py-1 rounded`}
+                      className={`test-letter text-base md:text-[18px] lg:text-xl font-bold ${letterBgColor} ${letterTextColor} px-2.5 md:px-3 py-1 rounded min-w-[32px] md:min-w-[36px] flex items-center justify-center`}
                     >
                       {String.fromCharCode(index + 65)}
                     </div>
@@ -222,7 +222,7 @@ const QuestionItem = React.memo(
                       }
                       className={testFinished ? 'hidden' : ''}
                     />
-                    <div className="answerText text-[18px] md:text-xl text-start font-normal text-white w-full">
+                    <div className="answerText text-base md:text-[18px] lg:text-xl text-start font-normal text-white w-full leading-6 md:leading-7">
                       {(() => {
                         const parsedVariant = parseHtmlContent(variant.matn);
                         return parsedVariant.map((block) => {
@@ -232,7 +232,7 @@ const QuestionItem = React.memo(
                                 key={block.key}
                                 src={`https://matematikapro.uz${block.src}`}
                                 alt="Javob rasmi"
-                                className="w-full md:w-64 h-auto rounded shadow-md my-2"
+                                className="w-full sm:w-3/4 md:w-64 h-auto rounded shadow-md my-2"
                               />
                             );
                           } else if (block.hasMath) {

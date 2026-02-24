@@ -97,18 +97,18 @@ function Navbar({
           </ul>
         </div>
       </div>
-      <div className="md:hidden mt-2 w-full flex justify-between items-center px-2">
+      <div className="md:hidden mt-2 w-full flex flex-wrap justify-between items-center gap-2 px-2 pb-2">
         {showResult || (isFinished == "true") ? (
           <Link
             onClick={handleClearTime}
             type="button"
-            className={`btn btn-outline btn-info btn-sm text-white rounded-[8px]`}
+            className={`btn btn-outline btn-info btn-sm text-white rounded-[8px] flex-shrink-0`}
           >
             Testlarga qaytish
           </Link>
         ) : (
-          <h1 className="text-white text-md">
-            Testlar soni: <span>{testLength}</span>
+          <h1 className="text-white text-sm md:text-md flex-shrink-0">
+            Testlar soni: <span className="font-semibold">{testLength}</span>
           </h1>
         )}
         <Time
@@ -124,9 +124,9 @@ function Navbar({
         />
 
         {showResult || (isFinished == "true") ? (
-          <h1 className="flex items-center gap-1 font-bold text-info">
+          <h1 className="flex items-center gap-1 text-sm font-bold text-info flex-shrink-0">
             Natija:{" "}
-            <span className="text-[18px]">
+            <span className="text-base md:text-[18px]">
               {(result == null || result * 1 == 0) && natija * 1 ? natija : result}
             </span>
           </h1>
@@ -134,7 +134,7 @@ function Navbar({
           <button
             onClick={handleSubmitPermition}
             disabled={result ? true : false}
-            className="btn btn-outline btn-info btn-sm text-white rounded-[8px]"
+            className="btn btn-outline btn-info btn-sm text-white rounded-[8px] flex-shrink-0"
           >
             Yakunlash
           </button>

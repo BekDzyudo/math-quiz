@@ -67,34 +67,34 @@ function Register() {
   }
 
   return (
-    <div className="w-full h-screen flex justify-center items-center">
+    <div className="w-full min-h-screen flex justify-center items-center px-4 py-8">
       <form
-        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5"
+        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 md:p-8 w-full max-w-md"
         onSubmit={handleSubmit}
       >
-        <h1 className="md:text-5xl text-3xl font-semibold text-center mb-4 text-[#abc1e1]">
+        <h1 className="text-2xl md:text-5xl font-semibold text-center mb-2 md:mb-4 text-[#abc1e1]">
           Register
         </h1>
-        <div className="flex flex-col gap-0.5">
-          <label htmlFor="firstname" className="text-[#abc1e1]">
+        <div className="flex flex-col gap-1 md:gap-0.5">
+          <label htmlFor="firstname" className="text-sm md:text-base text-[#abc1e1]">
             Ism:
           </label>
           <input
             ref={firstName}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
             type="text"
             id="firstname"
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <label htmlFor="lastname" className="text-[#abc1e1]">
+        <div className="flex flex-col gap-1 md:gap-0.5">
+          <label htmlFor="lastname" className="text-sm md:text-base text-[#abc1e1]">
             Familya:
           </label>
           <input
             ref={lastname}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
             type="text"
             id="lastname"
           />
@@ -111,25 +111,25 @@ function Register() {
             id="username"
           />
         </div> */}
-        <div className="flex flex-col gap-0.5">
-          <div className="flex justify-between items-end">
-            <label htmlFor="password" className="text-[#abc1e1]">
+        <div className="flex flex-col gap-1 md:gap-0.5">
+          <div className="flex justify-between items-end gap-2">
+            <label htmlFor="password" className="text-sm md:text-base text-[#abc1e1] flex-shrink-0">
               Parol:{" "}
             </label>
-            <span className="text-green-400 text-sm">
+            <span className="text-green-400 text-xs md:text-sm text-right">
               8 ta belgidan kam bo'lmasligi kerak
             </span>
           </div>
           <input
             ref={password}
             required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
             type="password"
             id="password"
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <label htmlFor="phonenumber" className="text-[#abc1e1]">
+        <div className="flex flex-col gap-1 md:gap-0.5">
+          <label htmlFor="phonenumber" className="text-sm md:text-base text-[#abc1e1]">
             Telefon nomer:
           </label>
           <input
@@ -137,18 +137,18 @@ function Register() {
             required
             placeholder="+998 90 123 45 67"
             pattern="^\+998[0-9]{9}$"
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
+            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
             type="tel"
             id="phoneNumber"
           />
         </div>
-        <div className="flex flex-col gap-0.5">
-          <label htmlFor="toifaselect" className="text-[#abc1e1]">
+        <div className="flex flex-col gap-1 md:gap-0.5">
+          <label htmlFor="toifaselect" className="text-sm md:text-base text-[#abc1e1]">
             Toifani tanlang:
           </label>
           <select
             ref={toifa}
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 cursor-pointer bg-[#3B4D66] text-white"
+            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 cursor-pointer bg-[#3B4D66] text-white text-base"
             id="toifaselect"
           >
             <option defaultValue="1-Toifa">1-Toifa</option>
@@ -156,10 +156,10 @@ function Register() {
             <option value="Oliy toifa">Oliy toifa</option>
           </select>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-0.5 mt-2">
           <button
             type="submit"
-            className="btn btn-info text-white text-lg py-2 rounded-[6px]"
+            className="btn btn-info text-white text-base md:text-lg py-2 rounded-[6px] h-12"
           >
             Yuborish
           </button>
@@ -167,9 +167,9 @@ function Register() {
         <div className="flex justify-center">
           <Link
             to="/login"
-            className="text-[#abc1e1] text-center flex items-center"
+            className="text-sm md:text-base text-[#abc1e1] text-center flex items-center"
           >
-            Login <GrFormNextLink className="text-2xl" />
+            Login <GrFormNextLink className="text-xl md:text-2xl" />
           </Link>
         </div>
       </form>

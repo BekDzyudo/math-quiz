@@ -255,19 +255,102 @@ html {
 
 /* ✅ Radio button touch target */
 .test-label {
-  min-height: 44px; /* iOS touch target minimum */
+  min-height: 52px; /* iOS touch target minimum with padding */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 12px;
 }
 
 /* ✅ Better button spacing on mobile */
 .test-letter {
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 32px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ✅ Button minimum touch target */
+.btn {
+  min-height: 44px;
+  padding: 8px 16px;
+}
+
+/* ✅ Prevent horizontal overflow */
+body, #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ✅ Safe area for notched devices */
+.navbar {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+
+/* ✅ Better spacing for mobile form elements */
+form input, form textarea, form select {
+  touch-action: manipulation;
+  -webkit-appearance: none;
+}
+
+/* ✅ Improve quiz container on mobile */
+.quiz-container {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+/* ✅ Better mobile scrolling for form */
+form {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ✅ Fix navbar spacing on small screens */
+.navbar > div {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ✅ Improve answer text wrapping */
+.answerText {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ✅ Better image scaling on mobile */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ✅ Improve MathJax on mobile */
+.MathJax {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+mjx-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+/* ✅ Better link touch targets */
+a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ✅ Improve dropdown menu on mobile */
+.dropdown-content {
+  max-width: 90vw;
 }
 }
 
