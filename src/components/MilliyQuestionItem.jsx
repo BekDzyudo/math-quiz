@@ -119,7 +119,7 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) 
 
   return (
     <div key={index} className="flex justify-between items-center gap-2">
-      <span className="flex w-[22%] max-h-min justify-center items-center text-[14px] md:text-xl font-bold px-2 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap">
+      <span className="flex w-[22%] max-h-min justify-center items-center text-[14px] md:text-xl font-bold px-2 md:px-4 py-1 bg-indigo-600 rounded-lg text-white whitespace-nowrap">
         {getSavolRaqami(index)}-savol
       </span>
       <div className="flex items-center gap-2 flex-1">
@@ -127,7 +127,7 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) 
           ref={mathFieldRef}
           smartMode
           virtual-keyboard-mode="manual"
-          className="cursor-text outline-0 border border-gray-400 py-2 md:py-0.5 px-1 md:px-2 rounded flex-1 text-[16px] md:text-[18px] bg-[#3b4d66] touch-action-manipulation"
+          className="cursor-text outline-0 border border-slate-300 py-2 md:py-0.5 px-1 md:px-2 rounded-lg flex-1 text-[16px] md:text-[18px] bg-white touch-action-manipulation"
           style={{
             '--keyboard-zindex': '1000',
             minHeight: '40px',
@@ -137,9 +137,9 @@ const MilliyQuestionItem = React.memo(({ index, value, onChange, savolRaqami }) 
         <button
           type="button"
           onClick={toggleKeyboard}
-          className={`p-2 md:p-3 rounded border-2 transition-all ${isKeyboardVisible
-            ? 'bg-blue-500 border-blue-600 text-white'
-            : 'bg-gray-600 border-gray-500 text-gray-300'
+          className={`p-2 md:p-3 rounded-lg border-2 transition-all ${isKeyboardVisible
+            ? 'bg-indigo-600 border-indigo-700 text-white'
+            : 'bg-slate-100 border-slate-300 text-slate-500'
             } hover:scale-105`}
           aria-label="Toggle Virtual Keyboard"
         >

@@ -653,9 +653,9 @@ function MilliyTestQuiz() {
   return (
     <div className="min-h-screen overflow-y-auto">
       <NavbarMilliy />
-      <div className="px-3 md:px-5 md:max-w-[700px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5 pb-32 md:pb-10">
+      <div className="px-3 md:px-5 md:max-w-[800px] md:w-full md:mr-auto md:ml-auto md:px-[50px] flex md:gap-10 items-start justify-between h-full pt-5 pb-32 md:pb-10">
         <form className="w-full h-full" onSubmit={handleSubmitPermition}>
-          <div className="w-full grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4 mb-5 pb-10 md:pb-20">
+          <div className="w-full grid grid-cols-1 gap-2 mb-5 pb-10 md:pb-20">
             {ochiqSavollar.map((item, index) => {
               // 33-35 savollar uchun 6 ta variant (A, B, C, D, E, F)
               const has6Options = index >= 32 && index <= 34; // 33, 34, 35 (0-indexed: 32, 33, 34)
@@ -666,24 +666,25 @@ function MilliyTestQuiz() {
               return (
                 <div
                   key={index}
-                  className={`bg-[#3b4d66] rounded-lg p-3 md:p-4 border-b-2 border-gray-600`}
+                  className="bg-white border border-slate-200 rounded-xl p-2.5 md:p-3 shadow-sm"
                 >
-                  <div className="flex items-center justify-between gap-2 md:gap-3">
-                    <span className="text-sm md:text-xl font-bold px-3 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap flex-shrink-0">
-                      {index + 1}.
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <span className="text-sm md:text-base font-bold px-3 py-2 bg-indigo-600 rounded-lg text-white whitespace-nowrap flex-shrink-0 min-w-[38px] text-center">
+                      {index + 1}
                     </span>
-                    <div className="flex gap-1">
+                    <div className="w-px h-6 bg-slate-200 flex-shrink-0"></div>
+                    <div className="flex gap-1.5 md:gap-2 flex-nowrap">
                       {options.map((option, optionIndex) => (
                         <label
                           key={option}
                           className="test-label group flex justify-center items-center cursor-pointer"
                         >
                           <div
-                            className={`test-letter text-center text-[13px] md:text-[16px] font-bold ${
+                            className={`test-letter text-center text-[14px] md:text-[15px] font-bold transition-colors ${
                               selectedAnswersM[(index + 1).toString()] === optionIndex
-                                ? "bg-info text-white"
-                                : "bg-gray-300"
-                            } px-2 py-2 md:px-3 md:py-3 rounded group-hover:text-[#00A4F2] text-gray-500 w-[40px] md:w-[50px]`}
+                                ? "bg-indigo-600 text-white"
+                                : "bg-slate-100 text-slate-600 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+                            } px-2 py-2 md:px-3 md:py-2.5 rounded-lg w-[38px] md:w-[44px]`}
                           >
                             {option}
                           </div>
@@ -703,8 +704,8 @@ function MilliyTestQuiz() {
               );
             })}
           </div>
-          <h2 className="text-md text-white flex items-center gap-3 border-t border-gray-400 pt-5 mb-3">
-            <FaEdit className="text-xl" /> Yozma javoblar (36-50)
+          <h2 className="text-md text-slate-700 flex items-center gap-3 border-t border-slate-200 pt-5 mb-3 font-semibold">
+            <FaEdit className="text-xl text-indigo-600" /> Yozma javoblar (36-50)
           </h2>
           <div className="mt-1 grid grid-cols-1 md:grid-cols-1 gap-3 md:gap-4">
             {yopiqQuizAnswers.map((item, index) => {
@@ -724,7 +725,7 @@ function MilliyTestQuiz() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-1/2 md:w-1/2 btn btn-outline btn-info btn-md md:btn-xl text-white rounded-2xl ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-1/2 md:w-1/2 btn btn-info btn-md md:btn-xl text-white rounded-2xl ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {isSubmitting ? 'Yuborilmoqda...' : 'Testni yakunlash'}
               </button>
@@ -772,8 +773,8 @@ function MilliyTestQuiz() {
           ></div>
 
           {/* Modal Content */}
-          <div 
-            className="relative text-white flex justify-center items-center shadow-2xl rounded-2xl p-6 w-[90%] max-w-[450px] md:p-8 border-2 border-orange-500 bg-gradient-to-br from-[#263244] to-[#1a2332]"
+          <div
+            className="relative flex justify-center items-center shadow-2xl rounded-2xl p-6 w-[90%] max-w-[450px] md:p-8 bg-white border border-slate-200"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-5 items-center w-full">
@@ -782,18 +783,18 @@ function MilliyTestQuiz() {
 
               {/* Message */}
               <div className="text-center">
-                <p className="text-xl md:text-2xl font-bold text-orange-400 mb-2">Diqqat!</p>
-                <p className="text-base md:text-lg text-gray-300">
+                <p className="text-xl md:text-2xl font-bold text-orange-500 mb-2">Diqqat!</p>
+                <p className="text-base md:text-lg text-slate-700">
                   Belgilanmagan savollar mavjud.
                 </p>
-                <p className="text-sm text-gray-400 mt-2">Testni topshirmoqchimisiz?</p>
+                <p className="text-sm text-slate-500 mt-2">Testni topshirmoqchimisiz?</p>
               </div>
 
               {/* Buttons */}
               <div className="flex gap-3 w-full mt-2">
                 <button
                   onClick={handleCancelSubmit}
-                  className="flex-1 btn btn-outline btn-error text-white text-base md:text-lg py-3 hover:scale-105 transition-transform"
+                  className="flex-1 btn btn-outline btn-error text-base md:text-lg py-3 hover:scale-105 transition-transform"
                 >
                   Yo'q, qaytish
                 </button>

@@ -1,23 +1,19 @@
-import React, { useContext, useRef } from "react";
+import React, { useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GrFormNextLink } from "react-icons/gr";
 
 function NewPassword() {
   const navigate = useNavigate();
-
   const phoneNumber = useRef();
   const password = useRef();
 
   function handleSubmit(e) {
     e.preventDefault();
-
     const newData = {
       phone: phoneNumber.current.value,
       new_password: password.current.value,
     };
-    console.log(newData);
-
     fetch(`${import.meta.env.VITE_BASE_URL}/password-reset/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -27,67 +23,59 @@ function NewPassword() {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         navigate("/login");
         toast.success("Parol muvaffaqiyatli o'gartirildi 👍");
       })
-      .catch((err) => {
-        console.log(err)
+      .catch(() => {
         toast.error("Telefon nomer yoki parol xato");
       });
   }
+
+  const inputCls = "w-full border border-slate-300 rounded-xl h-12 outline-none px-3 text-slate-800 bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-base";
+
   return (
     <div className="w-full h-screen flex justify-center items-center px-4">
       <form
-        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 md:p-8 w-full max-w-md"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col gap-4 p-6 md:p-10 w-full max-w-md"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-2xl md:text-4xl font-semibold text-center mb-2 md:mb-4 text-[#abc1e1]">Yangi parol</h1>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="phoneNumber" className="text-sm md:text-base text-[#abc1e1]">Telefon nomer:</label>
+        <div className="flex flex-col items-center gap-1 mb-2">
+          <img src="/assets/logo-icon.svg" alt="logo" className="h-10 w-10 mb-1" />
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Yangi parol</h1>
+          <p className="text-slate-400 text-sm">Parolingizni tiklang</p>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-slate-600">Telefon nomer</label>
           <input
             ref={phoneNumber}
             required
             placeholder="+998 90 123 45 67"
             pattern="^\+998[0-9]{9}$"
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
+            className={inputCls}
             type="tel"
             id="phoneNumber"
           />
         </div>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <div className="flex justify-between items-end gap-2">
-            <label htmlFor="password" className="text-sm md:text-base text-[#abc1e1] flex-shrink-0">
-              Parol:{" "}
-            </label>
-            <span className="text-green-400 text-xs md:text-sm text-right">
-              8 ta belgidan kam bo'lmasligi kerak
-            </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-end">
+            <label className="text-sm font-medium text-slate-600">Yangi parol</label>
+            <span className="text-green-500 text-xs">8 ta belgidan kam bo'lmasin</span>
           </div>
-          <input
-            ref={password}
-            required
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
-            type="password"
-            id="password"
-          />
+          <input ref={password} required className={inputCls} type="password" id="password" />
         </div>
-        <div className="flex flex-col gap-0.5 mt-2">
-          <button
-            type="submit"
-            className="btn btn-info text-white text-base md:text-lg py-2 rounded-[6px] h-12"
-          >
-            Yuborish
-          </button>
-        </div>
-        <div className="flex justify-center">
-          <Link to="/login" className="text-sm md:text-base text-[#abc1e1] text-center flex items-center">
-            Loginga o'tish <GrFormNextLink className="text-xl md:text-2xl"/>
+        <button type="submit" className="btn btn-info text-white text-base md:text-lg rounded-xl h-12 mt-1">
+          Saqlash
+        </button>
+        <div className="flex justify-center text-sm text-slate-500">
+          <Link to="/login" className="hover:text-indigo-600 transition flex items-center gap-1">
+            Loginga o'tish <GrFormNextLink className="text-base"/>
           </Link>
         </div>
       </form>
     </div>
-  )
+  );
 }
 
-export default NewPassword
+export default NewPassword;

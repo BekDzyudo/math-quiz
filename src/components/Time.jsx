@@ -55,7 +55,7 @@ const Time = React.memo(({showResult, isFinished, onTimeUp, initialTime }) => {
 
   return (
     <div className="flex justify-center md:m-5">
-      <span className="countdown font-mono text-md md:text-3xl text-white">
+      <span className="countdown font-mono text-md md:text-3xl text-slate-700">
         <span
           style={{ "--value": hours }}
           aria-live="polite"

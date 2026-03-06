@@ -14,33 +14,25 @@ function Login() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
     const newData = {
       phone: phoneNumber.current.value,
       password: password.current.value,
     };
-
-    console.log('🔐 Login attempt:', { phone: newData.phone });
-
     apiPost("/login/", newData)
       .then((res) => {
-        console.log('📡 Login response status:', res.status);
         if (!res.ok) {
           return res.json().then(errData => {
-            console.error('❌ Login error:', errData);
             throw new Error(errData.non_field_errors?.[0] || 'Login xatosi');
           });
         }
         return res.json();
       })
       .then((data) => {
-        console.log('✅ Login successful:', data);
         setUserData(data);
         toast.success("Muvaffaqiyatli 👍");
         navigate("/");
       })
       .catch((err) => {
-        console.error('❌ Login catch error:', err);
         toast.error(err.message || "Telefon nomer yoki parol xato");
       });
   }
@@ -48,48 +40,44 @@ function Login() {
   return (
     <div className="w-full h-screen flex justify-center items-center px-4">
       <form
-        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 md:p-8 w-full max-w-md"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col gap-4 p-6 md:p-10 w-full max-w-md"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-2xl md:text-5xl font-semibold text-center mb-2 md:mb-4 text-[#abc1e1]">Login</h1>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="phoneNumber" className="text-sm md:text-base text-[#abc1e1]">Telefon nomer:</label>
+        <div className="flex flex-col items-center gap-1 mb-2">
+          <img src="/assets/logo-icon.svg" alt="logo" className="h-10 w-10 mb-1" />
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Kirish</h1>
+          <p className="text-slate-400 text-sm">Hisobingizga kiring</p>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="phoneNumber" className="text-sm font-medium text-slate-600">Telefon nomer</label>
           <input
             ref={phoneNumber}
             required
             placeholder="+998 90 123 45 67"
             pattern="^\+998[0-9]{9}$"
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
+            className="w-full border border-slate-300 rounded-xl h-12 outline-none px-3 text-slate-800 bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-base"
             type="tel"
             id="phoneNumber"
           />
         </div>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="password" className="text-sm md:text-base text-[#abc1e1]">Parol:</label>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="password" className="text-sm font-medium text-slate-600">Parol</label>
           <input
             ref={password}
             required
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
+            className="w-full border border-slate-300 rounded-xl h-12 outline-none px-3 text-slate-800 bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-base"
             type="password"
             id="password"
           />
         </div>
-        <div className="flex flex-col gap-0.5 mt-2">
-          <button
-            type="submit"
-            className="btn btn-info text-white text-base md:text-lg py-2 rounded-[6px] h-12"
-          >
-            Yuborish
-          </button>
-        </div>
-        <div className="flex justify-end opacity-80">
-          <Link to="/yangi-parol" className="text-[#abc1e1] text-sm md:text-base text-center flex items-center">
-            Parolni unutdingizmi?
-          </Link>
-        </div>
-        <div className="flex justify-center">
-          <Link to="/register" className="text-[#abc1e1] text-sm md:text-base text-center flex items-center">
-            Ro'yxatdan o'tish <GrFormNextLink className="text-xl md:text-2xl"/>
+        <button type="submit" className="btn btn-info text-white text-base md:text-lg rounded-xl h-12 mt-1">
+          Kirish
+        </button>
+        <div className="flex justify-between text-sm text-slate-500">
+          <Link to="/yangi-parol" className="hover:text-indigo-600 transition">Parolni unutdingizmi?</Link>
+          <Link to="/register" className="hover:text-indigo-600 transition flex items-center gap-1">
+            Ro'yxatdan o'tish <GrFormNextLink className="text-base"/>
           </Link>
         </div>
       </form>

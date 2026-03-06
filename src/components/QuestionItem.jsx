@@ -102,21 +102,18 @@ const QuestionItem = React.memo(
 
     return (
       <div
-        className="w-full mb-8 md:mb-12 lg:mb-20"
+        className="w-full mb-6 md:mb-10"
         ref={(el) => (questionRefs.current[index1] = el)}
       >
-        <div className="flex flex-col gap-3 md:gap-4 w-full">
-          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 w-full">
-            <button
-              type="button"
-              className="btn rounded-t-xl md:rounded-sm btn-active btn-info text-base md:text-[18px] lg:text-2xl text-white min-h-[44px]"
-            >
+        <div className="flex flex-col gap-3 md:gap-4 w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6">
+          <div className="flex flex-col md:flex-row md:items-start gap-3 w-full">
+            <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-base md:text-lg">
               {index1 + 1}
-            </button>
+            </div>
             {item.savol && (
-              <div className="w-full text-base md:text-[18px] lg:text-2xl text-start font-semibold m-0 border-b border-gray-400 leading-6 md:leading-7 lg:leading-10 text-white overflow-wrap">
+              <div className="w-full text-base md:text-[18px] lg:text-xl text-start font-semibold text-slate-800 border-b border-slate-200 pb-3 leading-6 md:leading-7 lg:leading-9 overflow-wrap">
                 <div
-                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar pb-2"
+                  className="w-full overflow-x-auto overflow-y-hidden custom-scrollbar pb-1"
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
                   {parsedContent.map((block) => {
@@ -131,7 +128,7 @@ const QuestionItem = React.memo(
                       );
                     } else if (block.hasMath) {
                       return (
-                        <MathJax dynamic inline key={block.key}>
+                        <MathJax dynamic inline key={`${item.id}-${block.key}`}>
                           <span dangerouslySetInnerHTML={{ __html: block.content }} />
                         </MathJax>
                       );
@@ -139,7 +136,7 @@ const QuestionItem = React.memo(
                       return (
                         <div
                           key={block.key}
-                          className="text-base md:text-[18px] lg:text-2xl leading-6 md:leading-7 lg:leading-10"
+                          className="text-base md:text-[18px] lg:text-xl leading-6 md:leading-7 lg:leading-9"
                           dangerouslySetInnerHTML={{ __html: block.content }}
                         />
                       );
@@ -153,56 +150,53 @@ const QuestionItem = React.memo(
             <Link
               to={item.answer_video_url}
               target="_blank"
-              className="flex items-center justify-center md:justify-start gap-2 md:gap-3 link text-white hover:text-red-400 transition-colors duration-200 py-2"
+              className="flex items-center justify-center md:justify-start gap-2 md:gap-3 link text-slate-600 hover:text-red-500 transition-colors duration-200 py-1"
             >
-              <FaYoutube className="text-2xl md:text-3xl text-red-500" /> 
+              <FaYoutube className="text-2xl md:text-3xl text-red-500" />
               <span className="text-base md:text-lg font-medium">Yechimni ko'rish</span>
             </Link>
           )}
-          <div className="space-y-2 md:space-y-3 md:ml-6">
+          <div className="space-y-2 md:space-y-3">
             {Array.isArray(item?.javoblar) &&
               item?.javoblar?.map((variant, index) => {
                 const isSelected = selectedAnswers[item.id] === String.fromCharCode(index + 65);
                 const isCorrect = variant.togri;
                 const testFinished = isFinished === "true" || showResult;
-                
-                // Ranglarni aniqlash
-                let borderColor = "transparent";
-                let bgColor = "bg-[#3b4d66]";
-                let letterBgColor = "bg-gray-300";
-                let letterTextColor = "text-gray-500";
-                
+
+                let borderColor = "#E2E8F0";
+                let bgColor = "bg-slate-50";
+                let letterBgColor = "bg-slate-200";
+                let letterTextColor = "text-slate-600";
+
                 if (testFinished) {
-                  // Test tugallangan - natijalarni ko'rsatish
                   if (isCorrect) {
-                    borderColor = "#22c55e"; // yashil - to'g'ri javob
+                    borderColor = "#22c55e";
+                    bgColor = "bg-green-50";
                     letterBgColor = "bg-green-500";
                     letterTextColor = "text-white";
                   } else if (isSelected) {
-                    borderColor = "#ef4444"; // qizil - noto'g'ri tanlangan javob
+                    borderColor = "#ef4444";
+                    bgColor = "bg-red-50";
                     letterBgColor = "bg-red-500";
                     letterTextColor = "text-white";
                   }
                 } else {
-                  // Test davom etayotgan - faqat tanlangan javobni ko'rsatish
                   if (isSelected) {
-                    borderColor = "#00A4F2"; // ko'k - tanlangan javob
-                    letterBgColor = "bg-info";
+                    borderColor = "#6366F1";
+                    bgColor = "bg-indigo-50";
+                    letterBgColor = "bg-indigo-600";
                     letterTextColor = "text-white";
                   }
                 }
-                
+
                 return (
                   <label
-                    style={{
-                      border: "3px solid",
-                      borderColor: borderColor,
-                    }}
+                    style={{ border: "2px solid", borderColor }}
                     key={index}
-                    className={`test-label group flex items-center gap-2 md:gap-3 lg:gap-4 p-3 md:p-4 ${testFinished ? 'cursor-default' : 'cursor-pointer'} ${bgColor} rounded-lg transition-all duration-200 min-h-[52px]`}
+                    className={`test-label group flex items-center gap-2 md:gap-3 lg:gap-4 p-3 md:p-4 ${testFinished ? 'cursor-default' : 'cursor-pointer'} ${bgColor} rounded-xl transition-all duration-200 min-h-[52px]`}
                   >
                     <div
-                      className={`test-letter text-base md:text-[18px] lg:text-xl font-bold ${letterBgColor} ${letterTextColor} px-2.5 md:px-3 py-1 rounded min-w-[32px] md:min-w-[36px] flex items-center justify-center`}
+                      className={`test-letter text-base md:text-[18px] lg:text-xl font-bold ${letterBgColor} ${letterTextColor} px-2.5 md:px-3 py-1 rounded-lg min-w-[32px] md:min-w-[36px] flex items-center justify-center`}
                     >
                       {String.fromCharCode(index + 65)}
                     </div>
@@ -222,7 +216,7 @@ const QuestionItem = React.memo(
                       }
                       className={testFinished ? 'hidden' : ''}
                     />
-                    <div className="answerText text-base md:text-[18px] lg:text-xl text-start font-normal text-white w-full leading-6 md:leading-7">
+                    <div className="answerText text-base md:text-[18px] lg:text-xl text-start font-normal text-slate-800 w-full leading-6 md:leading-7">
                       {(() => {
                         const parsedVariant = parseHtmlContent(variant.matn);
                         return parsedVariant.map((block) => {
@@ -237,7 +231,7 @@ const QuestionItem = React.memo(
                             );
                           } else if (block.hasMath) {
                             return (
-                              <MathJax dynamic inline={true} key={block.key}>
+                              <MathJax dynamic inline={true} key={`${item.id}-v${index}-${block.key}`}>
                                 <span dangerouslySetInnerHTML={{ __html: block.content }} />
                               </MathJax>
                             );

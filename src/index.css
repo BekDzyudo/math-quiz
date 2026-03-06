@@ -40,20 +40,19 @@
 }
 :root {
   --purple-color: #a729f5;
-  --dark-navy-color: #313e51;
-  --navy-color: #3b4d66;
-  --gray-navy-color: #626c7f;
-  --light-bluish-color: #abc1e1;
-  /* --light-grey-color: #f4f6fa; */
-  --light-grey-color: #313e51;
+  --dark-navy-color: #1e293b;
+  --navy-color: #6366F1;
+  --gray-navy-color: #64748b;
+  --light-bluish-color: #64748b;
+  --light-grey-color: #F1F5F9;
   --prue-white-color: #ffffff;
   --green-color: #26d782;
   --red-color: #ee5454;
   --main-font-family: "Rubik", Arial, Helvetica, sans-serif;
 
- --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
-  --body-bg-image-tablet: url("../assets/pattern-background-tablet-dark.svg");
-  --body-bg-image-mobile: url("../assets/pattern-background-mobile-dark.svg");
+  --body-bg-image: none;
+  --body-bg-image-tablet: none;
+  --body-bg-image-mobile: none;
 
   --sun-icon: url("../assets/icon-moon-dark.svg");
   --moon-icon: url("../assets/icon-sun-dark.svg");
@@ -94,11 +93,11 @@ html, body {
   position: relative;
 }
 .dracula {
-  --light-grey-color: #313e51;
+  --light-grey-color: #0f172a;
   --dark-naviy-color: #ffffff;
   --gray-navy-color: #abc1e1;
   --dark-navy-color: #ffffff;
-  --prue-white-color: #3b4d66;
+  --prue-white-color: #1e2d3d;
 
   --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
   --body-bg-image: url("../assets/pattern-background-desktop-dark.svg");
@@ -128,13 +127,13 @@ html, body {
 .test-proccess-container {
   width: 100%;
   padding: 3px 4px;
-  background-color: #3b4d66;
+  background-color: #E2E8F0;
   border-radius: 999px;
 }
 
 .test-proccess {
   height: 8px;
-  background-color: #00A4F2;
+  background-color: #6366F1;
   border-radius: inherit;
   width: 45%;
 }
@@ -150,10 +149,10 @@ html, body {
   outline: none;
 }
 /* .test-label:has(> input:checked) {
-  border: 3px solid #00A4F2
+  border: 3px solid #6366F1
 } */
 .test-label:has(> input:checked) .test-letter{
-  background: #00A4F2;
+  background: #6366F1;
   color: white;
 }
 
@@ -166,7 +165,7 @@ html, body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.5); /* oqsoy rang */
+  background-color: rgba(99, 102, 241, 0.4);
   border-radius: 4px;
 }
 
@@ -212,7 +211,7 @@ math-field {
 }
 
 math-field:focus {
-  outline: 2px solid #00A4F2;
+  outline: 2px solid #6366F1;
   outline-offset: 2px;
 }
 
@@ -363,3 +362,24 @@ a {
 @plugin "daisyui" {
   themes: cupcake --default, dracula;
 }
+
+/* Indigo aksent rangni btn-info ustiga yozish */
+.btn-info {
+  background-color: #6366F1 !important;
+  border-color: #6366F1 !important;
+  color: white !important;
+}
+.btn-info:hover {
+  background-color: #4F46E5 !important;
+  border-color: #4F46E5 !important;
+}
+.btn-outline.btn-info {
+  background-color: transparent !important;
+  border-color: #6366F1 !important;
+  color: #818CF8 !important;
+}
+.btn-outline.btn-info:hover {
+  background-color: #6366F1 !important;
+  color: white !important;
+}
+.text-info { color: #818CF8 !important; }

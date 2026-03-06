@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#4F46E5" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- ── Icon box ── -->
+  <rect x="4" y="4" width="72" height="72" rx="18" fill="url(#g2)" filter="url(#shadow)"/>
+
+  <!-- inner highlight -->
+  <rect x="4" y="4" width="72" height="34" rx="18" fill="white" fill-opacity="0.08"/>
+
+  <!-- Square root / ECG hybrid symbol -->
+  <!-- baseline -->
+  <line x1="12" y1="46" x2="22" y2="46" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <!-- rising line -->
+  <polyline
+    points="22,46 28,20 36,58 44,34 52,34"
+    stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"
+  />
+  <!-- vinculum -->
+  <line x1="28" y1="20" x2="66" y2="20" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  <!-- small pi bottom right -->
+  <text x="52" y="62" font-family="Georgia,serif" font-size="14" fill="white" fill-opacity="0.6" font-style="italic">π</text>
+
+  <!-- ── Text block ── -->
+
+  <!-- "MATEMATIKA" -->
+  <text
+    x="90" y="36"
+    font-family="'Segoe UI',system-ui,-apple-system,sans-serif"
+    font-size="26"
+    font-weight="800"
+    letter-spacing="-0.5"
+    fill="#E2EEFF"
+  >MATEMATIKA</text>
+
+  <!-- "PRO" accent pill -->
+  <rect x="90" y="48" width="38" height="18" rx="5" fill="url(#g1)"/>
+  <text
+    x="109" y="61"
+    font-family="'Segoe UI',system-ui,-apple-system,sans-serif"
+    font-size="10.5"
+    font-weight="800"
+    letter-spacing="2"
+    fill="white"
+    text-anchor="middle"
+  >PRO</text>
+
+  <!-- tagline -->
+  <text
+    x="134" y="61"
+    font-family="'Segoe UI',system-ui,-apple-system,sans-serif"
+    font-size="11.5"
+    font-weight="400"
+    fill="#7BAFD4"
+    letter-spacing="0.3"
+  >matematika bilim platformasi</text>
+</svg>

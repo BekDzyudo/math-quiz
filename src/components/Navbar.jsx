@@ -1,8 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { GlobalContext } from "../context/GlobalContext";
-import { BsQuestionSquare } from "react-icons/bs";
 import { IoLogOutOutline } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 // Use URL for public assets
 const userImage = "/assets/user.jfif";
 import { FaUser } from "react-icons/fa";
@@ -21,6 +20,8 @@ function Navbar({
 }) {
   const { userData, setUserData } = useContext(GlobalContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isQuizPage = location.pathname.startsWith("/quiz/");
 
   const userName = JSON.parse(localStorage.getItem("user-data"));
   function handleLogout() {
@@ -47,18 +48,32 @@ function Navbar({
     }
   }, [userData]);
   return (
-    <div className={`navbar bg-[#3B4D66] shadow-2xl flex flex-col md:flex-row`}>
-      <div className="px-2 w-full pb-2 md:pb-0 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] md:h-20 flex justify-between items-center md:border-none border-b border-gray-400">
-        <h1 className="font-bold text-2xl gap-2 md:text-4xl text-base-500 flex items-center md:gap-5 text-[#abc1e1]">
-          <BsQuestionSquare /> Toifa uchun testlar
-        </h1>
+    <div className={`navbar bg-indigo-600 shadow-lg flex flex-col md:flex-row`}>
+      <div className="px-2 w-full pb-2 md:pb-0 md:max-w-[1300px] md:w-full md:mr-auto md:ml-auto md:px-[50px] md:h-20 flex justify-between items-center md:border-none border-b border-indigo-500">
+        <div className="flex items-center gap-3">
+          <img src="/assets/logo-icon.svg" alt="Matematika Pro" className="h-10 w-10" />
+          <div className="flex flex-col leading-tight">
+            <span className="font-extrabold text-lg md:text-2xl text-white tracking-tight">MATEMATIKA</span>
+            <span className="text-xs md:text-sm font-semibold text-[#818CF8] tracking-widest -mt-1">PRO</span>
+          </div>
+        </div>
         <div className="items-center gap-7 hidden md:flex">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-[#abc1e1] cursor-pointer"
-          >
-            Chiqish <IoLogOutOutline className="text-3xl" />
-          </button>
+          {isQuizPage ? (
+            <Link
+              to="/"
+              onClick={handleClearTime}
+              className="flex items-center gap-2 text-indigo-100 cursor-pointer"
+            >
+              Testlar ro'yxati <IoLogOutOutline className="text-3xl" />
+            </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 text-indigo-100 cursor-pointer"
+            >
+              Chiqish <IoLogOutOutline className="text-3xl" />
+            </button>
+          )}
         </div>
 
         {/* avatar */}
@@ -78,7 +93,7 @@ function Navbar({
           </div>
           <ul
             tabIndex="0"
-            className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-[#3B4D66] shadow-2xl rounded-box w-40`}
+            className={`mt-3 z-[1] p-2 menu menu-sm border border-gray-300 dropdown-content bg-indigo-600 shadow-2xl rounded-box w-40`}
           >
             <li>
               <a className="flex items-center gap-2 text-white">
@@ -87,12 +102,22 @@ function Navbar({
               </a>
             </li>
             <li>
-              <a
-                onClick={handleLogout}
-                className="text-white flex gap-2 items-center"
-              >
-                <IoLogOutOutline className="text-xl" /> Chiqish{" "}
-              </a>
+              {isQuizPage ? (
+                <Link
+                  to="/"
+                  onClick={handleClearTime}
+                  className="text-white flex gap-2 items-center"
+                >
+                  <IoLogOutOutline className="text-xl" /> Testlar ro'yxati
+                </Link>
+              ) : (
+                <a
+                  onClick={handleLogout}
+                  className="text-white flex gap-2 items-center"
+                >
+                  <IoLogOutOutline className="text-xl" /> Chiqish
+                </a>
+              )}
             </li>
           </ul>
         </div>

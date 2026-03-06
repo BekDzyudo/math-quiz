@@ -117,7 +117,7 @@ function TestYaratish() {
     };
 
     return (
-        <div className="min-h-screen bg-[#313e51] py-8">
+        <div className="min-h-screen bg-[#0f172a] py-8">
             <div className="px-5 md:max-w-[900px] md:w-full md:mx-auto">
                 <div className="flex items-center gap-4 mb-6">
                     <button
@@ -133,7 +133,7 @@ function TestYaratish() {
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Test Metadata */}
-                    <div className="bg-[#3b4d66] rounded-lg p-6 space-y-4">
+                    <div className="bg-[#1e2d3d] rounded-lg p-6 space-y-4">
                         <h2 className="text-xl font-semibold text-white mb-4">
                             Test ma'lumotlari
                         </h2>
@@ -148,7 +148,7 @@ function TestYaratish() {
                                 type="text"
                                 value={testTitle}
                                 onChange={(e) => setTestTitle(e.target.value)}
-                                className="border border-gray-400 rounded p-2.5 text-white bg-[#313e51] outline-none focus:border-blue-500"
+                                className="border border-gray-400 rounded p-2.5 text-white bg-[#0f172a] outline-none focus:border-blue-500"
                                 placeholder="Test nomini kiriting..."
                                 required
                             />
@@ -164,7 +164,7 @@ function TestYaratish() {
                                 type="text"
                                 value={testCode}
                                 onChange={(e) => setTestCode(e.target.value)}
-                                className="border border-gray-400 rounded p-2.5 text-white bg-[#313e51] outline-none focus:border-blue-500"
+                                className="border border-gray-400 rounded p-2.5 text-white bg-[#0f172a] outline-none focus:border-blue-500"
                                 placeholder="Test kodini kiriting..."
                                 required
                             />
@@ -180,14 +180,14 @@ function TestYaratish() {
                                 type="datetime-local"
                                 value={deadline}
                                 onChange={(e) => setDeadline(e.target.value)}
-                                className="border border-gray-400 rounded p-2.5 text-white bg-[#313e51] outline-none focus:border-blue-500"
+                                className="border border-gray-400 rounded p-2.5 text-white bg-[#0f172a] outline-none focus:border-blue-500"
                                 required
                             />
                         </div>
                     </div>
 
                     {/* Questions Section */}
-                    <div className="bg-[#3b4d66] rounded-lg p-6">
+                    <div className="bg-[#1e2d3d] rounded-lg p-6">
                         <h2 className="text-xl font-semibold text-white mb-4">
                             Savollar (1-35)
                         </h2>
@@ -206,7 +206,7 @@ function TestYaratish() {
                                 return (
                                     <div
                                         key={question.id}
-                                        className="bg-[#313e51] rounded-lg p-3 md:p-4 border-b-2 border-gray-600"
+                                        className="bg-[#0f172a] rounded-lg p-3 md:p-4 border-b-2 border-gray-600"
                                     >
                                         <div className="flex items-center justify-between gap-2 md:gap-3">
                                             <span className="text-sm md:text-xl font-bold px-3 md:px-4 py-1 bg-[#5e7a9e] rounded text-white whitespace-nowrap flex-shrink-0">
@@ -245,7 +245,7 @@ function TestYaratish() {
                     </div>
 
                     {/* Open-Ended Questions Section (36a-45b) */}
-                    <div className="bg-[#3b4d66] rounded-lg p-6">
+                    <div className="bg-[#1e2d3d] rounded-lg p-6">
                         <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
                             <FaEdit className="text-xl" /> Yozma javoblar (36a-45b)
                         </h2>

@@ -1,48 +1,47 @@
 import { Link } from "react-router-dom";
-import { GrFormNextLink } from "react-icons/gr";
 import { useContext } from "react";
 import { GlobalContext } from "../context/GlobalContext";
 
 function OptionQuiz() {
-  // const userData = JSON.parse(localStorage.getItem("user-data"));
-const {userData} = useContext(GlobalContext)
+  const {userData} = useContext(GlobalContext)
   return (
-    <div className="w-full h-screen flex justify-center items-center">
-      <div className="absolute top-20">
-        <h1 className="md:text-6xl text-3xl font-extrabold text-white text-center drop-shadow-[0_0_15px_rgba(0,198,255,0.4)]">Matematika Pro</h1>
-      </div>
-      <div className=" flex flex-col gap-10 md:gap-10">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-center text-2xl md:text-3xl text-[#abc1e1]">
-            Xush kelibsiz,{" "}
-            {userData ? userData.first_name + " " + userData.last_name : ""}
-          </h1>
-          <p className="text-center text-white text-xl">Test turini tanlang</p>
+    <div className="w-full min-h-screen flex flex-col justify-center items-center px-4 py-10 gap-8">
+      {/* Logo + salom */}
+      <div className="flex flex-col items-center gap-2 text-center">
+        <div className="flex items-center gap-3 mb-1">
+          <img src="/assets/logo-icon.svg" alt="logo" className="h-12 w-12" />
+          <div className="flex flex-col leading-tight text-left">
+            <span className="font-extrabold text-2xl md:text-3xl text-slate-800 tracking-tight">MATEMATIKA</span>
+            <span className="text-sm font-bold text-indigo-600 tracking-widest -mt-1">PRO</span>
+          </div>
         </div>
-        <div className="flex md:flex-row flex-col md:gap-10 gap-5">
-          <div className="md:w-md lg:w-lg w-80 shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 transform transition duration-300 scale-100 hover:scale-105">
-            <h1 className="md:text-3xl text-xl font-semibold text-center mb-4 text-[#abc1e1]">
-              Milliy sertifikat
-            </h1>
-            <p className="text-[#abc1e1] text-center">
-              Milliy sertifikat olish uchun testlar
-            </p>
-            <Link className="btn btn-info text-white text-lg py-2 rounded-[6px]" to="/tasdiqlash-kodi">
-              Testlarni ko‘rish
-            </Link>
-          </div>
-          <div className=" md:w-md lg:w-lg w-80 shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 transform transition duration-300 scale-100 hover:scale-105">
-            <h1 className="md:text-3xl text-xl font-semibold text-center mb-4 text-[#abc1e1]">
-              Attestatsiya
-            </h1>
-            <p className="text-[#abc1e1] text-center">Attestatsiya testlari</p>
-            <Link
-              to="/attestatsiya-testlari"
-              className="btn btn-info text-white text-lg py-2 rounded-[6px]"
-            >
-              Testlarni ko‘rish
-            </Link>
-          </div>
+        <h2 className="text-lg md:text-2xl text-slate-500 mt-2">
+          Xush kelibsiz,{" "}
+          <span className="font-semibold text-slate-700">
+            {userData ? userData.first_name + " " + userData.last_name : ""}
+          </span>
+        </h2>
+        <p className="text-slate-400 text-base md:text-lg">Test turini tanlang</p>
+      </div>
+
+      {/* Kartalar */}
+      <div className="flex flex-col md:flex-row gap-5 md:gap-8 w-full max-w-2xl">
+        <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200">
+          <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl">📜</div>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800">Milliy sertifikat</h2>
+          <p className="text-slate-500 text-sm md:text-base flex-1">Milliy sertifikat olish uchun testlar</p>
+          <Link className="btn btn-info text-white text-base py-2 rounded-xl w-full" to="/tasdiqlash-kodi">
+            Testlarni ko'rish
+          </Link>
+        </div>
+
+        <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200">
+          <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl">📝</div>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800">Attestatsiya</h2>
+          <p className="text-slate-500 text-sm md:text-base flex-1">Attestatsiya testlari</p>
+          <Link to="/attestatsiya-testlari" className="btn btn-info text-white text-base py-2 rounded-xl w-full">
+            Testlarni ko'rish
+          </Link>
         </div>
       </div>
     </div>

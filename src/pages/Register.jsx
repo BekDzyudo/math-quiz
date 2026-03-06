@@ -18,7 +18,6 @@ function Register() {
 
   function handleSubmit(e) {
     e.preventDefault();
-
     const newData = {
       first_name: firstName.current.value,
       last_name: lastname.current.value,
@@ -26,7 +25,6 @@ function Register() {
       phone: phoneNumber.current.value,
       toifa: toifa.current.value,
     };
-
     apiPost("/register", newData)
       .then(async (res) => {
         if (!res.ok) {
@@ -35,120 +33,69 @@ function Register() {
         }
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         toast.success("Muvaffaqiyatli 👍");
         navigate("/login");
       })
       .catch((err) => {
         try {
-          const errorObj = JSON.parse(err.message); // string → object
+          const errorObj = JSON.parse(err.message);
           Object.values(errorObj).forEach((errArray) => {
-            errArray.forEach((message) => {
-              toast.error(message);
-            });
+            errArray.forEach((message) => toast.error(message));
           });
         } catch (e) {
           console.error("Error parse qilishda xatolik:", e);
         }
-
-        // try {
-        //   const parsedError = JSON.parse(err.message);
-
-        //   // Agar parsedError.username mavjud bo‘lsa
-        //   if (parsedError.username && Array.isArray(parsedError.username)) {
-        //     toast.error(parsedError.username[0]); // "Bu username band."
-        //   } else {
-        //     toast.error("Xatolik yuz berdi");
-        //   }
-        // } catch {
-        //   toast.error("Xatolik yuz berdi");
-        // }
       });
   }
+
+  const inputCls = "w-full border border-slate-300 rounded-xl h-12 outline-none px-3 text-slate-800 bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-base";
+  const labelCls = "text-sm font-medium text-slate-600";
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center px-4 py-8">
       <form
-        className="shadow-2xl h-min rounded-2xl flex flex-col gap-3 md:gap-4 p-5 md:p-8 w-full max-w-md"
+        className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col gap-4 p-6 md:p-10 w-full max-w-md"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-2xl md:text-5xl font-semibold text-center mb-2 md:mb-4 text-[#abc1e1]">
-          Register
-        </h1>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="firstname" className="text-sm md:text-base text-[#abc1e1]">
-            Ism:
-          </label>
-          <input
-            ref={firstName}
-            required
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
-            type="text"
-            id="firstname"
-          />
+        <div className="flex flex-col items-center gap-1 mb-2">
+          <img src="/assets/logo-icon.svg" alt="logo" className="h-10 w-10 mb-1" />
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Ro'yxatdan o'tish</h1>
+          <p className="text-slate-400 text-sm">Yangi hisob yarating</p>
         </div>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="lastname" className="text-sm md:text-base text-[#abc1e1]">
-            Familya:
-          </label>
-          <input
-            ref={lastname}
-            required
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
-            type="text"
-            id="lastname"
-          />
+
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Ism</label>
+          <input ref={firstName} required className={inputCls} type="text" id="firstname" />
         </div>
-        {/* <div className="flex flex-col gap-0.5">
-          <label htmlFor="username" className="text-[#abc1e1]">
-            Username:
-          </label>
-          <input
-            ref={username}
-            required
-            className="sm:w-96 w-80 border border-gray-600 rounded-md h-12 outline-0 px-2 text-white"
-            type="text"
-            id="username"
-          />
-        </div> */}
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <div className="flex justify-between items-end gap-2">
-            <label htmlFor="password" className="text-sm md:text-base text-[#abc1e1] flex-shrink-0">
-              Parol:{" "}
-            </label>
-            <span className="text-green-400 text-xs md:text-sm text-right">
-              8 ta belgidan kam bo'lmasligi kerak
-            </span>
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Familya</label>
+          <input ref={lastname} required className={inputCls} type="text" id="lastname" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-end">
+            <label className={labelCls}>Parol</label>
+            <span className="text-green-500 text-xs">8 ta belgidan kam bo'lmasin</span>
           </div>
-          <input
-            ref={password}
-            required
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
-            type="password"
-            id="password"
-          />
+          <input ref={password} required className={inputCls} type="password" id="password" />
         </div>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="phonenumber" className="text-sm md:text-base text-[#abc1e1]">
-            Telefon nomer:
-          </label>
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Telefon nomer</label>
           <input
             ref={phoneNumber}
             required
             placeholder="+998 90 123 45 67"
             pattern="^\+998[0-9]{9}$"
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 text-white text-base"
+            className={inputCls}
             type="tel"
             id="phoneNumber"
           />
         </div>
-        <div className="flex flex-col gap-1 md:gap-0.5">
-          <label htmlFor="toifaselect" className="text-sm md:text-base text-[#abc1e1]">
-            Toifani tanlang:
-          </label>
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Toifani tanlang</label>
           <select
             ref={toifa}
-            className="w-full border border-gray-600 rounded-md h-12 outline-0 px-3 cursor-pointer bg-[#3B4D66] text-white text-base"
+            className="w-full border border-slate-300 rounded-xl h-12 outline-none px-3 cursor-pointer bg-white text-slate-800 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-base"
             id="toifaselect"
           >
             <option defaultValue="1-Toifa">1-Toifa</option>
@@ -156,20 +103,12 @@ function Register() {
             <option value="Oliy toifa">Oliy toifa</option>
           </select>
         </div>
-        <div className="flex flex-col gap-0.5 mt-2">
-          <button
-            type="submit"
-            className="btn btn-info text-white text-base md:text-lg py-2 rounded-[6px] h-12"
-          >
-            Yuborish
-          </button>
-        </div>
-        <div className="flex justify-center">
-          <Link
-            to="/login"
-            className="text-sm md:text-base text-[#abc1e1] text-center flex items-center"
-          >
-            Login <GrFormNextLink className="text-xl md:text-2xl" />
+        <button type="submit" className="btn btn-info text-white text-base md:text-lg rounded-xl h-12 mt-1">
+          Ro'yxatdan o'tish
+        </button>
+        <div className="flex justify-center text-sm text-slate-500">
+          <Link to="/login" className="hover:text-indigo-600 transition flex items-center gap-1">
+            Kirish <GrFormNextLink className="text-base" />
           </Link>
         </div>
       </form>
