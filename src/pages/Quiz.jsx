@@ -355,8 +355,8 @@ function Quiz() {
               </div>
             )}
 
-            <div className="w-full md:w-[70%] flex flex-col" style={{ minHeight: 'calc(100vh - 160px)' }}>
-              <form className="flex-1 overflow-y-auto pb-4">
+            <div className="w-full md:w-[70%] flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>
+              <form className="flex-1 overflow-y-auto min-h-0 pb-4">
                 <QuestionItem
                   key={quizzes[currentQuestion]?.id}
                   item={quizzes[currentQuestion]}
