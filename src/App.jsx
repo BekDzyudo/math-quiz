@@ -1,22 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
+  useParams,
 } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import Register from "./pages/Register";
 import Quiz from "./pages/Quiz";
-import Result from "./pages/Result";
 import { GlobalContext } from "./context/GlobalContext";
 import Login from "./pages/Login";
 import OptionQuiz from "./pages/OptionQuiz";
 import AttestatsiyaTestlari from "./pages/AttestatsiyaTestlari";
 import NewPassword from "./pages/NewPassword";
-import ProtectedRoute from "./pages/ProtectedRoute";
 import MilliyTestQuiz from "./pages/MilliyTestQuiz";
 import MilliySertifikatTasdiqlash from "./pages/MilliySertifikatTasdiqlash";
 import TestYaratish from "./pages/TestYaratish";
+import Home from "./pages/Home";
+import Reyting from "./pages/Reyting";
 
 // ErrorBoundary component
 class ErrorBoundary extends React.Component {
@@ -41,7 +42,7 @@ class ErrorBoundary extends React.Component {
             <h1 className="text-center text-2xl text-red-500">Xatolik yuz berdi</h1>
             <p className="text-white text-center">Iltimos, sahifani qayta yuklang</p>
             <button
-              onClick={() => window.location.href = '/tasdiqlash-kodi'}
+              onClick={() => window.location.href = '/'}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
               Bosh sahifa
@@ -55,23 +56,45 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+function QuizWrapper() {
+  const { quizId } = useParams();
+  return <Quiz key={quizId} />;
+}
+
+function RequireAuth({ children }) {
+  const { userData } = useContext(GlobalContext);
+  return userData ? children : <Navigate to="/login" replace />;
+}
+
 function App() {
   const { userData } = useContext(GlobalContext)
 
   const routes = createBrowserRouter([
     {
       path: "/",
-      element: userData ? <MainLayout /> : <Navigate to="/login" />,
+      element: <Home />,
+    },
+    {
+      path: "/testlarim",
+      element: (
+        <RequireAuth>
+          <MainLayout />
+        </RequireAuth>
+      ),
       children: [
         {
           index: true,
           element: <OptionQuiz />,
         },
-        {
-          path: "quiz/:quizId",
-          element: <Quiz />,
-        },
       ],
+    },
+    {
+      path: "/quiz/:quizId",
+      element: (
+        <RequireAuth>
+          <QuizWrapper />
+        </RequireAuth>
+      ),
     },
     {
       path: "/tasdiqlash-kodi",
@@ -89,7 +112,19 @@ function App() {
     },
     {
       path: "/attestatsiya-testlari",
-      element: <AttestatsiyaTestlari />
+      element: (
+        <RequireAuth>
+          <AttestatsiyaTestlari />
+        </RequireAuth>
+      ),
+    },
+    {
+      path: "/reyting",
+      element: (
+        <RequireAuth>
+          <Reyting />
+        </RequireAuth>
+      ),
     },
     {
       path: "/yangi-parol",
