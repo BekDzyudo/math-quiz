@@ -17,6 +17,8 @@ function Navbar({
   isFinished,
   natija,
   handleClearTime,
+  onTimeUp,
+  quizId,
 }) {
   const { userData, setUserData } = useContext(GlobalContext);
   const navigate = useNavigate();
@@ -137,15 +139,12 @@ function Navbar({
           </h1>
         )}
         <Time
+          key={quizId}
+          quizId={quizId}
           showResult={showResult}
           isFinished={isFinished}
           initialTime={2 * 60 * 60 * 1000}
-          onTimeUp={() => {
-            if (!isSubmittedRef.current) {
-              const fakeEvent = { preventDefault: () => { } };
-              handleSubmit(fakeEvent);
-            }
-          }}
+          onTimeUp={onTimeUp}
         />
 
         {showResult || (isFinished == "true") ? (

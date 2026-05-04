@@ -25,7 +25,7 @@ function OptionQuiz() {
       </div>
 
       {/* Kartalar */}
-      <div className="flex flex-col md:flex-row gap-5 md:gap-8 w-full max-w-2xl">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-8 w-full max-w-3xl">
         <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-4 hover:shadow-md transition-shadow duration-200">
           <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-2xl">📜</div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-800">Milliy sertifikat</h2>
@@ -42,6 +42,15 @@ function OptionQuiz() {
           <Link to="/attestatsiya-testlari" className="btn btn-info text-white text-base py-2 rounded-xl w-full">
             Testlarni ko'rish
           </Link>
+        </div>
+
+        <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 md:p-8 flex flex-col gap-4 opacity-80">
+          <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-2xl">🎓</div>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800">Kurslarim</h2>
+          <p className="text-slate-500 text-sm md:text-base flex-1">Online kurslar va darsliklar</p>
+          <button disabled className="btn btn-warning text-slate-800 text-base py-2 rounded-xl w-full cursor-not-allowed opacity-80">
+            Tez kunda
+          </button>
         </div>
       </div>
     </div>

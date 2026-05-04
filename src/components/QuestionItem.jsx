@@ -1,7 +1,90 @@
 import { MathJax } from "better-react-mathjax";
 import { FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import React from "react";
+import React, { useMemo } from "react";
+
+// Komponentdan tashqarida — har render da qayta yaratilmaydi
+function parseHtmlContent(html) {
+  if (!html) return [];
+
+  const div = document.createElement("div");
+  div.innerHTML = html;
+
+  const images = div.querySelectorAll("img");
+
+  if (images.length === 0) {
+    const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(html) || /\\\[|\\\(/.test(html);
+    return [{ type: "html", content: html, hasMath, key: "full-html" }];
+  }
+
+  const parsed = [];
+  let currentHtml = "";
+
+  const flush = (idx) => {
+    if (currentHtml.trim()) {
+      const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(currentHtml) || /\\\[|\\\(/.test(currentHtml);
+      parsed.push({ type: "html", content: currentHtml, hasMath, key: `html-${idx}` });
+      currentHtml = "";
+    }
+  };
+
+  const walk = (nodes) => {
+    nodes.forEach((el, index) => {
+      if (el.nodeName === "IMG") {
+        flush(index);
+        parsed.push({ type: "image", src: el.getAttribute("src"), key: `img-${index}` });
+      } else if (el.nodeName === "P" && el.querySelector("img")) {
+        flush(index);
+        walk(Array.from(el.childNodes));
+      } else {
+        currentHtml += el.outerHTML || el.textContent || "";
+      }
+    });
+  };
+
+  walk(Array.from(div.childNodes));
+  flush(999);
+
+  return parsed;
+}
+
+function renderBlocks(blocks, itemId, variantIndex) {
+  return blocks.map((block) => {
+    if (block.type === "image") {
+      return (
+        <img
+          key={block.key}
+          src={`https://matematikapro.uz${block.src}`}
+          alt="Rasm"
+          className="w-full sm:w-4/5 md:w-96 h-auto rounded shadow-md my-2"
+        />
+      );
+    } else if (block.hasMath) {
+      const key = variantIndex != null
+        ? `${itemId}-v${variantIndex}-${block.key}`
+        : `${itemId}-${block.key}`;
+      return (
+        <MathJax dynamic inline key={key}>
+          <span dangerouslySetInnerHTML={{ __html: block.content }} />
+        </MathJax>
+      );
+    } else {
+      return (
+        <span
+          key={block.key}
+          dangerouslySetInnerHTML={{ __html: block.content }}
+        />
+      );
+    }
+  });
+}
+
+// Har bir javob variantining math kontentini alohida memo komponent sifatida render qilish
+// selectedAnswers o'zgarganda bu komponent qayta render bo'lmaydi
+const VariantMathContent = React.memo(({ variant, itemId, variantIndex }) => {
+  const parsedVariant = useMemo(() => parseHtmlContent(variant.matn), [variant.matn]);
+  return <>{renderBlocks(parsedVariant, itemId, variantIndex)}</>;
+});
 
 const QuestionItem = React.memo(
   ({
@@ -13,92 +96,8 @@ const QuestionItem = React.memo(
     selectedAnswers,
     questionRefs,
   }) => {
-    function cleanMathFormula(str) {
-      if (!str) return "";
-      return str
-        .replace(/(?<!\\)\bsqrt\b(?=[[{])/g, "\\sqrt")
-        .replace(/(?<!\\)\bfrac\b/g, "\\frac")
-        .replace(/(?<![a-zA-Z])pi(?![a-zA-Z])/g, "\\pi")
-        .replace(/(?<!\\)\bleft\b(?=[\\(\[{|.])/g, "\\left")
-        .replace(/(?<!\\)\bright\b(?=[\\)\]}|.])/g, "\\right")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&");
-    }
-
-    //     function cleanMathFormula(str) {
-    //   if (!str) return "";
-    //   return str
-    //     .replace(/&nbsp;/g, " ")
-    //     .replace(/&lt;/g, "<")
-    //     .replace(/&gt;/g, ">")
-    //     .replace(/&amp;/g, "&");
-    // }  bu funksiya latex format to'g'ri kelganda ishlaydi
-
-    function containsMath(str) {
-      return /\\\(|\\\)|\\\[|\\\]|\$|\\[a-zA-Z]/.test(str);
-    }
-
-    function stripHtmlTagsPreserveMath(html) {
-      if (!html) return "";
-      const div = document.createElement("div");
-      div.innerHTML = html;
-      return div.textContent || div.innerText || "";
-    }
-
-    // test funktion
-    function parseHtmlContent(html) {
-      if (!html) return [];
-
-      const div = document.createElement("div");
-      div.innerHTML = html;
-
-      // Rasmlar bor-yo'qligini tekshirish
-      const images = div.querySelectorAll("img");
-      
-      if (images.length === 0) {
-        // Rasmlar yo'q - butun HTML'ni bitta blok sifatida qaytarish
-        const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(html);
-        return [{ type: "html", content: html, hasMath, key: "full-html" }];
-      }
-
-      // Rasmlar bor - matn va rasmlarni ajratish
-      const parsed = [];
-      let currentHtml = "";
-      
-      const flush = (idx) => {
-        if (currentHtml.trim()) {
-          const hasMath = /<span[^>]*class="math[^"]*"[^>]*>/.test(currentHtml);
-          parsed.push({ type: "html", content: currentHtml, hasMath, key: `html-${idx}` });
-          currentHtml = "";
-        }
-      };
-
-      const walk = (nodes) => {
-        nodes.forEach((el, index) => {
-          if (el.nodeName === "IMG") {
-            flush(index);
-            parsed.push({ type: "image", src: el.getAttribute("src"), key: `img-${index}` });
-          } else if (el.nodeName === "P" && el.querySelector("img")) {
-            // P ichida rasm bor
-            flush(index);
-            // P ichidagi elementlarni rekursiv yurish
-            walk(Array.from(el.childNodes));
-          } else {
-            // Matnli element - HTML sifatida yig'ish
-            currentHtml += el.outerHTML || el.textContent || "";
-          }
-        });
-      };
-
-      walk(Array.from(div.childNodes));
-      flush(999);
-
-      return parsed;
-    }
-
-    const parsedContent = parseHtmlContent(item?.savol);
+    // item.savol o'zgarmasa qayta parse qilinmaydi
+    const parsedContent = useMemo(() => parseHtmlContent(item?.savol), [item?.savol]);
 
     return (
       <div
@@ -217,34 +216,11 @@ const QuestionItem = React.memo(
                       className={testFinished ? 'hidden' : ''}
                     />
                     <div className="answerText text-base md:text-[18px] lg:text-xl text-start font-normal text-slate-800 w-full leading-6 md:leading-7">
-                      {(() => {
-                        const parsedVariant = parseHtmlContent(variant.matn);
-                        return parsedVariant.map((block) => {
-                          if (block.type === "image") {
-                            return (
-                              <img
-                                key={block.key}
-                                src={`https://matematikapro.uz${block.src}`}
-                                alt="Javob rasmi"
-                                className="w-full sm:w-3/4 md:w-64 h-auto rounded shadow-md my-2"
-                              />
-                            );
-                          } else if (block.hasMath) {
-                            return (
-                              <MathJax dynamic inline={true} key={`${item.id}-v${index}-${block.key}`}>
-                                <span dangerouslySetInnerHTML={{ __html: block.content }} />
-                              </MathJax>
-                            );
-                          } else {
-                            return (
-                              <span
-                                key={block.key}
-                                dangerouslySetInnerHTML={{ __html: block.content }}
-                              />
-                            );
-                          }
-                        });
-                      })()}
+                      <VariantMathContent
+                        variant={variant}
+                        itemId={item.id}
+                        variantIndex={index}
+                      />
                     </div>
                   </label>
                 );
